@@ -1,15 +1,15 @@
 import React from 'react';
-import UsersData from './data/users.json';
-import { User } from './components/User.js';
-import './App.css';
+import usersData from './data/users.json';
+import User from './components/user.js';
+import './css/App.css';
 
 
-class App extends React.Component {
+export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
         this.state = {
-            wantAdd: false,
+            wantAdd: false
         };
 
         this.handleClickAddUser = this.handleClickAddUser.bind(this);
@@ -25,20 +25,18 @@ class App extends React.Component {
             <div className="App">
                 <button className="ButtonAddUser" onClick={this.handleClickAddUser}>Add new User</button>
                 {
-                    wantAdd && <div className="NewUser">
-                        <User isUser='false'/>
-                    </div>
+                    wantAdd && <User className="NewUser" isNewUser={false}/>
                 }
                 <hr/>
-                {UsersData.map((user) => {
+                {usersData.map((user) => {
                     return <div className="UserInner" key={user.id}>
                         <User name={user.name}
-                              username={user.username}
                               email={user.email}
                               address={user.address}
                               phone={user.phone}
                               website={user.website}
                               company={user.company}
+                              isNewUser={false}
                         />
                         <hr/>
                     </div>;
@@ -47,5 +45,3 @@ class App extends React.Component {
         );
     }
 }
-
-export default App;

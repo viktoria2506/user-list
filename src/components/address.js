@@ -1,6 +1,6 @@
 import React from 'react';
 
-export class Address extends React.Component {
+export default class Address extends React.Component {
     render () {
         const { address = {} } = this.props;
 

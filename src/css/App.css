@@ -1,9 +1,7 @@
 .App {
     text-align: center;
-    background: url(bg-blurry.jpg) no-repeat;
-    background-attachment: fixed
+    background: url(bg-blurry.jpg) no-repeat fixed;
 }
-
 
 .App-logo {
     height: 40vmin;
@@ -56,26 +54,6 @@
     color: #008000;
     transition: .2s ease-in-out;
     font-size: 24px;
-}
-
-ButtonAddUser:before {
-    background: linear-gradient(90deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .5));
-    height: 60px;
-    width: 60px;
-    position: absolute;
-    top: -8px;
-    left: -75px;
-    transform: skewX(-45deg);
-}
-
-ButtonAddUser:hover {
-    background: #fe6637;
-    color: #fff;
-}
-
-ButtonAddUser:hover:before {
-    left: 150px;
-    transition: .5s ease-in-out;
 }
 
 .NewUser {
