@@ -11,7 +11,6 @@ export class User extends React.Component {
             showAddress: false,
             showCompany: false,
             isNewUser:   this.props.isUser
-
         };
 
         this.handleClickAddress = this.handleClickAddress.bind(this);
@@ -21,7 +20,6 @@ export class User extends React.Component {
     handleClickAddress () {
         this.setState({ showAddress: !this.state.showAddress });
     }
-
 
     handleClickCompany () {
         this.setState({ showCompany: !this.state.showCompany });
@@ -68,6 +66,5 @@ export class User extends React.Component {
                 </div>
             </div>
         );
-
     }
 }

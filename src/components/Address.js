@@ -24,13 +24,3 @@ export class Address extends React.Component {
 }
 
 
-class Geo extends React.Component {
-    render () {
-        return (
-            <div className="Details">
-                <p>geo: {this.props.geo.lat}, {this.props.geo.lng}</p>
-            </div>
-        );
-    }
-
-}
