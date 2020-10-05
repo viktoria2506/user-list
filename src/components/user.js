@@ -9,8 +9,7 @@ export default class User extends React.Component {
 
         this.state = {
             showAddress: false,
-            showCompany: false,
-            isNewUser:   this.props.isUser
+            showCompany: false
         };
 
         this.handleClickAddress = this.handleClickAddress.bind(this);
@@ -31,44 +30,13 @@ export default class User extends React.Component {
         let buttonAddress                                                  = '';
         let buttonCompany                                                  = '';
 
-        switch (isNewUser) {
-            case 'false': {
-                switch (showAddress) {
-                    case true:
-                        buttonAddress = 'Remove Address';
-                        break;
-                    default:
-                        buttonAddress = 'Add Address';
-                        break;
-                }
-                switch (showCompany) {
-                    case true:
-                        buttonCompany = 'Remove Company';
-                        break;
-                    default:
-                        buttonCompany = 'Add Company';
-                        break;
-                }
-                break;
-            }
-            default: {
-                switch (showAddress) {
-                    case true :
-                        buttonAddress = 'Hide Address';
-                        break;
-                    default:
-                        buttonAddress = 'Show Address';
-                        break;
-                }
-                switch (showCompany) {
-                    case true :
-                        buttonCompany = 'Hide Company';
-                        break;
-                    default:
-                        buttonCompany = 'Show Company';
-                        break;
-                }
-            }
+        if (isNewUser) {
+            buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
+            buttonCompany = `${showCompany ? 'Remove' : 'Add'} Company`;
+        }
+        else {
+            buttonAddress = `${showAddress ? 'Hide' : 'Show'} Address`;
+            buttonCompany = `${showCompany ? 'Hide' : 'Show'} Company`;
         }
 
         return (

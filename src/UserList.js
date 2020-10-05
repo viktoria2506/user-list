@@ -22,10 +22,10 @@ export default class UserList extends React.Component {
     render () {
         const { wantAdd } = this.state;
         return (
-            <div className="App">
+            <div className="UserList">
                 <button className="ButtonAddUser" onClick={this.handleClickAddUser}>Add new User</button>
                 {
-                    wantAdd && <User className="NewUser" isNewUser={false}/>
+                    wantAdd && <User className="NewUser" isNewUser={true}/>
                 }
                 <hr/>
                 {usersData.map((user) => {
