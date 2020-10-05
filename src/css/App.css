@@ -1,0 +1,84 @@
+.UserList {
+    text-align: center;
+    background: url(bg-blurry.jpg) no-repeat fixed;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
+}
+
+
+.ButtonAddUser {
+    height: 60px;
+    width: 300px;
+    text-decoration: none;
+    outline: none;
+    display: inline-block;
+    padding: 10px 30px;
+    margin: 10px 20px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #006400;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    color: #008000;
+    transition: .2s ease-in-out;
+    font-size: 24px;
+}
+
+.NewUser {
+    padding: 20px;
+    position: relative;
+    max-width: 800px;
+    margin: 10px auto 0;
+    border-radius: 30px;
+    box-sizing:border-box;
+}
+
+.NewUser input {
+    width: 20%;
+    padding: 0 20px;
+    margin-bottom: 10px;
+    background: #E9EFF6;
+    line-height: 30px;
+    border-width: 0px;
+    border-radius: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+}
+
+
+.ButtonAddDetails {
+    margin: 10px auto;
+    text-align: center;
+    height: 20px;
+    width: 200px;
+    display: block;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #FFFFE0;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    color: #108100;
+    font-size: 14px;
+
+}
+
+.Details input {
+    width: 30%;
+    padding: 0 20px;
+    margin-bottom: 10px;
+    background: #E9EFF6;
+    line-height: 25px;
+    border-width: 0;
+    border-radius: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+}
+
+p {
+    font-size:20px;
+    font-family: 'Montserrat', sans-serif;
+}
