@@ -23,7 +23,7 @@ export default class UserList extends React.Component {
         const { wantAdd } = this.state;
         return (
             <div className="UserList">
-                <button className="ButtonAddUser" onClick={this.handleClickAddUser}>Add new User</button>
+                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this.handleClickAddUser}>Add new User</button>
                 {
                     wantAdd && <User className="NewUser" isNewUser={true}/>
                 }
