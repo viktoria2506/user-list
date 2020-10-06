@@ -20,10 +20,6 @@ class UserStore extends EventEmitter {
                 this._addNewUser(action.user);
                 this.emit(CHANGE_EVENT);
                 break;
-            case ActionType.SHOW_USERS:
-                this.getUsers();
-                this.emit(CHANGE_EVENT);
-                break;
         }
     }
 
