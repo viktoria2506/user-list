@@ -1,5 +1,5 @@
 import React from 'react';
-import User from './components/user.js';
+import User from './components/User.js';
 import './css/App.css';
 import UserStore from './stores/UserStore';
 import UserAction from './actions/UserAction';

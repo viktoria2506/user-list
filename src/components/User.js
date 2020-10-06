@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Address from './address.js';
-import Company from './company.js';
+import Address from './Address.js';
+import Company from './Company.js';
 import UserActions from '../actions/UserAction';
 import UserAction from '../actions/UserAction';
 
