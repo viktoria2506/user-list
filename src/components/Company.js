@@ -5,7 +5,7 @@ export default function Company (props) {
     return (
         <div className="Details">
             <p><label>
-                Name: <input type="text" id='name' value={company.name}/>
+                Name: <input type="text" id='nameCompany' value={company.name}/>
             </label></p>
             <p><label>
                 Catch phrase: <input type="text" id='catchPhrase' value={company.catchPhrase}/>
