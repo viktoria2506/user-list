@@ -2,8 +2,6 @@ import React from 'react';
 
 import Address from './Address.js';
 import Company from './Company.js';
-import UserActions from '../actions/UserAction';
-import UserAction from '../actions/UserAction';
 
 export default class User extends React.Component {
     constructor (props) {
@@ -19,8 +17,7 @@ export default class User extends React.Component {
     }
 
     handleClickAddress () {
-        this.setState({  showAddress: !this.state. showAddress });
-        //UserAction.showAddress(this.state.wantShowAddress)
+        this.setState({ showAddress: !this.state.showAddress });
     }
 
     handleClickCompany () {
@@ -46,13 +43,13 @@ export default class User extends React.Component {
         return (
             <div className='UserInfo'>
                 <p><label>
-                    Name: <input type="text" id='name' value={name} />
+                    Name: <input type="text" id='name' value={name}/>
                 </label></p>
                 <p><label>
                     Phone: <input type="text" id='phone' value={phone}/>
                 </label></p>
                 <p><label>
-                    Email: <input type="text" id='email' value={email} />
+                    Email: <input type="text" id='email' value={email}/>
                 </label></p>
                 <p><label>
                     Website: <input type="text" id='website' value={website}/>

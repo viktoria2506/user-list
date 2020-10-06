@@ -9,69 +9,68 @@ export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state = {
-            wantAdd: false,
-            users: UserStore.getUsers()
-        }
+        this.state = this.getAppState();
 
         this.handleClickAddUser = this.handleClickAddUser.bind(this);
     }
 
-    getAppState() {
+    getAppState () {
         return {
             wantAdd: false,
-            users: UserStore.getUsers()
-        }
+            users:   UserStore.getUsers()
+        };
     }
 
     handleClickAddUser () {
         this.setState({ wantAdd: !this.state.wantAdd });
     }
 
-    handleClickSubmit() {
+    handleClickSubmit () {
 
         let user = {
-            name: document.getElementById('name').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value,
+            name:    document.getElementById('name').value,
+            phone:   document.getElementById('phone').value,
+            email:   document.getElementById('email').value,
             website: document.getElementById('website').value,
             address: {
-                city: document.getElementById('city').value,
-                street: document.getElementById('street').value,
-                suite: document.getElementById('suite').value,
+                city:    document.getElementById('city').value,
+                street:  document.getElementById('street').value,
+                suite:   document.getElementById('suite').value,
                 zipcode: document.getElementById('zipcode').value,
             },
             company: {
-                name: document.getElementById('nameCompany').value,
+                name:        document.getElementById('nameCompany').value,
                 catchPhrase: document.getElementById('name').value,
-                bs: document.getElementById('bs').value
+                bs:          document.getElementById('bs').value
             }
 
-        }
+        };
         UserAction.addNewUser(user);
     }
 
-    componentDidMount() {
+    componentDidMount () {
         UserStore.addChangeListener(this.onChange);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         UserStore.removeChangeListener(this.onChange);
     }
 
     onChange = () => {
         this.setState(this.getAppState());
-    }
+    };
 
     render () {
         const { wantAdd, users } = this.state;
         return (
             <div className="UserList">
-                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this.handleClickAddUser}>Add new User</button>
+                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this.handleClickAddUser}>Add new
+                    User
+                </button>
                 {
                     wantAdd && <div>
                         <User className="NewUser" isNewUser={true}/>
-                    <button className="ButtonAddUser"  onClick={this.handleClickSubmit}>Submit</button>
+                        <button className="ButtonAddUser" onClick={this.handleClickSubmit}>Submit</button>
                     </div>
 
                 }

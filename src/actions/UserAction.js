@@ -1,12 +1,12 @@
 import Dispatcher from '../dispatcher/AppDispatcher';
-import ActionType from "./ActionType";
+import ActionType from './ActionType';
 
 class UserAction {
 
-    addNewUser(user) {
+    addNewUser (user) {
         Dispatcher.dispatch({
             actionType: ActionType.ADD_NEW_USER,
-            user: user
+            user:       user
         });
     }
 
