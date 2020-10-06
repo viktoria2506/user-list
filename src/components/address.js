@@ -5,16 +5,16 @@ export default function Address (props) {
     return (
         <div className="Details">
             <p><label>
-                City: <input type="text" value={address.city}/>
+                City: <input type="text" id='city' value={address.city}/>
             </label></p>
             <p><label>
-                Street: <input type="text" value={address.street}/>
+                Street: <input type="text" id='street' value={address.street}/>
             </label></p>
             <p><label>
-                Suite: <input type="text" value={address.suite}/>
+                Suite: <input type="text" id='suite' value={address.suite}/>
             </label></p>
             <p><label>
-                Zipcode: <input type="text" value={address.zipcode}/>
+                Zipcode: <input type="text" id='zipcode' value={address.zipcode}/>
             </label></p>
         </div>
     );

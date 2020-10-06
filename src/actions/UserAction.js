@@ -9,11 +9,6 @@ class UserAction {
             user: user
         });
     }
-    showUsers() {
-        Dispatcher.dispatch({
-            actionType: ActionType.SHOW_USERS
-        });
-    }
 
 }
 

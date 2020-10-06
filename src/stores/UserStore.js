@@ -29,12 +29,9 @@ class UserStore extends EventEmitter {
 
     _addNewUser (user) {
         _users.push(user);
-
     }
 
     getUsers () {
-        //var reader = new FileReader();
-        console.log(_users);
         return _users;
     }
 

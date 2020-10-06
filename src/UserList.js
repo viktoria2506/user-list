@@ -1,8 +1,8 @@
 import React from 'react';
-import usersData from './data/users.json';
 import User from './components/user.js';
 import './css/App.css';
 import UserStore from './stores/UserStore';
+import UserAction from './actions/UserAction';
 
 
 export default class UserList extends React.Component {
@@ -35,7 +35,7 @@ export default class UserList extends React.Component {
             email: document.getElementById('email').value,
             website: document.getElementById('website').value
         }
-        UserStore.addNewUser(user);
+        UserAction.addNewUser(user);
     }
 
     componentDidMount() {
