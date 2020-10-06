@@ -3,7 +3,7 @@ import React from 'react';
 export default function Company (props) {
     const { company = {} } = props;
     return (
-        <div className="Details">
+        <div className="DetailsCompany" id='company'>
             <p><label>
                 Name: <input type="text" id='nameCompany' value={company.name}/>
             </label></p>

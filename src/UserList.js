@@ -26,24 +26,30 @@ export default class UserList extends React.Component {
     }
 
     handleClickSubmit () {
-
+        let address = {};
+        if(document.getElementById('address')) {
+            address = {
+                city:    document.getElementById('city').value ,
+                street:  document.getElementById('street').value,
+                suite:   document.getElementById('suite').value,
+                zipcode: document.getElementById('zipcode').value
+            }
+        }
+        let company = {};
+        if(document.getElementById('company')) {
+            company = {
+                name:        document.getElementById('nameCompany').value,
+                catchPhrase: document.getElementById('name').value,
+                bs:          document.getElementById('bs').value
+            }
+        }
         let user = {
             name:    document.getElementById('name').value,
             phone:   document.getElementById('phone').value,
             email:   document.getElementById('email').value,
             website: document.getElementById('website').value,
-            address: {
-                city:    document.getElementById('city').value,
-                street:  document.getElementById('street').value,
-                suite:   document.getElementById('suite').value,
-                zipcode: document.getElementById('zipcode').value,
-            },
-            company: {
-                name:        document.getElementById('nameCompany').value,
-                catchPhrase: document.getElementById('name').value,
-                bs:          document.getElementById('bs').value
-            }
-
+            address: address,
+            company: company
         };
         UserAction.addNewUser(user);
     }

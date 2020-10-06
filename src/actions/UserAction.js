@@ -9,7 +9,6 @@ class UserAction {
             user:       user
         });
     }
-
 }
 
 export default new UserAction();
