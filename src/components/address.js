@@ -3,7 +3,7 @@ import React from 'react';
 export default function Address (props) {
     const { address = {} } = props;
     return (
-        <div className="DetailsAddress" name='address'>
+        <div className="DetailsAddress">
             <p><label>
                 City: <input type="text" name='city' defaultValue={address.city}/>
             </label></p>

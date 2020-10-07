@@ -12,13 +12,27 @@ class UserStore extends EventEmitter {
     constructor () {
         super();
 
-        usersData.map((user) => {
-            let newUser = new UserInfo(
-                user.name, user.phone, user.email, user.website,
-                user.address.city, user.address.street, user.address.suite, user.address.zipcode,
-                user.company.name, user.company.catchPhrase, user.company.bs
+        this._users = usersData.map((user) => {
+            return new UserInfo(
+                {
+                    id:      user.id,
+                    name:    user.name,
+                    phone:   user.phone,
+                    email:   user.email,
+                    website: user.website
+                },
+                {
+                    city:    user.address.city,
+                    street:  user.address.street,
+                    suite:   user.address.suite,
+                    zipcode: user.address.zipcode
+                },
+                {
+                    nameCompany: user.company.name,
+                    catchPhrase: user.company.catchPhrase,
+                    bs:          user.company.bs
+                }
             );
-            this._users.push(newUser);
         });
 
         Dispatcher.register(this.registerActions.bind(this));
@@ -37,6 +51,10 @@ class UserStore extends EventEmitter {
 
     getUsers () {
         return this._users;
+    }
+
+    getSize () {
+        return this._users.length;
     }
 }
 

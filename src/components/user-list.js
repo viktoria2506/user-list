@@ -16,12 +16,14 @@ export default class UserList extends React.Component {
         this.state = this._getAppState();
 
         this.handleClickAddUser = this.handleClickAddUser.bind(this);
+        this.handleClickSubmit  = this.handleClickSubmit.bind(this);
     }
 
     _getAppState () {
         return {
             wantAdd: false,
-            users:   UserStore.getUsers()
+            users:   UserStore.getUsers(),
+            size:    UserStore.getSize()
         };
     }
 
@@ -31,27 +33,32 @@ export default class UserList extends React.Component {
 
     handleClickSubmit () {
         //TODO: should be rewritten
-        let city, street, suite, zipcode, nameCompany, catchPhrase, bs = '';
-        if (document.getElementsByName('address')[0]) {
-            city    = document.getElementsByName('city')[0].value;
-            street  = document.getElementsByName('street')[0].value;
-            suite   = document.getElementsByName('suite')[0].value;
-            zipcode = document.getElementsByName('zipcode')[0].value;
-        }
-        if (document.getElementsByName('company')[0]) {
-            nameCompany = document.getElementsByName('nameCompany')[0].value;
-            catchPhrase = document.getElementsByName('name')[0].value;
-            bs          = document.getElementsByName('bs')[0].value;
-        }
+        let companyInfo, addressInfo = {};
 
-        let name    = document.getElementsByName('name')[0].value;
-        let phone   = document.getElementsByName('phone')[0].value;
-        let email   = document.getElementsByName('email')[0].value;
-        let website = document.getElementsByName('website')[0].value;
+        if (document.getElementsByClassName('DetailsAddress')[0]) {
+            addressInfo = {
+                street:  document.getElementsByName('street')[0].value,
+                city:    document.getElementsByName('city')[0].value,
+                suite:   document.getElementsByName('suite')[0].value,
+                zipcode: document.getElementsByName('zipcode')[0].value
+            };
+        }
+        if (document.getElementsByClassName('DetailsCompany')[0]) {
+            companyInfo = {
+                nameCompany: document.getElementsByName('nameCompany')[0].value,
+                catchPhrase: document.getElementsByName('name')[0].value,
+                bs:          document.getElementsByName('bs')[0].value
+            };
+        }
+        let userInfo = {
+            id:      this.state.size + 1,
+            name:    document.getElementsByName('name')[0].value,
+            phone:   document.getElementsByName('phone')[0].value,
+            email:   document.getElementsByName('email')[0].value,
+            website: document.getElementsByName('website')[0].value
+        };
 
-        let newUser = new UserInfo(name, phone, email, website,
-            city, street, suite, zipcode,
-            nameCompany, catchPhrase, bs);
+        let newUser  = new UserInfo(userInfo, addressInfo, companyInfo);
         addNewUser(newUser);
     }
 
