@@ -8,7 +8,6 @@ import UserInfo from '../stores/user-info';
 
 import User from './user.js';
 
-
 export default class UserList extends React.Component {
     constructor (props) {
         super(props);
