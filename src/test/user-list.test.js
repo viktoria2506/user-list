@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import UserList from '../UserList';
+import UserList from '../components/user-list';
 
 
 test('renders learn react link', () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './css/index.css';
-import App from './UserList';
+import App from './components/user-list';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(

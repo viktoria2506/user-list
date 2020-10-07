@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Address from './Address.js';
-import Company from './Company.js';
+import Address from './address.js';
+import Company from './company.js';
 
 export default class User extends React.Component {
     constructor (props) {
@@ -43,33 +43,35 @@ export default class User extends React.Component {
         return (
             <div className='UserInfo'>
                 <p><label>
-                    Name: <input type="text" id='name' value={name}/>
+                    Name: <input type="text" name='name' defaultValue={name}/>
                 </label></p>
                 <p><label>
-                    Phone: <input type="text" id='phone' value={phone}/>
+                    Phone: <input type="text" name='phone' defaultValue={phone}/>
                 </label></p>
                 <p><label>
-                    Email: <input type="text" id='email' value={email}/>
+                    Email: <input type="text" name='email' defaultValue={email}/>
                 </label></p>
                 <p><label>
-                    Website: <input type="text" id='website' value={website}/>
+                    Website: <input type="text" name='website' defaultValue={website}/>
                 </label></p>
                 <div>
                     <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
                         {buttonAddress}
                     </button>
                     {
-                        showAddress && <div>
+                        showAddress &&
+                        (
                             <Address address={address}/>
-                        </div>
+                        )
                     }
                     <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
                         {buttonCompany}
                     </button>
                     {
-                        showCompany && <div>
+                        showCompany &&
+                        (
                             <Company company={company}/>
-                        </div>
+                        )
                     }
                 </div>
             </div>
