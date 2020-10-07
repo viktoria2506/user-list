@@ -19,7 +19,7 @@ class UserStore extends EventEmitter {
                 user.address.city, user.address.street, user.address.suite, user.address.zipcode,
                 user.company.name, user.company.catchPhrase, user.company.bs
             );
-            this._users.push(user);
+            this._users.push(newUser);
         });
 
         Dispatcher.register(this.registerActions.bind(this));
