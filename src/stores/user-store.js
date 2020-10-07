@@ -6,8 +6,6 @@ import UserInfo from './user-info';
 import CHANGE_EVENT from './event-type';
 import ACTION_TYPE from '../actions/action-type';
 
-
-
 class UserStore extends EventEmitter {
     _users = [];
 
