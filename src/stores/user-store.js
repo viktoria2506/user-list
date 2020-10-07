@@ -13,16 +13,20 @@ class UserStore extends EventEmitter {
     constructor () {
         super();
 
-        usersData.map((person) => {
-            let user = new UserInfo(
-                person.name, person.phone, person.email, person.website,
-                person.address.city, person.address.street, person.address.suite, person.address.zipcode,
-                person.company.name, person.company.catchPhrase, person.company.bs
-                );
+        usersData.map((user) => {
+            let newUser = new UserInfo(
+                user.name, user.phone, user.email, user.website,
+                user.address.city, user.address.street, user.address.suite, user.address.zipcode,
+                user.company.name, user.company.catchPhrase, user.company.bs
+            );
             this._users.push(user);
         });
 
         Dispatcher.register(this.registerActions.bind(this));
+    }
+
+    _addNewUser (user) {
+        this._users.push(user);
     }
 
     registerActions (action) {
@@ -30,10 +34,6 @@ class UserStore extends EventEmitter {
             this._addNewUser(action.user);
             this.emit(CHANGE_EVENT);
         }
-    }
-
-    _addNewUser (user) {
-        this._users.push(user);
     }
 
     getUsers () {
