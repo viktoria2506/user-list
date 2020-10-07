@@ -3,10 +3,11 @@ import React from 'react';
 import '../css/app.css';
 import UserStore from '../stores/user-store';
 import { addNewUser } from '../actions/user-action';
-
-import User from './user.js';
 import CHANGE_EVENT from '../stores/event-type';
 import UserInfo from '../stores/user-info';
+
+import User from './user.js';
+
 
 export default class UserList extends React.Component {
     constructor (props) {

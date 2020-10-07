@@ -2,9 +2,10 @@ import { EventEmitter } from 'events';
 
 import Dispatcher from '../dispatcher/app-dispatcher';
 import usersData from '../data/users.json';
+import UserInfo from './user-info';
 import CHANGE_EVENT from './event-type';
 import ACTION_TYPE from '../actions/action-type';
-import UserInfo from './user-info';
+
 
 
 class UserStore extends EventEmitter {
