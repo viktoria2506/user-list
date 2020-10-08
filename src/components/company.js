@@ -5,7 +5,7 @@ export default function Company (props) {
     return (
         <div className="DetailsCompany">
             <p><label>
-                Name: <input type="text" name="nameCompany" defaultValue={company.nameCompany}/>
+                Name: <input type="text" name="nameCompany" defaultValue={company.name}/>
             </label></p>
             <p><label>
                 Catch phrase: <input type="text" name="catchPhrase" defaultValue={company.catchPhrase}/>

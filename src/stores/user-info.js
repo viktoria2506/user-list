@@ -10,7 +10,7 @@ export default class UserInfo {
             addressInfo.suite, addressInfo.zipcode
         );
         this.company = new Company(
-            companyInfo.nameCompany,
+            companyInfo.name,
             companyInfo.catchPhrase,
             companyInfo.bs
         );
@@ -27,8 +27,8 @@ class Address {
 }
 
 class Company {
-    constructor (nameCompany, catchPhrase, bs) {
-        this.nameCompany = nameCompany;
+    constructor (name, catchPhrase, bs) {
+        this.nameCompany = name;
         this.catchPhrase = catchPhrase;
         this.bs          = bs;
     }
