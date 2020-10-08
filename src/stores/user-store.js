@@ -21,17 +21,8 @@ class UserStore extends EventEmitter {
                     email:   user.email,
                     website: user.website
                 },
-                {
-                    city:    user.address.city,
-                    street:  user.address.street,
-                    suite:   user.address.suite,
-                    zipcode: user.address.zipcode
-                },
-                {
-                    nameCompany: user.company.name,
-                    catchPhrase: user.company.catchPhrase,
-                    bs:          user.company.bs
-                }
+                user.address,
+                user.company
             );
         });
 
@@ -39,6 +30,7 @@ class UserStore extends EventEmitter {
     }
 
     _addNewUser (user) {
+        user.id = this._users.length + 1;
         this._users.push(user);
     }
 
@@ -51,10 +43,6 @@ class UserStore extends EventEmitter {
 
     getUsers () {
         return this._users;
-    }
-
-    getSize () {
-        return this._users.length;
     }
 }
 

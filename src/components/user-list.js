@@ -21,8 +21,7 @@ export default class UserList extends React.Component {
     _getAppState () {
         return {
             wantAdd: false,
-            users:   UserStore.getUsers(),
-            size:    UserStore.getSize()
+            users:   UserStore.getUsers()
         };
     }
 
@@ -32,7 +31,8 @@ export default class UserList extends React.Component {
 
     handleClickSubmit () {
         //TODO: should be rewritten
-        let companyInfo, addressInfo = {};
+        let companyInfo, addressInfo;
+        companyInfo = addressInfo = {};
 
         if (document.getElementsByClassName('DetailsAddress')[0]) {
             addressInfo = {
@@ -50,14 +50,13 @@ export default class UserList extends React.Component {
             };
         }
         let userInfo = {
-            id:      this.state.size + 1,
             name:    document.getElementsByName('name')[0].value,
             phone:   document.getElementsByName('phone')[0].value,
             email:   document.getElementsByName('email')[0].value,
             website: document.getElementsByName('website')[0].value
         };
 
-        let newUser  = new UserInfo(userInfo, addressInfo, companyInfo);
+        let newUser = new UserInfo(userInfo, addressInfo, companyInfo);
         addNewUser(newUser);
     }
 
