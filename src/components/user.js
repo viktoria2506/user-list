@@ -24,6 +24,7 @@ export default class User extends React.Component {
         this.setState({ showCompany: !this.state.showCompany });
     }
 
+
     render () {
         const { name, phone, email, website, address, company, isNewUser } = this.props;
         const { showAddress, showCompany }                                 = this.state;
@@ -40,35 +41,37 @@ export default class User extends React.Component {
         }
 
         return (
-            <div className='UserInfo'>
+            <div className="UserInfo">
                 <p><label>
-                    Name: <input type="text" value={name}/>
+                    Name: <input type="text" name="name" defaultValue={name}/>
                 </label></p>
                 <p><label>
-                    Phone: <input type="text" value={phone}/>
+                    Phone: <input type="text" name="phone" defaultValue={phone}/>
                 </label></p>
                 <p><label>
-                    Email: <input type="text" value={email}/>
+                    Email: <input type="text" name="email" defaultValue={email}/>
                 </label></p>
                 <p><label>
-                    Website: <input type="text" value={website}/>
+                    Website: <input type="text" name="website" defaultValue={website}/>
                 </label></p>
                 <div>
                     <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
                         {buttonAddress}
                     </button>
                     {
-                        showAddress && <div>
+                        showAddress &&
+                        (
                             <Address address={address}/>
-                        </div>
+                        )
                     }
                     <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
                         {buttonCompany}
                     </button>
                     {
-                        showCompany && <div>
+                        showCompany &&
+                        (
                             <Company company={company}/>
-                        </div>
+                        )
                     }
                 </div>
             </div>
