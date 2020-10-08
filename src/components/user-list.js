@@ -31,8 +31,8 @@ export default class UserList extends React.Component {
 
     handleClickSubmit () {
         //TODO: should be rewritten
-        let companyInfo, addressInfo;
-        companyInfo = addressInfo = {};
+        let companyInfo = {};
+        let addressInfo = {};
 
         if (document.getElementsByClassName('DetailsAddress')[0]) {
             addressInfo = {
