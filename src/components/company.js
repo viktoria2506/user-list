@@ -9,7 +9,7 @@ export default function Company (props) {
     return (
         <div className="DetailsCompany">
             <p><label>
-                Name: <input type="text" name="nameCompany" value={company.name} onChange={_onChange}/>
+                Name: <input type="text" name="name" value={company.name} onChange={_onChange}/>
             </label></p>
             <p><label>
                 Catch phrase: <input type="text" name="catchPhrase" value={company.catchPhrase} onChange={_onChange}/>

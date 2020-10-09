@@ -28,8 +28,8 @@ class Address {
 }
 
 class Company {
-    constructor (nameCompany, catchPhrase, bs) {
-        this.name = nameCompany;
+    constructor (name, catchPhrase, bs) {
+        this.name = name;
         this.catchPhrase = catchPhrase;
         this.bs          = bs;
     }
