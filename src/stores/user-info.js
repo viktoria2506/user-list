@@ -5,6 +5,7 @@ export default class UserInfo {
         this.phone   = userInfo.phone;
         this.email   = userInfo.email;
         this.website = userInfo.website;
+
         this.address = new Address(
             addressInfo.city, addressInfo.street,
             addressInfo.suite, addressInfo.zipcode
@@ -27,8 +28,8 @@ class Address {
 }
 
 class Company {
-    constructor (name, catchPhrase, bs) {
-        this.nameCompany = name;
+    constructor (nameCompany, catchPhrase, bs) {
+        this.name = nameCompany;
         this.catchPhrase = catchPhrase;
         this.bs          = bs;
     }

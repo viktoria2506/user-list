@@ -41,28 +41,36 @@ export default class UserList extends React.Component {
 
     render () {
         const { wantAdd, users } = this.state;
+
         return (
             <div className="UserList">
-                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this.handleClickAddUser}>Add new
-                    User
+                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this.handleClickAddUser}>
+                    Add new User
                 </button>
                 {
-                    wantAdd && <User isNewUser={true}/>
+                    wantAdd &&
+                    (
+                        <User isNewUser={true}/>
+                    )
 
                 }
                 <hr/>
                 {
                     users.map((user) => {
+                        const info = {
+                            id:      user.id,
+                            name:    user.name,
+                            email:   user.email,
+                            phone:   user.phone,
+                            website: user.website
+                        };
+
                         return (
                             <div className="UserInner" key={user.id}>
-                                <User
-                                    name={user.name}
-                                    email={user.email}
-                                    address={user.address}
-                                    phone={user.phone}
-                                    website={user.website}
-                                    company={user.company}
-                                    isNewUser={false}
+                                <User info={info}
+                                      address={user.address}
+                                      company={user.company}
+                                      isNewUser={false}
                                 />
                                 <hr/>
                             </div>

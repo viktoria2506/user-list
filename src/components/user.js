@@ -1,28 +1,24 @@
 import React from 'react';
 
-import Address from './address.js';
-import Company from './company.js';
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
+
+import Address from './address.js';
+import Company from './company.js';
+import Info from './user-info';
+
 
 export default class User extends React.Component {
     constructor (props) {
         super(props);
 
+        const { info = {}, address = {}, company = {} } = this.props;
+
         this.state = {
             currentUser: {
-                name:    props.name,
-                phone:   props.phone,
-                email:   props.email,
-                website: props.website,
-                address: {
-                    street:  props.street,
-                    city:    props.city,
-                    suite:   props.suite,
-                    zipcode: props.zipcode
-                },
-                company: props.company
-
+                info,
+                address,
+                company
             },
             showAddress: false,
             showCompany: false,
@@ -47,56 +43,34 @@ export default class User extends React.Component {
     }
 
     handleClickEdit (e) {
+        const { currentUser } = this.state;
+        const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+
         this.setState({ wantEdit: !this.state.wantEdit });
+
         if (this.state.wantEdit) {
-            UserAction.updateUser(this.createUser());
+            debugger;
+            UserAction.updateUser(newUser);
         }
         e.preventDefault();
     }
 
-    handleChange (e) {
+    handleChange (e, obj) {
         const { currentUser } = this.state;
 
-        currentUser[e.target.name] = e.target.value;
+        currentUser[obj][e.target.name] = e.target.value;
 
         if (this.state.wantEdit || this.props.isNewUser) {
             this.setState({ currentUser });
         }
-    }
-
-    createUser () {
-        let companyInfo = {};
-        let addressInfo = {};
-
-        if (document.getElementsByClassName('DetailsAddress')[0]) {
-            addressInfo = {
-                street:  this.state.currentUser.street,
-                city:    this.state.currentUser.address.city,
-                suite:   this.state.currentUser.suite,
-                zipcode: this.state.currentUser.zipcode
-            };
-        }
-        if (document.getElementsByClassName('DetailsCompany')[0]) {
-            companyInfo = {
-                nameCompany: this.state.currentUser.nameCompany,
-                catchPhrase: this.state.currentUser.catchPhrase,
-                bs:          this.state.currentUser.bs
-            };
-        }
-        let userInfo = {
-            name:    this.state.currentUser.name,
-            phone:   this.state.currentUser.phone,
-            email:   this.state.currentUser.email,
-            website: this.state.currentUser.website
-        };
-
-        let newUser = new UserInfo(userInfo, addressInfo, companyInfo);
-        return newUser;
+        e.preventDefault();
     }
 
     handleClickSubmit () {
-        //TODO: should be rewritten
-        UserAction.addNewUser(this.createUser());
+        const { currentUser } = this.state;
+        const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+
+        UserAction.addNewUser(newUser);
     }
 
     render () {
@@ -116,45 +90,33 @@ export default class User extends React.Component {
 
         return (
             <form className="UserInfo">
-                <p><label>
-                    Name: <input type="text" name="name" value={currentUser.name} onChange={this.handleChange}/>
-                </label></p>
-                <p><label>
-                    Phone: <input type="text" name="phone" value={currentUser.phone} onChange={this.handleChange}/>
-                </label></p>
-                <p><label>
-                    Email: <input type="text" name="email" value={currentUser.email} onChange={this.handleChange}/>
-                </label></p>
-                <p><label>
-                    Website: <input type="text" name="website" value={currentUser.website}
-                                    onChange={this.handleChange}/>
-                </label></p>
-                <div>
-                    <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
-                        {buttonAddress}
-                    </button>
-                    {
-                        showAddress &&
-                        (
-                            <Address address={currentUser.address} onChange={this.handleChange}/>
-                        )
-                    }
-                    <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
-                        {buttonCompany}
-                    </button>
-                    {
-                        showCompany &&
-                        (
-                            <Company company={currentUser.company}/>
-                        )
-                    }
-                </div>
-                {isNewUser ? <button className="ButtonAddUser" onClick={this.handleClickSubmit}>
+                <Info info={currentUser.info} onChange={this.handleChange}/>
+                <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
+                    {buttonAddress}
+                </button>
+                {
+                    showAddress &&
+                    (
+                        <Address address={currentUser.address} onChange={this.handleChange}/>
+                    )
+                }
+                <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
+                    {buttonCompany}
+                </button>
+                {
+                    showCompany &&
+                    (
+                        <Company company={currentUser.company} onChange={this.handleChange}/>
+                    )
+                }
+
+                {
+                    isNewUser ? <button className="ButtonAddUser" onClick={this.handleClickSubmit}>
                                Submit
-                           </button>
+                             </button>
                            : <button className="ButtonEdit" onClick={this.handleClickEdit}>
-                     {wantEdit ? 'Save' : 'Edit'}
-                 </button>
+                               {wantEdit ? 'Save' : 'Edit'}
+                             </button>
                 }
             </form>
         );
