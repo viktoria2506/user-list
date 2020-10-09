@@ -5,7 +5,6 @@ import UserStore from '../stores/user-store';
 import CHANGE_EVENT from '../stores/event-type';
 
 import User from './user.js';
-import NewUser from './new-user';
 
 export default class UserList extends React.Component {
     constructor (props) {
@@ -41,7 +40,7 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { wantAdd, users} = this.state;
+        const { wantAdd, users } = this.state;
         return (
             <div className="UserList">
                 <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this.handleClickAddUser}>Add new
@@ -56,13 +55,14 @@ export default class UserList extends React.Component {
                     users.map((user) => {
                         return (
                             <div className="UserInner" key={user.id}>
-                                <User name={user.name}
-                                      email={user.email}
-                                      address={user.address}
-                                      phone={user.phone}
-                                      website={user.website}
-                                      company={user.company}
-                                      isNewUser={false}
+                                <User
+                                    name={user.name}
+                                    email={user.email}
+                                    address={user.address}
+                                    phone={user.phone}
+                                    website={user.website}
+                                    company={user.company}
+                                    isNewUser={false}
                                 />
                                 <hr/>
                             </div>

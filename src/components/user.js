@@ -3,8 +3,7 @@ import React from 'react';
 import Address from './address.js';
 import Company from './company.js';
 import UserInfo from '../stores/user-info';
-import { addNewUser } from '../actions/user-action';
-import Input from './input';
+import UserAction from '../actions/user-action';
 
 export default class User extends React.Component {
     constructor (props) {
@@ -12,12 +11,22 @@ export default class User extends React.Component {
 
         this.state = {
             currentUser: {
-                name: props.name,
-                phone: props.phone,
+                name:    props.name,
+                phone:   props.phone,
+                email:   props.email,
+                website: props.website,
+                address: {
+                    street:  props.street,
+                    city:    props.city,
+                    suite:   props.suite,
+                    zipcode: props.zipcode
+                },
+                company: props.company
+
             },
             showAddress: false,
             showCompany: false,
-            wantEdit: false
+            wantEdit:    false
         };
 
         this.handleClickAddress = this.handleClickAddress.bind(this);
@@ -37,57 +46,64 @@ export default class User extends React.Component {
         e.preventDefault();
     }
 
-    handleClickEdit () {
+    handleClickEdit (e) {
         this.setState({ wantEdit: !this.state.wantEdit });
-        if(this.state.wantEdit) {
-            addNewUser(this.state.currentUser);
+        if (this.state.wantEdit) {
+            UserAction.updateUser(this.createUser());
         }
+        e.preventDefault();
     }
 
     handleChange (e) {
-        if(this.state.wantEdit || this.props.isNewUser)
-            this.setState({currentUser: {[e.target.name]: e.target.value}});
+        const { currentUser } = this.state;
 
+        currentUser[e.target.name] = e.target.value;
+
+        if (this.state.wantEdit || this.props.isNewUser) {
+            this.setState({ currentUser });
+        }
     }
 
-
-    handleClickSubmit () {
-        /*//TODO: should be rewritten
-        //const {person} = this.form;
+    createUser () {
         let companyInfo = {};
         let addressInfo = {};
 
-         if (document.getElementsByClassName('DetailsAddress')[0]) {
-         addressInfo = {
-         street:  this.state.name,
-         city:    this.myRef.current.city.value,
-         suite:   this.myRef.current.suite.value,
-         zipcode: this.myRef.current.zipcode.value
-         };
-         }
-         if (document.getElementsByClassName('DetailsCompany')[0]) {
-         companyInfo = {
-         nameCompany: this.state.nameCompany,
-         catchPhrase: this.state.catchPhrase,
-         bs:          this.state.bs
-         };
-         }
-         let userInfo = {
-         name:    this.state.name,
-         phone:   this.state.phone,
-         email:   this.state.email,
-         website: this.state.website
-         };
+        if (document.getElementsByClassName('DetailsAddress')[0]) {
+            addressInfo = {
+                street:  this.state.currentUser.street,
+                city:    this.state.currentUser.address.city,
+                suite:   this.state.currentUser.suite,
+                zipcode: this.state.currentUser.zipcode
+            };
+        }
+        if (document.getElementsByClassName('DetailsCompany')[0]) {
+            companyInfo = {
+                nameCompany: this.state.currentUser.nameCompany,
+                catchPhrase: this.state.currentUser.catchPhrase,
+                bs:          this.state.currentUser.bs
+            };
+        }
+        let userInfo = {
+            name:    this.state.currentUser.name,
+            phone:   this.state.currentUser.phone,
+            email:   this.state.currentUser.email,
+            website: this.state.currentUser.website
+        };
 
         let newUser = new UserInfo(userInfo, addressInfo, companyInfo);
-        addNewUser(newUser);*/
+        return newUser;
+    }
+
+    handleClickSubmit () {
+        //TODO: should be rewritten
+        UserAction.addNewUser(this.createUser());
     }
 
     render () {
-        const { name, phone, email, website, address, company, isNewUser } = this.props;
-        const { showAddress, showCompany, wantEdit, currentUser }                       = this.state;
-        let buttonAddress                                                  = '';
-        let buttonCompany                                                  = '';
+        const { isNewUser }                                       = this.props;
+        const { showAddress, showCompany, wantEdit, currentUser } = this.state;
+        let buttonAddress                                         = '';
+        let buttonCompany                                         = '';
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
@@ -99,18 +115,19 @@ export default class User extends React.Component {
         }
 
         return (
-            <div className="UserInfo">
+            <form className="UserInfo">
                 <p><label>
                     Name: <input type="text" name="name" value={currentUser.name} onChange={this.handleChange}/>
                 </label></p>
                 <p><label>
-                    Phone: <input type="text" name="phone" value={phone} onChange={this.handleChange}/>
+                    Phone: <input type="text" name="phone" value={currentUser.phone} onChange={this.handleChange}/>
                 </label></p>
                 <p><label>
-                    Email: <input type="text" name="email" value={email} onChange={this.handleChange}/>
+                    Email: <input type="text" name="email" value={currentUser.email} onChange={this.handleChange}/>
                 </label></p>
                 <p><label>
-                    Website: <input type="text" name="website" value={website} onChange={this.handleChange}/>
+                    Website: <input type="text" name="website" value={currentUser.website}
+                                    onChange={this.handleChange}/>
                 </label></p>
                 <div>
                     <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
@@ -119,7 +136,7 @@ export default class User extends React.Component {
                     {
                         showAddress &&
                         (
-                            <Address address={address}/>
+                            <Address address={currentUser.address} onChange={this.handleChange}/>
                         )
                     }
                     <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
@@ -128,16 +145,18 @@ export default class User extends React.Component {
                     {
                         showCompany &&
                         (
-                            <Company company={company}/>
+                            <Company company={currentUser.company}/>
                         )
                     }
                 </div>
-                {
-                    <button className="ButtonEdit" onClick={this.handleClickEdit}>
-                        {wantEdit ? 'Save' : 'Edit'}
-                    </button>
+                {isNewUser ? <button className="ButtonAddUser" onClick={this.handleClickSubmit}>
+                               Submit
+                           </button>
+                           : <button className="ButtonEdit" onClick={this.handleClickEdit}>
+                     {wantEdit ? 'Save' : 'Edit'}
+                 </button>
                 }
-            </div>
+            </form>
         );
     }
 }

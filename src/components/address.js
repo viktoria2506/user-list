@@ -5,7 +5,7 @@ export default function Address (props) {
     return (
         <div className="DetailsAddress">
             <p><label>
-                City: <input type="text" name="city" defaultValue={address.city}/>
+                City: <input type="text" name="address.city" defaultValue={address.city}/>
             </label></p>
             <p><label>
                 Street: <input type="text" name="street" defaultValue={address.street}/>

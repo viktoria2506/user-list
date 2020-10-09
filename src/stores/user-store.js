@@ -34,9 +34,17 @@ class UserStore extends EventEmitter {
         this._users.push(user);
     }
 
+    _updateUser (user) {
+
+    }
+
     registerActions (action) {
         if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
             this._addNewUser(action.user);
+            this.emit(CHANGE_EVENT);
+        }
+        else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {
+            this._updateUser(action.user);
             this.emit(CHANGE_EVENT);
         }
     }
