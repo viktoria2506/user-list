@@ -6,6 +6,7 @@ import UserAction from '../actions/user-action';
 import Address from './address.js';
 import Company from './company.js';
 import Info from './user-info';
+import FormErrors from './form-errors';
 
 
 export default class User extends React.Component {
@@ -19,6 +20,13 @@ export default class User extends React.Component {
                 info,
                 address,
                 company
+            },
+            formErrors:  { name: '', email: '', phone: '' },
+            valid:       {
+                email: true,
+                name:  true,
+                phone: true,
+                form:  false,
             },
             showAddress: false,
             showCompany: false,
@@ -50,18 +58,49 @@ export default class User extends React.Component {
 
             UserAction.updateUser(newUser);
         }
-
         this.setState({ wantEdit: !wantEdit });
         e.preventDefault();
     }
 
-    handleChange (e, type) {
+    validateField (fieldName, value) {
+        let { formErrors, valid } = this.state;
+
+        switch (fieldName) {
+            case 'name':
+                valid.name      = value.length > 0;
+                formErrors.name = valid.name ? '' : ' cannot be empty';
+                break;
+            case 'phone':
+                valid.phone      = value.length > 0;
+                formErrors.phone = valid.phone ? '' : ' cannot be empty';
+                break;
+            case 'email':
+                valid.email      = value.match(/^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i);
+                formErrors.email = valid.email ? '' : ' is invalid';
+                break;
+            default:
+                break;
+        }
+        valid.form = valid.email && valid.name && valid.phone;
+        this.setState({
+            formErrors: formErrors,
+            valid:    valid
+        });
+    }
+
+
+    handleChange (e, obj) {
         const { currentUser, wantEdit } = this.state;
-        const {isNewUser} = this.props;
+        const { isNewUser }             = this.props;
 
         if (wantEdit || isNewUser) {
-            currentUser[type][e.target.name] = e.target.value;
-            this.setState({ currentUser });
+            const name  = e.target.name;
+            const value = e.target.value;
+
+            currentUser[obj][name] = value;
+            this.setState({ currentUser }, () => {
+                this.validateField(name, value);
+            });
         }
         e.preventDefault();
     }
@@ -74,10 +113,17 @@ export default class User extends React.Component {
     }
 
     render () {
-        const { isNewUser }                                       = this.props;
-        const { showAddress, showCompany, wantEdit, currentUser } = this.state;
-        let buttonAddress                                         = '';
-        let buttonCompany                                         = '';
+        const { isNewUser } = this.props;
+        const {
+                  showAddress,
+                  showCompany,
+                  wantEdit,
+                  currentUser,
+                  valid,
+                  formErrors
+              }             = this.state;
+        let buttonAddress   = '';
+        let buttonCompany   = '';
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
@@ -90,7 +136,10 @@ export default class User extends React.Component {
 
         return (
             <form className="UserInfo">
-                <Info info={currentUser.info} onChange={this.handleChange}/>
+                <FormErrors formErrors={formErrors}/>
+                <Info info={currentUser.info}
+                      valid={valid}
+                      onChange={this.handleChange}/>
                 <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
                     {buttonAddress}
                 </button>
@@ -112,9 +161,11 @@ export default class User extends React.Component {
 
                 {
                     isNewUser ?
-                    <button className="ButtonAddUser" onClick={this.handleClickSubmit}>Submit</button> :
+                    <button className="ButtonAddUser" disabled={!this.state.valid.form}
+                            onClick={this.handleClickSubmit}>Submit</button> :
                     (
-                        <button className="ButtonEdit" onClick={this.handleClickEdit}>
+                        <button className="ButtonEdit" disabled={!this.state.valid.form && wantEdit}
+                                onClick={this.handleClickEdit}>
                             {wantEdit ? 'Save' : 'Edit'}
                         </button>
                     )
