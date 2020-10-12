@@ -55,12 +55,12 @@ export default class User extends React.Component {
         e.preventDefault();
     }
 
-    handleChange (e, str) {
+    handleChange (e, type) {
         const { currentUser, wantEdit } = this.state;
         const {isNewUser} = this.props;
 
         if (wantEdit || isNewUser) {
-            currentUser[str][e.target.name] = e.target.value;
+            currentUser[type][e.target.name] = e.target.value;
             this.setState({ currentUser });
         }
         e.preventDefault();
