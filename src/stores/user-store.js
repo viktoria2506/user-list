@@ -35,9 +35,8 @@ class UserStore extends EventEmitter {
     }
 
     _updateUser (user) {
-        const id               = user.id;
-        this._users[id - 1]    = user;
-        this._users[id - 1].id = id;
+        const index        = this._users.findIndex((oldUser) => user.id === oldUser.id);
+        this._users[index] = user;
     }
 
     registerActions (action) {

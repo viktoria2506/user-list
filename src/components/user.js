@@ -43,22 +43,24 @@ export default class User extends React.Component {
     }
 
     handleClickEdit (e) {
-        const { currentUser } = this.state;
-        const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const { currentUser, wantEdit } = this.state;
 
-        this.setState({ wantEdit: !this.state.wantEdit });
+        if (wantEdit) {
+            const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        if (this.state.wantEdit) {
             UserAction.updateUser(newUser);
         }
+
+        this.setState({ wantEdit: !this.state.wantEdit });
         e.preventDefault();
     }
 
-    handleChange (e, obj) {
-        const { currentUser } = this.state;
+    handleChange (e, str) {
+        const { currentUser, wantEdit } = this.state;
+        const {isNewUser} = this.props;
 
-        if (this.state.wantEdit || this.props.isNewUser) {
-            currentUser[obj][e.target.name] = e.target.value;
+        if (wantEdit || isNewUser) {
+            currentUser[str][e.target.name] = e.target.value;
             this.setState({ currentUser });
         }
         e.preventDefault();
@@ -66,7 +68,7 @@ export default class User extends React.Component {
 
     handleClickSubmit () {
         const { currentUser } = this.state;
-        const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const newUser         = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
         UserAction.addNewUser(newUser);
     }
@@ -109,12 +111,14 @@ export default class User extends React.Component {
                 }
 
                 {
-                    isNewUser ? <button className="ButtonAddUser" onClick={this.handleClickSubmit}>
-                               Submit
-                             </button>
-                           : <button className="ButtonEdit" onClick={this.handleClickEdit}>
-                               {wantEdit ? 'Save' : 'Edit'}
-                             </button>
+                    isNewUser ?
+                    <button className="ButtonAddUser" onClick={this.handleClickSubmit}>Submit</button> :
+                    (
+                        <button className="ButtonEdit" onClick={this.handleClickEdit}>
+                            {wantEdit ? 'Save' : 'Edit'}
+                        </button>
+                    )
+
                 }
             </form>
         );
