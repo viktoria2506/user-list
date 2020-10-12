@@ -1,35 +1,83 @@
 import React from 'react';
 
+import UserInfo from '../stores/user-info';
+import UserAction from '../actions/user-action';
+
 import Address from './address.js';
 import Company from './company.js';
+import Info from './user-info';
+
 
 export default class User extends React.Component {
     constructor (props) {
         super(props);
 
+        const { info = {}, address = {}, company = {} } = this.props;
+
         this.state = {
+            currentUser: {
+                info,
+                address,
+                company
+            },
             showAddress: false,
-            showCompany: false
+            showCompany: false,
+            wantEdit:    false
         };
 
         this.handleClickAddress = this.handleClickAddress.bind(this);
         this.handleClickCompany = this.handleClickCompany.bind(this);
+        this.handleChange       = this.handleChange.bind(this);
+        this.handleClickEdit    = this.handleClickEdit.bind(this);
+        this.handleClickSubmit  = this.handleClickSubmit.bind(this);
     }
 
-    handleClickAddress () {
+    handleClickAddress (e) {
         this.setState({ showAddress: !this.state.showAddress });
+        e.preventDefault();
     }
 
-    handleClickCompany () {
+    handleClickCompany (e) {
         this.setState({ showCompany: !this.state.showCompany });
+        e.preventDefault();
     }
 
+    handleClickEdit (e) {
+        const { currentUser, wantEdit } = this.state;
+
+        if (wantEdit) {
+            const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+
+            UserAction.updateUser(newUser);
+        }
+
+        this.setState({ wantEdit: !wantEdit });
+        e.preventDefault();
+    }
+
+    handleChange (e, type) {
+        const { currentUser, wantEdit } = this.state;
+        const {isNewUser} = this.props;
+
+        if (wantEdit || isNewUser) {
+            currentUser[type][e.target.name] = e.target.value;
+            this.setState({ currentUser });
+        }
+        e.preventDefault();
+    }
+
+    handleClickSubmit () {
+        const { currentUser } = this.state;
+        const newUser         = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+
+        UserAction.addNewUser(newUser);
+    }
 
     render () {
-        const { name, phone, email, website, address, company, isNewUser } = this.props;
-        const { showAddress, showCompany }                                 = this.state;
-        let buttonAddress                                                  = '';
-        let buttonCompany                                                  = '';
+        const { isNewUser }                                       = this.props;
+        const { showAddress, showCompany, wantEdit, currentUser } = this.state;
+        let buttonAddress                                         = '';
+        let buttonCompany                                         = '';
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
@@ -41,40 +89,38 @@ export default class User extends React.Component {
         }
 
         return (
-            <div className="UserInfo">
-                <p><label>
-                    Name: <input type="text" name="name" defaultValue={name}/>
-                </label></p>
-                <p><label>
-                    Phone: <input type="text" name="phone" defaultValue={phone}/>
-                </label></p>
-                <p><label>
-                    Email: <input type="text" name="email" defaultValue={email}/>
-                </label></p>
-                <p><label>
-                    Website: <input type="text" name="website" defaultValue={website}/>
-                </label></p>
-                <div>
-                    <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
-                        {buttonAddress}
-                    </button>
-                    {
-                        showAddress &&
-                        (
-                            <Address address={address}/>
-                        )
-                    }
-                    <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
-                        {buttonCompany}
-                    </button>
-                    {
-                        showCompany &&
-                        (
-                            <Company company={company}/>
-                        )
-                    }
-                </div>
-            </div>
+            <form className="UserInfo">
+                <Info info={currentUser.info} onChange={this.handleChange}/>
+                <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
+                    {buttonAddress}
+                </button>
+                {
+                    showAddress &&
+                    (
+                        <Address address={currentUser.address} onChange={this.handleChange}/>
+                    )
+                }
+                <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
+                    {buttonCompany}
+                </button>
+                {
+                    showCompany &&
+                    (
+                        <Company company={currentUser.company} onChange={this.handleChange}/>
+                    )
+                }
+
+                {
+                    isNewUser ?
+                    <button className="ButtonAddUser" onClick={this.handleClickSubmit}>Submit</button> :
+                    (
+                        <button className="ButtonEdit" onClick={this.handleClickEdit}>
+                            {wantEdit ? 'Save' : 'Edit'}
+                        </button>
+                    )
+
+                }
+            </form>
         );
     }
 }
