@@ -38,6 +38,8 @@ class UserStore extends EventEmitter {
         const index = this._users.findIndex((oldUser) => user.id === oldUser.id);
         if (index) {
             this._users[index] = user;
+        } else {
+            throw new Error("User with this id not found.")
         }
     }
 
