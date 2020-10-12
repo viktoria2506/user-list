@@ -4,7 +4,6 @@ const ADDRESS = 'address';
 
 export default function Address (props) {
     const { address = {}, onChange } = props;
-
     const _onChange = e => onChange(e, ADDRESS);
 
     return (

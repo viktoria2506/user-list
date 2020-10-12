@@ -51,7 +51,7 @@ export default class User extends React.Component {
             UserAction.updateUser(newUser);
         }
 
-        this.setState({ wantEdit: !this.state.wantEdit });
+        this.setState({ wantEdit: !wantEdit });
         e.preventDefault();
     }
 
