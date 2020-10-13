@@ -22,7 +22,13 @@ export default class User extends React.Component {
                 address,
                 company
             },
-            formErrors:   { name: '', email: '', phone: '', duplicate: '', href: '' },
+            formErrors:   {
+                name:      '',
+                email:     '',
+                phone:     '',
+                duplicate: '',
+                href:      ''
+            },
             valid:        {
                 email: true,
                 name:  true,
@@ -40,6 +46,37 @@ export default class User extends React.Component {
         this.handleChange       = this.handleChange.bind(this);
         this.handleClickEdit    = this.handleClickEdit.bind(this);
         this.handleClickSubmit  = this.handleClickSubmit.bind(this);
+    }
+
+    _validateField (fieldName, value) {
+        let { formErrors, valid } = this.state;
+        let ans;
+
+        switch (fieldName) {
+            case 'name':
+                valid.name      = value !== undefined && value.length > 0;
+                formErrors.name = valid.name ? '' : 'Name can not be empty.';
+                ans             = valid.name;
+                break;
+            case 'phone':
+                valid.phone      = value !== undefined && value.length > 0;
+                formErrors.phone = valid.phone ? '' : 'Phone can not be empty.';
+                ans              = valid.phone;
+                break;
+            case 'email':
+                valid.email      = value !== undefined && !!value.match(/^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i);
+                formErrors.email = valid.email ? '' : 'Email is invalid.';
+                ans              = valid.email;
+                break;
+            default:
+                break;
+        }
+        valid.form = valid.email && valid.name && valid.phone;
+        this.setState({
+            formErrors: formErrors,
+            valid:      valid
+        });
+        return ans;
     }
 
     handleClickAddress (e) {
@@ -64,36 +101,6 @@ export default class User extends React.Component {
         e.preventDefault();
     }
 
-    _validateField (fieldName, value) {
-        let { formErrors, valid } = this.state;
-        let ans;
-
-        switch (fieldName) {
-            case 'name':
-                valid.name      = value !== undefined && value.length > 0;
-                formErrors.name = valid.name ? '' : 'Name can not be empty.';
-                ans = valid.name;
-                break;
-            case 'phone':
-                valid.phone      = value !== undefined && value.length > 0;
-                formErrors.phone = valid.phone ? '' : 'Phone can not be empty.';
-                ans = valid.phone;
-                break;
-            case 'email':
-                valid.email      = value !== undefined && !!value.match(/^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i);
-                formErrors.email = valid.email ? '' : 'Email is invalid.';
-                ans = valid.email;
-                break;
-            default:
-                break;
-        }
-        valid.form = valid.email && valid.name && valid.phone;
-        this.setState({
-            formErrors: formErrors,
-            valid:      valid
-        });
-        return ans;
-    }
 
     handleChange (e, obj) {
         const { currentUser, wantEdit } = this.state;
@@ -148,8 +155,8 @@ export default class User extends React.Component {
                   formErrors
               }             = this.state;
 
-        let buttonAddress   = '';
-        let buttonCompany   = '';
+        let buttonAddress = '';
+        let buttonCompany = '';
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
