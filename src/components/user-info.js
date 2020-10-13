@@ -4,11 +4,11 @@ const INFO = 'info';
 
 export default function Info (props) {
     function errorClass (valid) {
-        return (valid === true ? '' : 'field-error');
+        return valid ? '' : 'field-error';
     }
 
-    const { info = {}, onChange, valid} = props;
-    const _onChange                                                  = e => onChange(e, INFO);
+    const { info = {}, onChange, valid } = props;
+    const _onChange                      = e => onChange(e, INFO);
     return (
         <div>
             <p><label>

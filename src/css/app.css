@@ -84,7 +84,12 @@ p {
     font-family: 'Montserrat', sans-serif;
 }
 
-.field-error{
+.field-error {
     background: #FB9797;
+}
 
+.formErrors {
+    font-size:20px;
+    font-family: 'Montserrat', sans-serif;
+    color: #800000;
 }

@@ -23,10 +23,6 @@ export default class UserList extends React.Component {
         };
     }
 
-    handleClickAddUser () {
-        this.setState({ wantAdd: !this.state.wantAdd });
-    }
-
     _onChange = () => {
         this.setState(this._getAppState());
     };
@@ -37,6 +33,10 @@ export default class UserList extends React.Component {
 
     componentWillUnmount () {
         UserStore.removeListener(CHANGE_EVENT, this._onChange);
+    }
+
+    handleClickAddUser () {
+        this.setState({ wantAdd: !this.state.wantAdd });
     }
 
     render () {

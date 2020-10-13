@@ -22,12 +22,12 @@ export default class User extends React.Component {
                 address,
                 company
             },
-            formErrors:   { name: '', email: '', phone: '' , duplicate: '', href: ''},
+            formErrors:   { name: '', email: '', phone: '', duplicate: '', href: '' },
             valid:        {
                 email: true,
                 name:  true,
                 phone: true,
-                form:  false,
+                form:  true
             },
             showAddress:  false,
             showCompany:  false,
@@ -64,21 +64,25 @@ export default class User extends React.Component {
         e.preventDefault();
     }
 
-    validateField (fieldName, value) {
+    _validateField (fieldName, value) {
         let { formErrors, valid } = this.state;
+        let ans;
 
         switch (fieldName) {
             case 'name':
-                valid.name      = value.length > 0;
-                formErrors.name = valid.name ? '' : 'Name cannot be empty';
+                valid.name      = value !== undefined && value.length > 0;
+                formErrors.name = valid.name ? '' : 'Name can not be empty.';
+                ans = valid.name;
                 break;
             case 'phone':
-                valid.phone      = value.length > 0;
-                formErrors.phone = valid.phone ? '' : 'Phone cannot be empty';
+                valid.phone      = value !== undefined && value.length > 0;
+                formErrors.phone = valid.phone ? '' : 'Phone can not be empty.';
+                ans = valid.phone;
                 break;
             case 'email':
-                valid.email      = value.match(/^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i);
-                formErrors.email = valid.email ? '' : 'Email is invalid';
+                valid.email      = value !== undefined && !!value.match(/^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i);
+                formErrors.email = valid.email ? '' : 'Email is invalid.';
+                ans = valid.email;
                 break;
             default:
                 break;
@@ -88,6 +92,7 @@ export default class User extends React.Component {
             formErrors: formErrors,
             valid:      valid
         });
+        return ans;
     }
 
     handleChange (e, obj) {
@@ -100,8 +105,7 @@ export default class User extends React.Component {
 
             currentUser[obj][name] = value;
             this.setState({ currentUser }, () => {
-
-                this.validateField(name, value);
+                this._validateField(name, value);
             });
         }
         e.preventDefault();
@@ -109,25 +113,28 @@ export default class User extends React.Component {
 
     handleClickSubmit (e) {
         const { currentUser, addDuplicate, formErrors } = this.state;
-        const newUser                    = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const newUser                                   = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
         if (UserStore.checkUserNameExist(newUser) && !addDuplicate) {
             this.setState({ addDuplicate: !addDuplicate });
-            const userId = UserStore.getUserId(newUser);
-            var scrollNode = document.getElementById(userId);
+            const userId = UserStore.getUserIdExist(newUser);
+
             formErrors.dublicate = 'User with this name exists. Click Submit if you want to add anyway.';
-            debugger;
-            formErrors.href = `#${userId}`;
-            debugger;
+            formErrors.href      = `#${userId}`;
             this.setState({
                 formErrors: formErrors
             });
         }
         else {
-            UserAction.addNewUser(newUser);
+            const validName  = this._validateField('name', currentUser.info.name);
+            const validPhone = this._validateField('phone', currentUser.info.phone);
+            const validEmail = this._validateField('email', currentUser.info.email);
+
+            if (validName && validPhone && validEmail) {
+                UserAction.addNewUser(newUser);
+            }
         }
         e.preventDefault();
-
     }
 
     render () {
@@ -140,6 +147,7 @@ export default class User extends React.Component {
                   valid,
                   formErrors
               }             = this.state;
+
         let buttonAddress   = '';
         let buttonCompany   = '';
 
@@ -176,7 +184,6 @@ export default class User extends React.Component {
                         <Company company={currentUser.company} onChange={this.handleChange}/>
                     )
                 }
-
                 {
                     isNewUser ?
                     <button className="ButtonAddUser" disabled={!this.state.valid.form}
