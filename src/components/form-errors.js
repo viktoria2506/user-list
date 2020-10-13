@@ -6,8 +6,13 @@ export default function FormError ({formErrors}) {
             {
                 Object.keys(formErrors).map((fieldName, i) => {
                     if (formErrors[fieldName].length > 0) {
+                        if(fieldName === 'href') {
+                            return (
+                                <a href={formErrors[fieldName]}>Show an object with that name.</a>
+                            );
+                        }
                         return (
-                            <p key={i}>{fieldName} {formErrors[fieldName]}</p>
+                            <p key={i}>{formErrors[fieldName]}</p>
                         );
                     }
                     else {

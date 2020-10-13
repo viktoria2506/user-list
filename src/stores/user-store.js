@@ -57,6 +57,14 @@ class UserStore extends EventEmitter {
     getUsers () {
         return this._users;
     }
+
+    checkUserNameExist (user) {
+        const index = this._users.findIndex((oldUser) => user.name === oldUser.name);
+        return index >= 0;
+    }
+    getUserId (user) {
+        return this._users.findIndex((oldUser) => user.name === oldUser.name);
+    }
 }
 
 export default new UserStore();

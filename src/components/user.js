@@ -2,6 +2,7 @@ import React from 'react';
 
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
+import UserStore from '../stores/user-store';
 
 import Address from './address.js';
 import Company from './company.js';
@@ -16,21 +17,22 @@ export default class User extends React.Component {
         const { info = {}, address = {}, company = {} } = this.props;
 
         this.state = {
-            currentUser: {
+            currentUser:  {
                 info,
                 address,
                 company
             },
-            formErrors:  { name: '', email: '', phone: '' },
-            valid:       {
+            formErrors:   { name: '', email: '', phone: '' , duplicate: '', href: ''},
+            valid:        {
                 email: true,
                 name:  true,
                 phone: true,
                 form:  false,
             },
-            showAddress: false,
-            showCompany: false,
-            wantEdit:    false
+            showAddress:  false,
+            showCompany:  false,
+            wantEdit:     false,
+            addDuplicate: false
         };
 
         this.handleClickAddress = this.handleClickAddress.bind(this);
@@ -68,15 +70,15 @@ export default class User extends React.Component {
         switch (fieldName) {
             case 'name':
                 valid.name      = value.length > 0;
-                formErrors.name = valid.name ? '' : ' cannot be empty';
+                formErrors.name = valid.name ? '' : 'Name cannot be empty';
                 break;
             case 'phone':
                 valid.phone      = value.length > 0;
-                formErrors.phone = valid.phone ? '' : ' cannot be empty';
+                formErrors.phone = valid.phone ? '' : 'Phone cannot be empty';
                 break;
             case 'email':
                 valid.email      = value.match(/^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i);
-                formErrors.email = valid.email ? '' : ' is invalid';
+                formErrors.email = valid.email ? '' : 'Email is invalid';
                 break;
             default:
                 break;
@@ -84,10 +86,9 @@ export default class User extends React.Component {
         valid.form = valid.email && valid.name && valid.phone;
         this.setState({
             formErrors: formErrors,
-            valid:    valid
+            valid:      valid
         });
     }
-
 
     handleChange (e, obj) {
         const { currentUser, wantEdit } = this.state;
@@ -99,17 +100,34 @@ export default class User extends React.Component {
 
             currentUser[obj][name] = value;
             this.setState({ currentUser }, () => {
+
                 this.validateField(name, value);
             });
         }
         e.preventDefault();
     }
 
-    handleClickSubmit () {
-        const { currentUser } = this.state;
-        const newUser         = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+    handleClickSubmit (e) {
+        const { currentUser, addDuplicate, formErrors } = this.state;
+        const newUser                    = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        UserAction.addNewUser(newUser);
+        if (UserStore.checkUserNameExist(newUser) && !addDuplicate) {
+            this.setState({ addDuplicate: !addDuplicate });
+            const userId = UserStore.getUserId(newUser);
+            var scrollNode = document.getElementById(userId);
+            formErrors.dublicate = 'User with this name exists. Click Submit if you want to add anyway.';
+            debugger;
+            formErrors.href = `#${userId}`;
+            debugger;
+            this.setState({
+                formErrors: formErrors
+            });
+        }
+        else {
+            UserAction.addNewUser(newUser);
+        }
+        e.preventDefault();
+
     }
 
     render () {
@@ -133,9 +151,9 @@ export default class User extends React.Component {
             buttonAddress = `${showAddress ? 'Hide' : 'Show'} Address`;
             buttonCompany = `${showCompany ? 'Hide' : 'Show'} Company`;
         }
-
+        const userId = `${currentUser.info.id}`;
         return (
-            <form className="UserInfo">
+            <form className="UserInfo" id={userId}>
                 <FormErrors formErrors={formErrors}/>
                 <Info info={currentUser.info}
                       valid={valid}
