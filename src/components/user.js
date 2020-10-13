@@ -59,8 +59,8 @@ export default class User extends React.Component {
                 ans             = valid.name;
                 break;
             case 'phone':
-                valid.phone      = value !== undefined && value.length > 0;
-                formErrors.phone = valid.phone ? '' : 'Phone can not be empty.';
+                valid.phone      = value !== undefined && value.match(/^([\d.\-+x()]+)$/i);
+                formErrors.phone = valid.phone ? '' : 'Phone is invalid.';
                 ans              = valid.phone;
                 break;
             case 'email':
