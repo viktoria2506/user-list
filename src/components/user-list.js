@@ -2,7 +2,7 @@ import React from 'react';
 
 import '../css/app.css';
 import UserStore from '../stores/user-store';
-import CHANGE_EVENT from '../stores/event-type';
+import EVENT_TYPE from '../stores/event-type';
 
 import User from './user.js';
 
@@ -12,7 +12,7 @@ export default class UserList extends React.Component {
 
         this.state = this._getAppState();
 
-        this.handleClickAddUser = this.handleClickAddUser.bind(this);
+        this._handleClickAddUser = this._handleClickAddUser.bind(this);
     }
 
     _getAppState () {
@@ -27,16 +27,16 @@ export default class UserList extends React.Component {
         this.setState(this._getAppState());
     };
 
+    _handleClickAddUser () {
+        this.setState({ wantAdd: !this.state.wantAdd });
+    }
+
     componentDidMount () {
-        UserStore.on(CHANGE_EVENT, this._onChange);
+        UserStore.on(EVENT_TYPE.change, this._onChange);
     }
 
     componentWillUnmount () {
-        UserStore.removeListener(CHANGE_EVENT, this._onChange);
-    }
-
-    handleClickAddUser () {
-        this.setState({ wantAdd: !this.state.wantAdd });
+        UserStore.off(EVENT_TYPE.change, this._onChange);
     }
 
     render () {
@@ -44,7 +44,7 @@ export default class UserList extends React.Component {
 
         return (
             <div className="UserList">
-                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this.handleClickAddUser}>
+                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this._handleClickAddUser}>
                     Add new User
                 </button>
                 {

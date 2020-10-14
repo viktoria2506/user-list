@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import Dispatcher from '../dispatcher/app-dispatcher';
 import usersData from '../data/users.json';
 import UserInfo from './user-info';
-import CHANGE_EVENT from './event-type';
+import EVENT_TYPE from './event-type';
 import ACTION_TYPE from '../actions/action-type';
 
 class UserStore extends EventEmitter {
@@ -29,9 +29,14 @@ class UserStore extends EventEmitter {
         Dispatcher.register(this.registerActions.bind(this));
     }
 
-    _addNewUser (user) {
-        user.id = this._users.length + 1;
-        this._users.push(user);
+    _addNewUser (user, force) {
+        const index = this._users.findIndex((oldUser) => user.name === oldUser.name);
+        if (index === -1 || force) {
+            user.id = this._users.length + 1;
+            this._users.push(user);
+        } else {
+            return this._users[index].id;
+        }
     }
 
     _updateUser (user) {
@@ -45,26 +50,21 @@ class UserStore extends EventEmitter {
 
     registerActions (action) {
         if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
-            this._addNewUser(action.user);
-            this.emit(CHANGE_EVENT);
+            let result = this._addNewUser(action.user, action.force);
+            if (result >= 0) {
+                this.emit(EVENT_TYPE.addNewUser, result);
+            } else {
+                this.emit(EVENT_TYPE.change);
+            }
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {
             this._updateUser(action.user);
-            this.emit(CHANGE_EVENT);
+            this.emit(EVENT_TYPE.change);
         }
     }
 
     getUsers () {
         return this._users;
-    }
-
-    checkUserNameExist (user) {
-        const index = this._users.findIndex((oldUser) => user.name === oldUser.name);
-        return index >= 0;
-    }
-
-    getUserIdExist (user) {
-        return this._users.findIndex((oldUser) => user.name === oldUser.name);
     }
 }
 

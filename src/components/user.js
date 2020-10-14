@@ -3,12 +3,16 @@ import React from 'react';
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 import UserStore from '../stores/user-store';
+import classNames from 'classnames';
+import EVENT_TYPE from '../stores/event-type';
 
 import Address from './address.js';
 import Company from './company.js';
-import Info from './user-info';
+import Info from './info';
 import FormErrors from './form-errors';
 
+const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
+const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
 
 export default class User extends React.Component {
     constructor (props) {
@@ -26,14 +30,7 @@ export default class User extends React.Component {
                 name:      '',
                 email:     '',
                 phone:     '',
-                duplicate: '',
-                href:      ''
-            },
-            valid:        {
-                email: true,
-                name:  true,
-                phone: true,
-                form:  true
+                duplicate: ['', '']
             },
             showAddress:  false,
             showCompany:  false,
@@ -41,55 +38,52 @@ export default class User extends React.Component {
             addDuplicate: false
         };
 
-        this.handleClickAddress = this.handleClickAddress.bind(this);
-        this.handleClickCompany = this.handleClickCompany.bind(this);
-        this.handleChange       = this.handleChange.bind(this);
-        this.handleClickEdit    = this.handleClickEdit.bind(this);
-        this.handleClickSubmit  = this.handleClickSubmit.bind(this);
+        this._handleClickAddress = this._handleClickAddress.bind(this);
+        this._handleClickCompany = this._handleClickCompany.bind(this);
+        this._handleChange       = this._handleChange.bind(this);
+        this._handleClickEdit    = this._handleClickEdit.bind(this);
+        this._handleClickSubmit  = this._handleClickSubmit.bind(this);
+        this._addUser            = this._addUser.bind(this);
     }
 
     _validateField (fieldName, value) {
-        let { formErrors, valid } = this.state;
-        let ans;
-
         switch (fieldName) {
             case 'name':
-                valid.name      = value !== undefined && value.length > 0;
-                formErrors.name = valid.name ? '' : 'Name can not be empty.';
-                ans             = valid.name;
-                break;
+                return (value !== undefined && value.length > 0) ? '' : 'Name can not be empty.';
             case 'phone':
-                valid.phone      = value !== undefined && value.match(/^([\d.\-+x()]+)$/i);
-                formErrors.phone = valid.phone ? '' : 'Phone is invalid.';
-                ans              = valid.phone;
-                break;
+                return (value !== undefined && MATCH_PHONE.test(value)) ? '' : 'Phone is invalid.';
             case 'email':
-                valid.email      = value !== undefined && !!value.match(/^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i);
-                formErrors.email = valid.email ? '' : 'Email is invalid.';
-                ans              = valid.email;
-                break;
+                return (value !== undefined && MATCH_EMAIL.test(value)) ? '' : 'Email is invalid.';
             default:
-                break;
+                return '';
         }
-        valid.form = valid.email && valid.name && valid.phone;
-        this.setState({
-            formErrors: formErrors,
-            valid:      valid
-        });
-        return ans;
     }
 
-    handleClickAddress (e) {
+    _validateFields (user) {
+        const nameValid  = this._validateField('name', user.name);
+        const phoneValid = this._validateField('phone', user.phone);
+        const emailValid = this._validateField('email', user.email);
+
+        if (nameValid === '' && phoneValid === '' && emailValid === '') {
+            return true;
+        }
+        else {
+            return { nameValid, phoneValid, emailValid };
+        }
+
+    }
+
+    _handleClickAddress (e) {
         this.setState({ showAddress: !this.state.showAddress });
         e.preventDefault();
     }
 
-    handleClickCompany (e) {
+    _handleClickCompany (e) {
         this.setState({ showCompany: !this.state.showCompany });
         e.preventDefault();
     }
 
-    handleClickEdit (e) {
+    _handleClickEdit (e) {
         const { currentUser, wantEdit } = this.state;
 
         if (wantEdit) {
@@ -102,46 +96,54 @@ export default class User extends React.Component {
     }
 
 
-    handleChange (e, obj) {
-        const { currentUser, wantEdit } = this.state;
-        const { isNewUser }             = this.props;
+    _handleChange (e, obj) {
+        const { currentUser, wantEdit, formErrors } = this.state;
+        const { isNewUser }                         = this.props;
 
         if (wantEdit || isNewUser) {
             const name  = e.target.name;
             const value = e.target.value;
 
             currentUser[obj][name] = value;
-            this.setState({ currentUser }, () => {
-                this._validateField(name, value);
-            });
+            formErrors[name] = this._validateField(name, value);
+            this.setState({ currentUser, formErrors });
         }
         e.preventDefault();
     }
 
-    handleClickSubmit (e) {
+    _addUser (userId) {
+        const { isNewUser } = this.props;
+
+        if (isNewUser && userId >= 0) {
+            this.state.formErrors.duplicate[0] = 'User with this name exists. Click Submit if you want to add anyway.';
+            this.state.formErrors.duplicate[1] = `#${userId}`;
+            this.setState({ formErrors: this.state.formErrors, addDuplicate: !this.state.addDuplicate });
+        }
+    };
+
+    _handleClickSubmit (e) {
         const { currentUser, addDuplicate, formErrors } = this.state;
         const newUser                                   = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const resultValid                               = this._validateFields(currentUser.info);
 
-        if (UserStore.checkUserNameExist(newUser) && !addDuplicate) {
-            this.setState({ addDuplicate: !addDuplicate });
-            const userId = UserStore.getUserIdExist(newUser);
-
-            formErrors.dublicate = 'User with this name exists. Click Submit if you want to add anyway.';
-            formErrors.href      = `#${userId}`;
-            this.setState({
-                formErrors: formErrors
-            });
+        if (resultValid === true) {
+            UserAction.addNewUser(newUser, addDuplicate);
         }
         else {
-            const validName  = this._validateField('name', currentUser.info.name);
-            const validPhone = this._validateField('phone', currentUser.info.phone);
-            const validEmail = this._validateField('email', currentUser.info.email);
-
-            if (validName && validPhone && validEmail) {
-                UserAction.addNewUser(newUser);
-            }
+            formErrors.name  = resultValid.nameValid;
+            formErrors.phone = resultValid.phoneValid;
+            formErrors.email = resultValid.emailValid;
+            this.setState({ formErrors });
         }
         e.preventDefault();
+    }
+
+    componentDidMount () {
+        UserStore.on(EVENT_TYPE.addNewUser, this._addUser);
+    }
+
+    componentWillUnmount () {
+        UserStore.off(EVENT_TYPE.addNewUser, this._addUser);
     }
 
     render () {
@@ -151,12 +153,12 @@ export default class User extends React.Component {
                   showCompany,
                   wantEdit,
                   currentUser,
-                  valid,
                   formErrors
               }             = this.state;
 
-        let buttonAddress = '';
-        let buttonCompany = '';
+        let buttonAddress       = '';
+        let buttonCompany       = '';
+        const isFormFieldsValid = this._validateFields(currentUser.info);
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
@@ -166,38 +168,41 @@ export default class User extends React.Component {
             buttonAddress = `${showAddress ? 'Hide' : 'Show'} Address`;
             buttonCompany = `${showCompany ? 'Hide' : 'Show'} Company`;
         }
-        const userId = `${currentUser.info.id}`;
+
+
         return (
-            <form className="UserInfo" id={userId}>
-                <FormErrors formErrors={formErrors}/>
+            <form className="UserInfo" id={`${currentUser.info.id}`}>
+                <FormErrors formErrors={formErrors} fieldName='duplicate'/>
                 <Info info={currentUser.info}
-                      valid={valid}
-                      onChange={this.handleChange}/>
-                <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
+                      formErrors={formErrors}
+                      onChange={this._handleChange}/>
+                <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
                     {buttonAddress}
                 </button>
                 {
                     showAddress &&
                     (
-                        <Address address={currentUser.address} onChange={this.handleChange}/>
+                        <Address address={currentUser.address} onChange={this._handleChange}/>
                     )
                 }
-                <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
+                <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
                     {buttonCompany}
                 </button>
                 {
                     showCompany &&
                     (
-                        <Company company={currentUser.company} onChange={this.handleChange}/>
+                        <Company company={currentUser.company} onChange={this._handleChange}/>
                     )
                 }
                 {
                     isNewUser ?
-                    <button className="ButtonAddUser" disabled={!this.state.valid.form}
-                            onClick={this.handleClickSubmit}>Submit</button> :
+                    <button
+                        className={classNames({ ButtonAddUser: isFormFieldsValid, ButtonDisabled: !isFormFieldsValid })}
+                        disabled={!isFormFieldsValid}
+                        onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <button className="ButtonEdit" disabled={!this.state.valid.form && wantEdit}
-                                onClick={this.handleClickEdit}>
+                        <button className="ButtonEdit" disabled={!isFormFieldsValid && wantEdit}
+                                onClick={this._handleClickEdit}>
                             {wantEdit ? 'Save' : 'Edit'}
                         </button>
                     )

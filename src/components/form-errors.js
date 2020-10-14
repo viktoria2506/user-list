@@ -1,26 +1,19 @@
 import React from 'react';
 
-export default function FormError ({ formErrors }) {
+export default function FormError (props) {
+    const { formErrors, fieldName } = props;
+
+    if (fieldName === 'duplicate' && formErrors[fieldName][0].length > 0) {
+        const textError = formErrors[fieldName][0];
+        const href      = formErrors[fieldName][1];
+        const link      = <a href={href}>{textError.substr(0, textError.indexOf(' '))}</a>;
+
+        return (
+            <nobr>{link} {textError.substr(textError.indexOf(' '), textError.length)}</nobr>
+        );
+    }
     return (
-        <div className='formErrors'>
-            {
-                Object.keys(formErrors).map((fieldName, i) => {
-                    if (formErrors[fieldName].length > 0) {
-                        if (fieldName === 'href') {
-                            return (
-                                <a href={formErrors[fieldName]}>Show an object with that name.</a>
-                            );
-                        }
-                        return (
-                            <p key={i}>{formErrors[fieldName]}</p>
-                        );
-                    }
-                    else {
-                        return '';
-                    }
-                })
-            }
-        </div>
+        <nobr className="formErrors">{formErrors[fieldName]}</nobr>
     );
 }
 
