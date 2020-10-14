@@ -70,7 +70,6 @@ export default class User extends React.Component {
         else {
             return { nameValid, phoneValid, emailValid };
         }
-
     }
 
     _handleClickAddress (e) {
@@ -95,7 +94,6 @@ export default class User extends React.Component {
         e.preventDefault();
     }
 
-
     _handleChange (e, obj) {
         const { currentUser, wantEdit, formErrors } = this.state;
         const { isNewUser }                         = this.props;
@@ -112,7 +110,7 @@ export default class User extends React.Component {
     }
 
     _addUser (userId) {
-        const { isNewUser }  = this.props;
+        const { isNewUser }                = this.props;
         const { formErrors, addDuplicate } = this.state;
 
         if (isNewUser && userId > 0) {
@@ -148,18 +146,17 @@ export default class User extends React.Component {
     }
 
     render () {
-        const { isNewUser } = this.props;
+        const { isNewUser }     = this.props;
         const {
                   showAddress,
                   showCompany,
                   wantEdit,
                   currentUser,
                   formErrors
-              }             = this.state;
-
+              }                 = this.state;
+        const isFormFieldsValid = this._validateFields(currentUser.info);
         let buttonAddress       = '';
         let buttonCompany       = '';
-        const isFormFieldsValid = this._validateFields(currentUser.info);
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
@@ -169,7 +166,6 @@ export default class User extends React.Component {
             buttonAddress = `${showAddress ? 'Hide' : 'Show'} Address`;
             buttonCompany = `${showCompany ? 'Hide' : 'Show'} Company`;
         }
-
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
@@ -207,7 +203,6 @@ export default class User extends React.Component {
                             {wantEdit ? 'Save' : 'Edit'}
                         </button>
                     )
-
                 }
             </form>
         );

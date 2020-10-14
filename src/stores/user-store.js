@@ -51,7 +51,7 @@ class UserStore extends EventEmitter {
     registerActions (action) {
         if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
             let result = this._addNewUser(action.user, action.force);
-            if (result >= 0) {
+            if (result > 0) {
                 this.emit(EVENT_TYPE.addNewUser, result);
             } else {
                 this.emit(EVENT_TYPE.change);
