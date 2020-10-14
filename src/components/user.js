@@ -105,19 +105,20 @@ export default class User extends React.Component {
             const value = e.target.value;
 
             currentUser[obj][name] = value;
-            formErrors[name] = this._validateField(name, value);
+            formErrors[name]       = this._validateField(name, value);
             this.setState({ currentUser, formErrors });
         }
         e.preventDefault();
     }
 
     _addUser (userId) {
-        const { isNewUser } = this.props;
+        const { isNewUser }  = this.props;
+        const { formErrors, addDuplicate } = this.state;
 
-        if (isNewUser && userId >= 0) {
-            this.state.formErrors.duplicate[0] = 'User with this name exists. Click Submit if you want to add anyway.';
-            this.state.formErrors.duplicate[1] = `#${userId}`;
-            this.setState({ formErrors: this.state.formErrors, addDuplicate: !this.state.addDuplicate });
+        if (isNewUser && userId > 0) {
+            formErrors.duplicate[0] = 'User with this name exists. Click Submit if you want to add anyway.';
+            formErrors.duplicate[1] = `#${userId}`;
+            this.setState({ formErrors: formErrors, addDuplicate: !addDuplicate });
         }
     };
 
