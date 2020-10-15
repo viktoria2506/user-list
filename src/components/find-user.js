@@ -51,15 +51,18 @@ export default class FindUser extends React.Component {
                 </label></p>
                 <p><label>
                     Phone: <input type="text"
-                                  name="phone"/>
+                                  name="phone"
+                                  onChange={this._handleChange}/>
                 </label></p>
                 <p><label>
                     Email: <input type="email"
-                                  name="email"/>
+                                  name="email"
+                                  onChange={this._handleChange}/>
                 </label></p>
                 <p><label>
                     Website: <input type="text"
-                                    name="website"/>
+                                    name="website"
+                                    onChange={this._handleChange}/>
                 </label></p>
                 <button className="Find" onClick={this._handleFind}>Find</button>
             </form>

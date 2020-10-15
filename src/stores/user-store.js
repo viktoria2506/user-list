@@ -53,10 +53,10 @@ class UserStore extends EventEmitter {
 
     _findUser (user) {
         this._foundUsers = this._allUsers.filter((anyUser) =>
-            (anyUser.name.includes(user.name) &&
-             anyUser.phone.includes(user.phone) &&
-             anyUser.email.includes(user.email) &&
-             anyUser.website.includes(user.website)
+            (anyUser.name.toLowerCase().includes(user.name.toLowerCase()) &&
+             anyUser.phone.toLowerCase().includes(user.phone.toLowerCase()) &&
+             anyUser.email.toLowerCase().includes(user.email.toLowerCase()) &&
+             anyUser.website.toLowerCase().includes(user.website.toLowerCase())
             ));
     }
 
