@@ -18,7 +18,6 @@ export default class UserList extends React.Component {
     _getAppState () {
         return {
             wantAdd:  false,
-            wantEdit: false,
             users:    UserStore.getUsers()
         };
     }
@@ -52,7 +51,6 @@ export default class UserList extends React.Component {
                     (
                         <User isNewUser={true}/>
                     )
-
                 }
                 <hr/>
                 {
@@ -77,7 +75,6 @@ export default class UserList extends React.Component {
                         );
                     })
                 }
-
             </div>
         );
     }
