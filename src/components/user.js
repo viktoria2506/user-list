@@ -1,9 +1,9 @@
 import React from 'react';
+import classNames from 'classnames';
 
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 import UserStore from '../stores/user-store';
-import classNames from 'classnames';
 import EVENT_TYPE from '../stores/event-type';
 
 import Address from './address.js';

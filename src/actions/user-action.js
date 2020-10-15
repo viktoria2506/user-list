@@ -1,7 +1,6 @@
 import Dispatcher from '../dispatcher/app-dispatcher';
 import ACTION_TYPE from './action-type';
 
-
 class UserAction {
     addNewUser (user, force) {
         Dispatcher.dispatch({

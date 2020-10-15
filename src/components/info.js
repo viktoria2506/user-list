@@ -1,5 +1,4 @@
 import React from 'react';
-
 import classNames from 'classnames';
 
 import FormErrors from './form-errors';
@@ -8,11 +7,11 @@ const INFO = 'info';
 
 export default function Info (props) {
     function errorClass (valid) {
-        return classNames({ 'UserInfo': valid === '', 'field-error': valid !== ''});
+        return classNames({ 'UserInfo': valid === '', 'field-error': valid !== '' });
     }
 
     const { info = {}, onChange, formErrors } = props;
-    const _onChange                                  = e => onChange(e, INFO);
+    const _onChange                           = e => onChange(e, INFO);
 
     return (
         <div className="Info">

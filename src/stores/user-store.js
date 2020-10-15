@@ -52,7 +52,7 @@ class UserStore extends EventEmitter {
     }
 
     _findUser (user) {
-         this._foundUsers  = this._allUsers.filter((anyUser) =>
+        this._foundUsers = this._allUsers.filter((anyUser) =>
             (anyUser.name.includes(user.name) &&
              anyUser.phone.includes(user.phone) &&
              anyUser.email.includes(user.email) &&
@@ -83,11 +83,6 @@ class UserStore extends EventEmitter {
     getAllUsers () {
         return this._allUsers;
     }
-
-    getFoundUsers () {
-
-    }
-
 }
 
 export default new UserStore();
