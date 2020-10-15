@@ -17,6 +17,13 @@ class UserAction {
             user:        user
         });
     }
+
+    findUser (user) {
+        Dispatcher.dispatch({
+            ACTION_TYPE: ACTION_TYPE.findUser,
+            user:        user
+        });
+    }
 }
 
 export default new UserAction();

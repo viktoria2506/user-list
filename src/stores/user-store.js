@@ -7,12 +7,13 @@ import EVENT_TYPE from './event-type';
 import ACTION_TYPE from '../actions/action-type';
 
 class UserStore extends EventEmitter {
-    _users = [];
+    _allUsers   = [];
+    _foundUsers = [];
 
     constructor () {
         super();
 
-        this._users = usersData.map((user) => {
+        this._allUsers = usersData.map((user) => {
             return new UserInfo(
                 {
                     id:      user.id,
@@ -30,22 +31,33 @@ class UserStore extends EventEmitter {
     }
 
     _addNewUser (user, force) {
-        const index = this._users.findIndex((oldUser) => user.name === oldUser.name);
+        const index = this._allUsers.findIndex((oldUser) => user.name === oldUser.name);
         if (index === -1 || force) {
-            user.id = this._users.length + 1;
-            this._users.push(user);
-        } else {
-            return this._users[index].id;
+            user.id = this._allUsers.length + 1;
+            this._allUsers.push(user);
+        }
+        else {
+            return this._allUsers[index].id;
         }
     }
 
     _updateUser (user) {
-        const index = this._users.findIndex((oldUser) => user.id === oldUser.id);
+        const index = this._allUsers.findIndex((oldUser) => user.id === oldUser.id);
         if (index >= 0) {
-            this._users[index] = user;
-        } else {
-            throw new Error("User with this id not found.")
+            this._allUsers[index] = user;
         }
+        else {
+            throw new Error('User with this id not found.');
+        }
+    }
+
+    _findUser (user) {
+         this._foundUsers  = this._allUsers.filter((anyUser) =>
+            (anyUser.name.includes(user.name) &&
+             anyUser.phone.includes(user.phone) &&
+             anyUser.email.includes(user.email) &&
+             anyUser.website.includes(user.website)
+            ));
     }
 
     registerActions (action) {
@@ -53,19 +65,29 @@ class UserStore extends EventEmitter {
             let result = this._addNewUser(action.user, action.force);
             if (result > 0) {
                 this.emit(EVENT_TYPE.addNewUser, result);
-            } else {
-                this.emit(EVENT_TYPE.change);
+            }
+            else {
+                this.emit(EVENT_TYPE.change, this._allUsers);
             }
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {
             this._updateUser(action.user);
-            this.emit(EVENT_TYPE.change);
+            this.emit(EVENT_TYPE.change, this._allUsers);
+        }
+        else if (action.ACTION_TYPE === ACTION_TYPE.findUser) {
+            this._findUser(action.user);
+            this.emit(EVENT_TYPE.change, this._foundUsers);
         }
     }
 
-    getUsers () {
-        return this._users;
+    getAllUsers () {
+        return this._allUsers;
     }
+
+    getFoundUsers () {
+
+    }
+
 }
 
 export default new UserStore();
