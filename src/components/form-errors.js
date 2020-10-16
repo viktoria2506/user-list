@@ -15,7 +15,6 @@ export default function FormError (props) {
         return null;
     }
     else {
-        debugger;
         return (
             <nobr className="formErrors">{formErrors[fieldName]}</nobr>
         );

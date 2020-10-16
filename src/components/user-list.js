@@ -9,9 +9,8 @@ export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state = this._getAppState();
+        this.state               = this._getAppState();
         this._handleClickAddUser = this._handleClickAddUser.bind(this);
-        this._onChange           = this._onChange.bind(this);
     }
 
     _getAppState () {
@@ -21,7 +20,7 @@ export default class UserList extends React.Component {
         };
     }
 
-    _onChange () {
+    _onChange = () => {
         this.setState(this._getAppState());
     };
 
@@ -45,7 +44,7 @@ export default class UserList extends React.Component {
                 }
                 <hr/>
                 {
-                    users.map((user) => {
+                    users.map(user => {
                         const info = {
                             id:      user.id,
                             name:    user.name,
