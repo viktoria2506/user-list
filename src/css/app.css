@@ -1,18 +1,18 @@
 .UserList {
     text-align: center;
-    background: url(bg-blurry.jpg) no-repeat fixed;
 }
 .UserInner {
     margin-left: 20px;
     text-align: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+html {
+    background: url(bg-blurry.jpg) no-repeat fixed;
 }
-
+.UserInner {
+    margin-left: 20px;
+    text-align: center;
+}
 
 .ButtonAddUser {
     height: 60px;
@@ -114,5 +114,41 @@ p {
     color: #A9A9A9;
     transition: .2s ease-in-out;
     font-size: 24px;
+}
+
+.ButtonFindUser {
+    position:absolute;
+    right:5px;
+    margin-right:84px;
+    margin-left:400px;
+    margin-top: 10px;
+    display: inline-block;
+    padding: 10px 30px;
+    overflow: hidden;
+    border: 2px solid #20B2AA;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    color: #008B8B;
+    transition: .2s ease-in-out;
+    font-size: 24px;
+}
+
+.Find {
+    border: 2px solid #20B2AA;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    color: #008B8B;
+    transition: .2s ease-in-out;
+    font-size: 24px;
+}
+
+.SearchInfo {
+    margin: 1% 20%;
+    background: #E9EFF6;
+    line-height: 30px;
+    border-width: 0px;
+    border-radius: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
 }
 

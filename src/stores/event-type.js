@@ -4,4 +4,5 @@ const EVENT_TYPE = {
  addingFailed: 'ADD_FAIL_EVENT'
 };
 
- export default EVENT_TYPE;
+export default EVENT_TYPE;
+
