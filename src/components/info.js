@@ -5,6 +5,9 @@ import classNames from 'classnames';
 import FormErrors from './form-errors';
 
 const INFO = 'info';
+const NAME = 'name';
+const PHONE = 'phone';
+const EMAIL = 'email';
 
 export default function Info (props) {
     function errorClass (error) {
@@ -22,7 +25,7 @@ export default function Info (props) {
                               className={`${errorClass(formErrors.name)}`}
                               value={info.name}
                               onChange={_onChange}/>
-                <FormErrors formErrors={formErrors} fieldName='name'/>
+                <FormErrors formErrors={formErrors} fieldName={NAME}/>
             </label></p>
             <p><label>
                 *Phone: <input type="text"
@@ -30,7 +33,7 @@ export default function Info (props) {
                                className={`${errorClass(formErrors.phone)}`}
                                value={info.phone}
                                onChange={_onChange}/>
-                <FormErrors formErrors={formErrors} fieldName='phone'/>
+                <FormErrors formErrors={formErrors} fieldName={PHONE}/>
             </label></p>
             <p><label>
                 *Email: <input type="email"
@@ -38,7 +41,7 @@ export default function Info (props) {
                                className={`${errorClass(formErrors.email)}`}
                                value={info.email}
                                onChange={_onChange}/>
-                <FormErrors formErrors={formErrors} fieldName='email'/>
+                <FormErrors formErrors={formErrors} fieldName={EMAIL}/>
             </label></p>
             <p><label>
                 Website: <input type="text"

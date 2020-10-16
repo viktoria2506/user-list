@@ -2,17 +2,22 @@ import React from 'react';
 
 export default function FormError (props) {
     const { formErrors, fieldName} = props;
-    if (fieldName === 'duplicateUser' && formErrors[fieldName].text.length > 0) {
-        const textError = formErrors[fieldName].text;
-        const href      = formErrors[fieldName].userId;
-        const link      = <a href={href}>{textError.substr(0, textError.indexOf(' '))}</a>;
+    if (fieldName === 'duplicateUser') {
+        if (formErrors[fieldName].text.length > 0) {
+            const textError = formErrors[fieldName].text;
+            const href      = formErrors[fieldName].userId;
+            const link      = <a href={href}>{textError.substr(0, textError.indexOf(' '))}</a>;
 
+            return (
+                <nobr>{link} {textError.substr(textError.indexOf(' '), textError.length)}</nobr>
+            );
+        }
+        return null;
+    }
+    else {
+        debugger;
         return (
-            <nobr>{link} {textError.substr(textError.indexOf(' '), textError.length)}</nobr>
-        );
-    } else {
-        return (
-            <nobr className="formErrors">{formErrors.fieldName}</nobr>
+            <nobr className="formErrors">{formErrors[fieldName]}</nobr>
         );
     }
 }

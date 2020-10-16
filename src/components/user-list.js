@@ -10,7 +10,6 @@ export default class UserList extends React.Component {
         super(props);
 
         this.state = this._getAppState();
-
         this._handleClickAddUser = this._handleClickAddUser.bind(this);
         this._onChange           = this._onChange.bind(this);
     }
