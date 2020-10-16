@@ -5,24 +5,28 @@ import UserStore from '../stores/user-store';
 import EVENT_TYPE from '../stores/event-type';
 
 import User from './user.js';
+import FindUser from './find-user';
 
 export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
         this.state = this._getAppState();
+
     }
 
     _getAppState () {
         return {
             duplicateUserId: '',
             wantAdd:         false,
+            wantEdit:        false,
+            wantFind:        false,
             users:           UserStore.getUsers()
         };
     }
 
-    _onChange = () => {
-        this.setState(this._getAppState());
+    _onChange = (userList) => {
+        this.setState({ users: userList });
     };
 
     _handleClickAddUser = () => {
@@ -30,8 +34,17 @@ export default class UserList extends React.Component {
     };
 
     _addingFailed = userId => {
-        this.setState({ duplicateUserId: userId});
+        this.setState({ duplicateUserId: userId });
     };
+
+    _handleClickFindUser () {
+        const { wantFind } = this.state;
+
+        if (wantFind) {
+            this.setState({ users: UserStore.getUsers() });
+        }
+        this.setState({ wantFind: !wantFind });
+    }
 
     componentDidMount () {
         UserStore.on(EVENT_TYPE.change, this._onChange);
@@ -46,13 +59,35 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { wantAdd, users, duplicateUserId } = this.state;
+        const { wantAdd, users, duplicateUserId, wantFind } = this.state;
 
         return (
             <div className="UserList">
-                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this._handleClickAddUser}>
-                    Add new User
+                <button className="ButtonFindUser" onClick={this._handleClickFindUser}>
+                    {wantFind ? 'Stop searching' : 'Find User'}
+
                 </button>
+                {
+                    wantFind &&
+                    (
+                        <FindUser/>
+                    )
+                }
+                {
+                    !wantFind &&
+                    (
+                        <button className="ButtonAddUser" data-testid="ButtonAddUser"
+                                onClick={this._handleClickAddUser}>
+                            Add new User
+                        </button>
+                    )
+                }
+                {
+                    !wantFind && wantAdd &&
+                    (
+                        <User isNewUser={true}/>
+                    )
+                }
                 {
                     wantAdd &&
                     (
