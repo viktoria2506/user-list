@@ -10,14 +10,17 @@ import ERRORS from '../errors';
 import Address from './address.js';
 import Company from './company.js';
 import Info from './info';
-import FormErrors from './form-errors';
+import FormErrors from './duplicate-error';
+import DuplicateError from './duplicate-error';
 
 const MATCH_PHONE     = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL     = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
-const FIELD_NAME      = 'name';
-const FIELD_EMAIL     = 'email';
-const FIELD_PHONE     = 'phone';
-const FIELD_DUPLICATE = 'duplicateUser';
+const FIELD_NAMES = {
+    name: 'name',
+    email: 'email',
+    phone: 'phone',
+    duplicateUser: 'duplicateUser'
+}
 
 export default class User extends React.Component {
     constructor (props) {
@@ -35,31 +38,22 @@ export default class User extends React.Component {
                 name:          '',
                 email:         '',
                 phone:         '',
-                duplicateUser: {
-                    text:   '',
-                    userId: ''
-                }
             },
+            showUserError: true,
             showAddress:  false,
             showCompany:  false,
             wantEdit:     false,
             addDuplicate: false
         };
-
-        this._handleClickAddress = this._handleClickAddress.bind(this);
-        this._handleClickCompany = this._handleClickCompany.bind(this);
-        this._handleChange       = this._handleChange.bind(this);
-        this._handleClickEdit    = this._handleClickEdit.bind(this);
-        this._handleClickSubmit  = this._handleClickSubmit.bind(this);
     }
 
     _validateField (fieldName, value) {
         switch (fieldName) {
-            case FIELD_NAME:
+            case FIELD_NAMES.name:
                 return value ? '' : ERRORS.nameInvalid;
-            case FIELD_PHONE:
+            case FIELD_NAMES.phone:
                 return value && MATCH_PHONE.test(value) ? '' : ERRORS.phoneInvalid;
-            case FIELD_EMAIL:
+            case FIELD_NAMES.email:
                 return value && MATCH_EMAIL.test(value) ? '' : ERRORS.emailInvalid;
             default:
                 return '';
@@ -67,24 +61,24 @@ export default class User extends React.Component {
     }
 
     _validateFields (user) {
-        const nameValid  = this._validateField(FIELD_NAME, user.name);
-        const phoneValid = this._validateField(FIELD_PHONE, user.phone);
-        const emailValid = this._validateField(FIELD_EMAIL, user.email);
-
-        return { nameValid, phoneValid, emailValid };
+        return {
+            [FIELD_NAMES.name]:  this._validateField(FIELD_NAMES.name, user.name),
+            [FIELD_NAMES.phone]: this._validateField(FIELD_NAMES.phone, user.phone),
+            [FIELD_NAMES.email]: this._validateField(FIELD_NAMES.email, user.email),
+        };
     }
 
-    _handleClickAddress (e) {
+    _handleClickAddress = e => {
         this.setState({ showAddress: !this.state.showAddress });
         e.preventDefault();
-    }
+    };
 
-    _handleClickCompany (e) {
+    _handleClickCompany = e => {
         this.setState({ showCompany: !this.state.showCompany });
         e.preventDefault();
-    }
+    };
 
-    _handleClickEdit (e) {
+    _handleClickEdit = e => {
         const { currentUser, wantEdit } = this.state;
 
         if (wantEdit) {
@@ -94,11 +88,11 @@ export default class User extends React.Component {
         }
         this.setState({ wantEdit: !wantEdit });
         e.preventDefault();
-    }
+    };
 
-    _handleChange (e, obj) {
-        const { currentUser, wantEdit, formErrors } = this.state;
-        const { isNewUser }                         = this.props;
+    _handleChange = (e, obj) => {
+        let { currentUser, wantEdit, formErrors, showUserError } = this.state;
+        let { isNewUser }                         = this.props;
 
         if (wantEdit || isNewUser) {
             const name  = e.target.name;
@@ -106,53 +100,36 @@ export default class User extends React.Component {
 
             currentUser[obj][name] = value;
             formErrors[name]       = this._validateField(name, value);
-            this.setState({ currentUser, formErrors });
+            if (name === FIELD_NAMES.name) {
+               //showUserError = false;
+            }
+            this.setState({ currentUser, formErrors, showUserError });
         }
         e.preventDefault();
-    }
-
-    _addingFailed = userId => {
-        const { isNewUser }                = this.props;
-        const { formErrors, addDuplicate } = this.state;
-
-        if (isNewUser && userId > 0) {
-            formErrors.duplicateUser.text   = ERRORS.userExist;
-            formErrors.duplicateUser.userId = `#${userId}`;
-            this.setState({ formErrors: formErrors, addDuplicate: !addDuplicate });
-        }
     };
 
-    _handleClickSubmit (e) {
+    _handleClickSubmit = e => {
         const { currentUser, addDuplicate, formErrors } = this.state;
         const newUser                                   = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
         const resultValid                               = this._validateFields(currentUser.info);
+        const isUserInfoValid                           = !resultValid[FIELD_NAMES.name] &&
+                                                          !resultValid[FIELD_NAMES.phone] &&
+                                                          !resultValid[FIELD_NAMES.email];
 
-        if (resultValid.nameValid === '' && resultValid.phoneValid === '' && resultValid.emailValid === '') {
+        if (isUserInfoValid) {
             UserAction.addNewUser(newUser, addDuplicate);
         }
         else {
-            formErrors.name  = resultValid.nameValid;
-            formErrors.phone = resultValid.phoneValid;
-            formErrors.email = resultValid.emailValid;
-            this.setState({ formErrors });
+            formErrors.name  = resultValid[FIELD_NAMES.name];
+            formErrors.phone = resultValid[FIELD_NAMES.phone];
+            formErrors.email = resultValid[FIELD_NAMES.email];
+            this.setState({ formErrors, addDuplicate: !addDuplicate});
         }
         e.preventDefault();
-    }
-
-    componentDidMount () {
-        UserStore.on(EVENT_TYPE.change, this.props.onChange);
-        UserStore.on(EVENT_TYPE.addingFailed, this._addingFailed);
-        UserStore.on(EVENT_TYPE.userAdded, this.props.onChange);
-    }
-
-    componentWillUnmount () {
-        UserStore.off(EVENT_TYPE.change, this.props.onChange);
-        UserStore.off(EVENT_TYPE.addingFailed, this._addingFailed);
-        UserStore.off(EVENT_TYPE.userAdded, this.props.onChange);
-    }
+    };
 
     render () {
-        const { isNewUser }     = this.props;
+        const { isNewUser, duplicateUserId, onChange }     = this.props;
         const {
                   showAddress,
                   showCompany,
@@ -175,10 +152,12 @@ export default class User extends React.Component {
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
-                <FormErrors formErrors={formErrors} fieldName={FIELD_DUPLICATE}/>
+                <DuplicateError userId={duplicateUserId}/>
                 <Info info={currentUser.info}
                       formErrors={formErrors}
-                      onChange={this._handleChange}/>
+                      onChange={this._handleChange}
+                      wantEdit={wantEdit}
+                      isNewUser={isNewUser}/>
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
                     {buttonAddress}
                 </button>

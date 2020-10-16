@@ -2,47 +2,27 @@ import React from 'react';
 
 import classNames from 'classnames';
 
-import FormErrors from './form-errors';
+import FormErrors from './duplicate-error';
+import InputWithErrorInfo from './input-error-info';
 
-const INFO = 'info';
-const NAME = 'name';
+const INFO  = 'info';
+const NAME  = 'name';
 const PHONE = 'phone';
 const EMAIL = 'email';
 
 export default function Info (props) {
-    function errorClass (error) {
-        return classNames({ 'UserInfo': !error, 'field-error': error });
-    }
-
-    const { info = {}, onChange, formErrors } = props;
-    const _onChange                           = e => onChange(e, INFO);
+    const { info = {}, onChange, formErrors, wantEdit, isNewUser } = props;
+    const _onChange                                                = e => onChange(e, INFO);
+    let showNeed                                                   = wantEdit || isNewUser ? '*' : '';
 
     return (
         <div className="Info">
-            <p><label>
-                *Name: <input type="text"
-                              name="name"
-                              className={`${errorClass(formErrors.name)}`}
-                              value={info.name}
-                              onChange={_onChange}/>
-                <FormErrors formErrors={formErrors} fieldName={NAME}/>
-            </label></p>
-            <p><label>
-                *Phone: <input type="text"
-                               name="phone"
-                               className={`${errorClass(formErrors.phone)}`}
-                               value={info.phone}
-                               onChange={_onChange}/>
-                <FormErrors formErrors={formErrors} fieldName={PHONE}/>
-            </label></p>
-            <p><label>
-                *Email: <input type="email"
-                               name="email"
-                               className={`${errorClass(formErrors.email)}`}
-                               value={info.email}
-                               onChange={_onChange}/>
-                <FormErrors formErrors={formErrors} fieldName={EMAIL}/>
-            </label></p>
+            <InputWithErrorInfo info={info} showNeed={showNeed} name={NAME} error={formErrors[NAME]}
+                                onChange={_onChange}/>
+            <InputWithErrorInfo info={info} showNeed={showNeed} name={PHONE} error={formErrors[PHONE]}
+                                onChange={_onChange}/>
+            <InputWithErrorInfo info={info} showNeed={showNeed} name={EMAIL} error={formErrors[EMAIL]}
+                                onChange={_onChange}/>
             <p><label>
                 Website: <input type="text"
                                 name="website"
@@ -50,5 +30,6 @@ export default function Info (props) {
                                 onChange={_onChange}/>
             </label></p>
         </div>
+
     );
 }
