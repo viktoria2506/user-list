@@ -5,14 +5,19 @@ import UserAction from '../actions/user-action';
 import UserStore from '../stores/user-store';
 import classNames from 'classnames';
 import EVENT_TYPE from '../stores/event-type';
+import ERRORS from '../errors';
 
 import Address from './address.js';
 import Company from './company.js';
 import Info from './info';
 import FormErrors from './form-errors';
 
-const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
-const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
+const MATCH_PHONE     = /^([\d.\-+x() ]+)$/i;
+const MATCH_EMAIL     = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
+const FIELD_NAME      = 'name';
+const FIELD_EMAIL     = 'email';
+const FIELD_PHONE     = 'phone';
+const FIELD_DUPLICATE = 'duplicateUser';
 
 export default class User extends React.Component {
     constructor (props) {
@@ -27,10 +32,13 @@ export default class User extends React.Component {
                 company
             },
             formErrors:   {
-                name:      '',
-                email:     '',
-                phone:     '',
-                duplicate: ['', '']
+                name:          '',
+                email:         '',
+                phone:         '',
+                duplicateUser: {
+                    text:   '',
+                    userId: ''
+                }
             },
             showAddress:  false,
             showCompany:  false,
@@ -43,33 +51,27 @@ export default class User extends React.Component {
         this._handleChange       = this._handleChange.bind(this);
         this._handleClickEdit    = this._handleClickEdit.bind(this);
         this._handleClickSubmit  = this._handleClickSubmit.bind(this);
-        this._addUser            = this._addUser.bind(this);
     }
 
     _validateField (fieldName, value) {
         switch (fieldName) {
-            case 'name':
-                return (value !== undefined && value.length > 0) ? '' : 'Name can not be empty.';
-            case 'phone':
-                return (value !== undefined && MATCH_PHONE.test(value)) ? '' : 'Phone is invalid.';
-            case 'email':
-                return (value !== undefined && MATCH_EMAIL.test(value)) ? '' : 'Email is invalid.';
+            case FIELD_NAME:
+                return value ? '' : ERRORS.nameInvalid;
+            case FIELD_PHONE:
+                return value && MATCH_PHONE.test(value) ? '' : ERRORS.phoneInvalid;
+            case FIELD_EMAIL:
+                return value && MATCH_EMAIL.test(value) ? '' : ERRORS.emailInvalid;
             default:
                 return '';
         }
     }
 
     _validateFields (user) {
-        const nameValid  = this._validateField('name', user.name);
-        const phoneValid = this._validateField('phone', user.phone);
-        const emailValid = this._validateField('email', user.email);
+        const nameValid  = this._validateField(FIELD_NAME, user.name);
+        const phoneValid = this._validateField(FIELD_PHONE, user.phone);
+        const emailValid = this._validateField(FIELD_EMAIL, user.email);
 
-        if (nameValid === '' && phoneValid === '' && emailValid === '') {
-            return true;
-        }
-        else {
-            return { nameValid, phoneValid, emailValid };
-        }
+        return { nameValid, phoneValid, emailValid };
     }
 
     _handleClickAddress (e) {
@@ -109,13 +111,13 @@ export default class User extends React.Component {
         e.preventDefault();
     }
 
-    _addUser (userId) {
+    _addingFailed = userId => {
         const { isNewUser }                = this.props;
         const { formErrors, addDuplicate } = this.state;
 
         if (isNewUser && userId > 0) {
-            formErrors.duplicate[0] = 'User with this name exists. Click Submit if you want to add anyway.';
-            formErrors.duplicate[1] = `#${userId}`;
+            formErrors.duplicateUser.text   = ERRORS.userExist;
+            formErrors.duplicateUser.userId = `#${userId}`;
             this.setState({ formErrors: formErrors, addDuplicate: !addDuplicate });
         }
     };
@@ -125,7 +127,7 @@ export default class User extends React.Component {
         const newUser                                   = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
         const resultValid                               = this._validateFields(currentUser.info);
 
-        if (resultValid === true) {
+        if (resultValid.nameValid === '' && resultValid.phoneValid === '' && resultValid.emailValid === '') {
             UserAction.addNewUser(newUser, addDuplicate);
         }
         else {
@@ -138,11 +140,15 @@ export default class User extends React.Component {
     }
 
     componentDidMount () {
-        UserStore.on(EVENT_TYPE.addNewUser, this._addUser);
+        UserStore.on(EVENT_TYPE.change, this.props.onChange);
+        UserStore.on(EVENT_TYPE.addingFailed, this._addingFailed);
+        UserStore.on(EVENT_TYPE.userAdded, this.props.onChange);
     }
 
     componentWillUnmount () {
-        UserStore.off(EVENT_TYPE.addNewUser, this._addUser);
+        UserStore.off(EVENT_TYPE.change, this.props.onChange);
+        UserStore.off(EVENT_TYPE.addingFailed, this._addingFailed);
+        UserStore.off(EVENT_TYPE.userAdded, this.props.onChange);
     }
 
     render () {
@@ -154,7 +160,7 @@ export default class User extends React.Component {
                   currentUser,
                   formErrors
               }                 = this.state;
-        const isFormFieldsValid = this._validateFields(currentUser.info);
+        const isFormFieldsValid = !formErrors.name && !formErrors.email && !formErrors.phone;
         let buttonAddress       = '';
         let buttonCompany       = '';
 
@@ -169,7 +175,7 @@ export default class User extends React.Component {
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
-                <FormErrors formErrors={formErrors} fieldName='duplicate'/>
+                <FormErrors formErrors={formErrors} fieldName={FIELD_DUPLICATE}/>
                 <Info info={currentUser.info}
                       formErrors={formErrors}
                       onChange={this._handleChange}/>

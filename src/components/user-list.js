@@ -2,7 +2,6 @@ import React from 'react';
 
 import '../css/app.css';
 import UserStore from '../stores/user-store';
-import EVENT_TYPE from '../stores/event-type';
 
 import User from './user.js';
 
@@ -13,29 +12,22 @@ export default class UserList extends React.Component {
         this.state = this._getAppState();
 
         this._handleClickAddUser = this._handleClickAddUser.bind(this);
+        this._onChange           = this._onChange.bind(this);
     }
 
     _getAppState () {
         return {
-            wantAdd:  false,
-            users:    UserStore.getUsers()
+            wantAdd: false,
+            users:   UserStore.getUsers()
         };
     }
 
-    _onChange = () => {
+    _onChange () {
         this.setState(this._getAppState());
     };
 
     _handleClickAddUser () {
         this.setState({ wantAdd: !this.state.wantAdd });
-    }
-
-    componentDidMount () {
-        UserStore.on(EVENT_TYPE.change, this._onChange);
-    }
-
-    componentWillUnmount () {
-        UserStore.off(EVENT_TYPE.change, this._onChange);
     }
 
     render () {
@@ -49,7 +41,7 @@ export default class UserList extends React.Component {
                 {
                     wantAdd &&
                     (
-                        <User isNewUser={true}/>
+                        <User isNewUser={true} onChange={this._onChange}/>
                     )
                 }
                 <hr/>
@@ -69,6 +61,7 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       isNewUser={false}
+                                      onChange={this._onChange}
                                 />
                                 <hr/>
                             </div>

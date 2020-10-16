@@ -29,32 +29,35 @@ class UserStore extends EventEmitter {
         Dispatcher.register(this.registerActions.bind(this));
     }
 
-    _addNewUser (user, force) {
-        const index = this._users.findIndex((oldUser) => user.name === oldUser.name);
-        if (index === -1 || force) {
-            user.id = this._users.length + 1;
-            this._users.push(user);
-        } else {
-            return this._users[index].id;
-        }
+    _findUserIndexByName (user) {
+        return this._users.findIndex((oldUser) => user.name === oldUser.name);
+    }
+
+    _findUserIndexById (user) {
+        return this._users.findIndex((oldUser) => user.id === oldUser.id);
+    }
+
+    _addNewUser (user) {
+        user.id = this._users.length + 1;
+        this._users.push(user);
     }
 
     _updateUser (user) {
-        const index = this._users.findIndex((oldUser) => user.id === oldUser.id);
-        if (index >= 0) {
-            this._users[index] = user;
-        } else {
-            throw new Error("User with this id not found.")
-        }
+        const index = this._findUserIndexById(user);
+        if (index >= 0) this._users[index] = user;
+        else throw new Error('User with this id not found.');
     }
 
     registerActions (action) {
         if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
-            let result = this._addNewUser(action.user, action.force);
-            if (result > 0) {
-                this.emit(EVENT_TYPE.addNewUser, result);
-            } else {
-                this.emit(EVENT_TYPE.change);
+            const index = this._findUserIndexByName(action.user);
+            if (index === -1 || action.force) {
+                this._addNewUser(action.user);
+                this.emit(EVENT_TYPE.userAdded);
+            }
+            else {
+                const userId = this._users[index].id;
+                this.emit(EVENT_TYPE.addingFailed, userId);
             }
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {

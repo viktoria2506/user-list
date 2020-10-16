@@ -7,12 +7,12 @@ import FormErrors from './form-errors';
 const INFO = 'info';
 
 export default function Info (props) {
-    function errorClass (valid) {
-        return classNames({ 'UserInfo': valid === '', 'field-error': valid !== ''});
+    function errorClass (error) {
+        return classNames({ 'UserInfo': !error, 'field-error': error });
     }
 
     const { info = {}, onChange, formErrors } = props;
-    const _onChange                                  = e => onChange(e, INFO);
+    const _onChange                           = e => onChange(e, INFO);
 
     return (
         <div className="Info">
