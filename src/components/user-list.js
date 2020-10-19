@@ -16,7 +16,6 @@ export default class UserList extends React.Component {
     _getAppState () {
         return {
             duplicateUserId: '',
-            addDuplicate:    false,
             wantAdd:         false,
             users:           UserStore.getUsers()
         };
@@ -31,9 +30,7 @@ export default class UserList extends React.Component {
     };
 
     _addingFailed = userId => {
-        let { addDuplicate } = this.state;
-
-        this.setState({ duplicateUserId: userId, addDuplicate: !addDuplicate });
+        this.setState({ duplicateUserId: userId});
     };
 
     componentDidMount () {
@@ -49,7 +46,7 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { wantAdd, users, duplicateUserId, addDuplicate } = this.state;
+        const { wantAdd, users, duplicateUserId } = this.state;
 
         return (
             <div className="UserList">
@@ -59,7 +56,7 @@ export default class UserList extends React.Component {
                 {
                     wantAdd &&
                     (
-                        <User isNewUser={true} duplicateUserId={duplicateUserId} addDuplicate={addDuplicate}/>
+                        <User isNewUser={true} duplicateUserId={duplicateUserId}/>
                     )
                 }
                 <hr/>

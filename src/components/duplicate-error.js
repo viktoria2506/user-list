@@ -12,7 +12,5 @@ export default function DuplicateError (props) {
         );
     }
     return null;
-
-
 }
 
