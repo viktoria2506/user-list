@@ -6,12 +6,12 @@ function errorClass (error) {
 }
 
 export default function InputWithErrorInfo (props) {
-    const { name, error, value, onChange, wantEdit, isNewUser } = props;
-    let showRequiredMark = wantEdit || isNewUser ? '*' : '';
+    const { name, error, value, onChange, isEditing } = props;
+    let requiredMark =  isEditing ? '*' : '';
 
     return (
         <p><label>
-            {showRequiredMark + name[0].toUpperCase() + name.slice(1)}:
+            {requiredMark + name[0].toUpperCase() + name.slice(1)}:
             <input type="text"
                    name={name}
                    className={`${errorClass(error)}`}

@@ -25,25 +25,21 @@ export default class User extends React.Component {
         const { info = {}, address = {}, company = {} } = this.props;
 
         this.state = {
-            currentUser:         {
+            currentUser:       {
                 info,
                 address,
                 company
             },
-            unmodifiedUser:      {
-                info,
-                address,
-                company
-            },
-            formErrors:          {
+            unmodifiedUser:    null,
+            formErrors:        {
                 name:  '',
                 email: '',
                 phone: ''
             },
-            showAddress:         false,
-            showCompany:         false,
-            wantEdit:            false,
-            forceErrorDuplicate: false
+            showAddress:       false,
+            showCompany:       false,
+            wantEdit:          false,
+            hasDuplicateError: false
         };
     }
 
@@ -93,18 +89,13 @@ export default class User extends React.Component {
             company: { ...currentUser.company }
         };
 
-        if (wantEdit) {
-            const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-
-            UserAction.updateUser(newUser);
-        }
-        this.setState({ wantEdit: !wantEdit, unmodifiedUser });
+        this.setState({ wantEdit: !wantEdit, unmodifiedUser: unmodifiedUser });
         e.preventDefault();
     };
 
     _handleChange = (e, obj) => {
-        let { currentUser, wantEdit, formErrors, forceErrorDuplicate } = this.state;
-        let { isNewUser }                                              = this.props;
+        let { currentUser, wantEdit, formErrors, hasDuplicateError } = this.state;
+        let { isNewUser }                                            = this.props;
 
         if (wantEdit || isNewUser) {
             const name  = e.target.name;
@@ -113,21 +104,23 @@ export default class User extends React.Component {
             currentUser[obj][name] = value;
             formErrors[name]       = this._validateField(name, value);
             if (name === FIELD_NAMES.name) {
-                forceErrorDuplicate = false;
+                hasDuplicateError = false;
             }
-            this.setState({ currentUser, formErrors, forceErrorDuplicate });
+            this.setState({ currentUser, formErrors, hasDuplicateError });
         }
         e.preventDefault();
     };
 
     _handleClickSubmit = e => {
-        const { currentUser, forceErrorDuplicate, formErrors } = this.state;
-        const newUser                                          = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-        const resultValid                                      = this._validateFields(currentUser.info);
+        const { currentUser, hasDuplicateError, formErrors } = this.state;
+        const newUser                                        = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const resultValid                                    = this._validateFields(currentUser.info);
 
         if (this._isUserInfoValid(resultValid)) {
-            UserAction.addNewUser(newUser, forceErrorDuplicate);
-            this.setState({ formErrors, forceErrorDuplicate: !forceErrorDuplicate });
+            const forceAdding = !!hasDuplicateError;
+
+            UserAction.addNewUser(newUser, forceAdding);
+            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError });
         }
         else {
             this.setState({ formErrors: { ...resultValid } });
@@ -142,6 +135,16 @@ export default class User extends React.Component {
         e.preventDefault();
     };
 
+    _handleClickSave = e => {
+        let { currentUser, wantEdit } = this.state;
+
+        const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        UserAction.updateUser(newUser);
+
+        this.setState({ wantEdit: !wantEdit });
+        e.preventDefault();
+    };
+
     render () {
         const { isNewUser, duplicateUserId } = this.props;
         const {
@@ -150,7 +153,7 @@ export default class User extends React.Component {
                   wantEdit,
                   currentUser,
                   formErrors,
-                  forceErrorDuplicate
+                  hasDuplicateError
               }                              = this.state;
         const isFormFieldsValid              = this._isUserInfoValid(formErrors);
         let buttonAddress                    = '';
@@ -167,7 +170,7 @@ export default class User extends React.Component {
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
-                {forceErrorDuplicate &&
+                {hasDuplicateError &&
                  (
                      <DuplicateError userId={duplicateUserId}/>
                  )
@@ -204,7 +207,7 @@ export default class User extends React.Component {
                     (
                         <button className="ButtonEdit"
                                 disabled={!isFormFieldsValid && wantEdit}
-                                onClick={this._handleClickEdit}>
+                                onClick={wantEdit ? this._handleClickSave : this._handleClickEdit}>
                             {wantEdit ? 'Save' : 'Edit'}
                         </button>
                     )
