@@ -87,10 +87,15 @@ export default class User extends React.Component {
     _handleClickEdit = e => {
         let { currentUser, wantEdit, unmodifiedUser } = this.state;
 
+        unmodifiedUser = {
+            info:    { ...currentUser.info },
+            address: { ...currentUser.address },
+            company: { ...currentUser.company }
+        };
+
         if (wantEdit) {
             const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-            unmodifiedUser = currentUser;
             UserAction.updateUser(newUser);
         }
         this.setState({ wantEdit: !wantEdit, unmodifiedUser });
