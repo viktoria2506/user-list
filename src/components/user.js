@@ -2,25 +2,22 @@ import React from 'react';
 
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
-import UserStore from '../stores/user-store';
 import classNames from 'classnames';
-import EVENT_TYPE from '../stores/event-type';
 import ERRORS from '../errors';
 
 import Address from './address.js';
 import Company from './company.js';
 import Info from './info';
-import FormErrors from './duplicate-error';
 import DuplicateError from './duplicate-error';
 
-const MATCH_PHONE     = /^([\d.\-+x() ]+)$/i;
-const MATCH_EMAIL     = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
+const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
+const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
 const FIELD_NAMES = {
-    name: 'name',
-    email: 'email',
-    phone: 'phone',
+    name:          'name',
+    email:         'email',
+    phone:         'phone',
     duplicateUser: 'duplicateUser'
-}
+};
 
 export default class User extends React.Component {
     constructor (props) {
@@ -29,21 +26,21 @@ export default class User extends React.Component {
         const { info = {}, address = {}, company = {} } = this.props;
 
         this.state = {
-            currentUser:  {
+            currentUser:   {
                 info,
                 address,
                 company
             },
-            formErrors:   {
-                name:          '',
-                email:         '',
-                phone:         '',
+            formErrors:    {
+                name:  '',
+                email: '',
+                phone: '',
             },
             showUserError: true,
-            showAddress:  false,
-            showCompany:  false,
-            wantEdit:     false,
-            addDuplicate: false
+            showAddress:   false,
+            showCompany:   false,
+            wantEdit:      false,
+            addDuplicate:  false
         };
     }
 
@@ -91,8 +88,8 @@ export default class User extends React.Component {
     };
 
     _handleChange = (e, obj) => {
-        let { currentUser, wantEdit, formErrors, showUserError } = this.state;
-        let { isNewUser }                         = this.props;
+        let { currentUser, wantEdit, formErrors, showUserError, addDuplicate } = this.state;
+        let { isNewUser }                                        = this.props;
 
         if (wantEdit || isNewUser) {
             const name  = e.target.name;
@@ -101,9 +98,10 @@ export default class User extends React.Component {
             currentUser[obj][name] = value;
             formErrors[name]       = this._validateField(name, value);
             if (name === FIELD_NAMES.name) {
-               //showUserError = false;
+                showUserError = false;
+                addDuplicate = false;
             }
-            this.setState({ currentUser, formErrors, showUserError });
+            this.setState({ currentUser, formErrors, showUserError, addDuplicate });
         }
         e.preventDefault();
     };
@@ -118,28 +116,30 @@ export default class User extends React.Component {
 
         if (isUserInfoValid) {
             UserAction.addNewUser(newUser, addDuplicate);
+            this.setState({ formErrors, addDuplicate: !addDuplicate, showUserError: true });
         }
         else {
             formErrors.name  = resultValid[FIELD_NAMES.name];
             formErrors.phone = resultValid[FIELD_NAMES.phone];
             formErrors.email = resultValid[FIELD_NAMES.email];
-            this.setState({ formErrors, addDuplicate: !addDuplicate});
+            this.setState({ formErrors });
         }
         e.preventDefault();
     };
 
     render () {
-        const { isNewUser, duplicateUserId, onChange }     = this.props;
+        const { isNewUser, duplicateUserId } = this.props;
         const {
                   showAddress,
                   showCompany,
                   wantEdit,
                   currentUser,
-                  formErrors
-              }                 = this.state;
-        const isFormFieldsValid = !formErrors.name && !formErrors.email && !formErrors.phone;
-        let buttonAddress       = '';
-        let buttonCompany       = '';
+                  formErrors,
+                  showUserError
+              }                              = this.state;
+        const isFormFieldsValid              = !formErrors.name && !formErrors.email && !formErrors.phone;
+        let buttonAddress                    = '';
+        let buttonCompany                    = '';
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
@@ -152,7 +152,11 @@ export default class User extends React.Component {
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
-                <DuplicateError userId={duplicateUserId}/>
+                {showUserError &&
+                 (
+                     <DuplicateError userId={duplicateUserId}/>
+                 )
+                }
                 <Info info={currentUser.info}
                       formErrors={formErrors}
                       onChange={this._handleChange}

@@ -1,8 +1,5 @@
 import React from 'react';
 
-import classNames from 'classnames';
-
-import FormErrors from './duplicate-error';
 import InputWithErrorInfo from './input-error-info';
 
 const INFO  = 'info';

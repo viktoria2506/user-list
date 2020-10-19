@@ -5,21 +5,20 @@ import UserStore from '../stores/user-store';
 import EVENT_TYPE from '../stores/event-type';
 
 import User from './user.js';
-import ERRORS from '../errors';
 
 export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state               = this._getAppState();
+        this.state = this._getAppState();
     }
 
     _getAppState () {
         return {
             duplicateUserId: '',
-            addDuplicate: false,
-            wantAdd: false,
-            users:   UserStore.getUsers()
+            addDuplicate:    false,
+            wantAdd:         false,
+            users:           UserStore.getUsers()
         };
     }
 
@@ -29,28 +28,22 @@ export default class UserList extends React.Component {
 
     _handleClickAddUser = () => {
         this.setState({ wantAdd: !this.state.wantAdd });
-    }
+    };
 
     _addingFailed = userId => {
-        const { wantAdd }                   = this.props;
-        let { duplicateUser, addDuplicate } = this.state;
+        let { addDuplicate } = this.state;
 
-        if (wantAdd) {
-            duplicateUser = `#${userId}`;
-
-            this.setState({ duplicateUser, addDuplicate: !addDuplicate });
-        }
+        this.setState({ duplicateUserId: userId, addDuplicate: !addDuplicate });
     };
 
     componentDidMount () {
         UserStore.on(EVENT_TYPE.change, this._onChange);
         UserStore.on(EVENT_TYPE.userAdded, this._onChange);
         UserStore.on(EVENT_TYPE.addingFailed, this._addingFailed);
-
     }
 
     componentWillUnmount () {
-        UserStore.off(EVENT_TYPE.change,  this._onChange);
+        UserStore.off(EVENT_TYPE.change, this._onChange);
         UserStore.off(EVENT_TYPE.userAdded, this._onChange);
         UserStore.off(EVENT_TYPE.addingFailed, this._addingFailed);
     }
@@ -66,7 +59,7 @@ export default class UserList extends React.Component {
                 {
                     wantAdd &&
                     (
-                        <User isNewUser={true} duplicateUserId={duplicateUserId} addDuplicate={addDuplicate} onChange={this._onChange}/>
+                        <User isNewUser={true} duplicateUserId={duplicateUserId} addDuplicate={addDuplicate}/>
                     )
                 }
                 <hr/>
@@ -86,7 +79,6 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       isNewUser={false}
-                                      onChange={this._onChange}
                                 />
                                 <hr/>
                             </div>

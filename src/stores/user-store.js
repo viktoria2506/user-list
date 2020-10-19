@@ -44,8 +44,12 @@ class UserStore extends EventEmitter {
 
     _updateUser (user) {
         const index = this._findUserIndexById(user);
-        if (index >= 0) this._users[index] = user;
-        else throw new Error('User with this id not found.');
+        if (index >= 0) {
+            this._users[index] = user;
+        }
+        else {
+            throw new Error('User with this id not found.');
+        }
     }
 
     registerActions (action) {
