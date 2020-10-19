@@ -53,7 +53,7 @@ class UserStore extends EventEmitter {
     }
 
     _findUser (user) {
-        this._foundUsers = this._users.filter((anyUser) =>
+        return this._users.filter((anyUser) =>
             (anyUser.name.toLowerCase().includes(user.name.toLowerCase()) &&
              anyUser.phone.toLowerCase().includes(user.phone.toLowerCase()) &&
              anyUser.email.toLowerCase().includes(user.email.toLowerCase()) &&
@@ -78,8 +78,8 @@ class UserStore extends EventEmitter {
             this.emit(EVENT_TYPE.change);
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.findUser) {
-            this._findUser(action.user);
-            this.emit(EVENT_TYPE.change, this._foundUsers);
+            const _foundUsers = this._findUser(action.user);
+            this.emit(EVENT_TYPE.usersFound, _foundUsers);
         }
     }
 
