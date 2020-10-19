@@ -3,7 +3,7 @@ import React from 'react';
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 
-export default class FindUser extends React.Component {
+export default class SearchForm extends React.Component {
     constructor (props) {
         super(props);
 
@@ -19,12 +19,9 @@ export default class FindUser extends React.Component {
                 company: {}
             }
         };
-
-        this._handleFind   = this._handleFind.bind(this);
-        this._handleChange = this._handleChange.bind(this);
     }
 
-    _handleFind (e) {
+    _handleFind = e => {
         const { user } = this.state;
         const findUser = new UserInfo(user.info, user.address, user.company);
 
@@ -32,7 +29,7 @@ export default class FindUser extends React.Component {
         e.preventDefault();
     }
 
-    _handleChange (e) {
+    _handleChange = e => {
         const { user } = this.state;
         const name     = e.target.name;
 

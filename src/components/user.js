@@ -41,6 +41,7 @@ export default class User extends React.Component {
             wantEdit:          false,
             hasDuplicateError: false
         };
+
     }
 
     _validateField (fieldName, value) {
@@ -70,6 +71,8 @@ export default class User extends React.Component {
                !validInfo[FIELD_NAMES.email];
     }
 
+
+
     _handleClickAddress = e => {
         this.setState({ showAddress: !this.state.showAddress });
         e.preventDefault();
@@ -78,30 +81,27 @@ export default class User extends React.Component {
     _handleClickCompany = e => {
         this.setState({ showCompany: !this.state.showCompany });
         e.preventDefault();
+
     };
+
 
     _handleClickEdit = e => {
         let { currentUser, wantEdit, unmodifiedUser } = this.state;
-
-        unmodifiedUser = {
-            info:    { ...currentUser.info },
-            address: { ...currentUser.address },
-            company: { ...currentUser.company }
-        };
 
         this.setState({ wantEdit: !wantEdit, unmodifiedUser: unmodifiedUser });
         e.preventDefault();
     };
 
-    _handleChange = (e, obj) => {
+    _handleChange = (e, type) => {
         let { currentUser, wantEdit, formErrors, hasDuplicateError } = this.state;
-        let { isNewUser }                                            = this.props;
+        const {isNewUser} = this.props;
+
 
         if (wantEdit || isNewUser) {
             const name  = e.target.name;
             const value = e.target.value;
 
-            currentUser[obj][name] = value;
+            currentUser[type][name] = value;
             formErrors[name]       = this._validateField(name, value);
             if (name === FIELD_NAMES.name) {
                 hasDuplicateError = false;
@@ -144,6 +144,7 @@ export default class User extends React.Component {
         e.preventDefault();
     };
 
+
     render () {
         const { isNewUser, duplicateUserId } = this.props;
         const {
@@ -179,6 +180,7 @@ export default class User extends React.Component {
                       onChange={this._handleChange}
                       wantEdit={wantEdit}
                       isNewUser={isNewUser}/>
+
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
                     {buttonAddress}
                 </button>
@@ -216,6 +218,7 @@ export default class User extends React.Component {
                     (
                         <button className="ButtonEdit" onClick={this._handleClickUndo}>Undo</button>
                     )
+
                 }
             </form>
         );
