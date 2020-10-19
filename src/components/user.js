@@ -137,10 +137,9 @@ export default class User extends React.Component {
 
     _handleClickSave = e => {
         let { currentUser, wantEdit } = this.state;
-
         const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-        UserAction.updateUser(newUser);
 
+        UserAction.updateUser(newUser);
         this.setState({ wantEdit: !wantEdit });
         e.preventDefault();
     };
