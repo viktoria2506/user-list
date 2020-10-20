@@ -56,7 +56,7 @@ export default class UserList extends React.Component {
 
     _handleClickStopSearch = () => {
         this.setState(this._getAppState());
-    }
+    };
 
     componentDidMount () {
         UserStore.on(EVENT_TYPE.change, this._onChange);
@@ -82,10 +82,7 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     wantFind &&
-                    (
-                        <SearchForm/>
-
-                    )
+                    <SearchForm/>
                 }
                 <button className="ButtonAddUser" data-testid="ButtonAddUser"
                         onClick={this._handleClickAddUser}>
@@ -93,9 +90,7 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     wantAdd &&
-                    (
-                        <User isNewUser={true} duplicateUserId={duplicateUserId}/>
-                    )
+                    <User isNewUser={true}/>
                 }
                 <hr/>
                 {

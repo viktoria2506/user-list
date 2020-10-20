@@ -81,9 +81,7 @@ export default class User extends React.Component {
     _handleClickCompany = e => {
         this.setState({ showCompany: !this.state.showCompany });
         e.preventDefault();
-
     };
-
 
     _handleClickEdit = e => {
         let { currentUser, wantEdit, unmodifiedUser } = this.state;
@@ -95,7 +93,6 @@ export default class User extends React.Component {
     _handleChange = (e, type) => {
         let { currentUser, wantEdit, formErrors, hasDuplicateError } = this.state;
         const {isNewUser} = this.props;
-
 
         if (wantEdit || isNewUser) {
             const name  = e.target.name;
@@ -143,7 +140,7 @@ export default class User extends React.Component {
         this.setState({ wantEdit: !wantEdit });
         e.preventDefault();
     };
-
+    
 
     render () {
         const { isNewUser, duplicateUserId } = this.props;
@@ -186,18 +183,14 @@ export default class User extends React.Component {
                 </button>
                 {
                     showAddress &&
-                    (
-                        <Address address={currentUser.address} onChange={this._handleChange}/>
-                    )
+                    <Address address={currentUser.address} onChange={this._handleChange}/>
                 }
                 <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
                     {buttonCompany}
                 </button>
                 {
                     showCompany &&
-                    (
-                        <Company company={currentUser.company} onChange={this._handleChange}/>
-                    )
+                    <Company company={currentUser.company} onChange={this._handleChange}/>
                 }
                 {
                     isNewUser ?
