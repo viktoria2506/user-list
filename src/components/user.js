@@ -131,7 +131,7 @@ export default class User extends React.Component {
     _handleClickUndo = e => {
         const { wantEdit, unmodifiedUser } = this.state;
 
-        this.setState({ wantEdit: !wantEdit, currentUser: unmodifiedUser });
+        this.setState({ wantEdit: !wantEdit, currentUser: unmodifiedUser,  formErrors: {}});
         e.preventDefault();
     };
 
