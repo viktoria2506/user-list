@@ -2,7 +2,7 @@ import React from 'react';
 
 import '../css/app.css';
 import UserStore from '../stores/user-store';
-import CHANGE_EVENT from '../stores/event-type';
+import EVENT_TYPE from '../stores/event-type';
 
 import User from './user.js';
 
@@ -11,52 +11,57 @@ export default class UserList extends React.Component {
         super(props);
 
         this.state = this._getAppState();
-
-        this.handleClickAddUser = this.handleClickAddUser.bind(this);
     }
 
     _getAppState () {
         return {
-            wantAdd:  false,
-            wantEdit: false,
-            users:    UserStore.getUsers()
+            duplicateUserId: '',
+            wantAdd:         false,
+            users:           UserStore.getUsers()
         };
-    }
-
-    handleClickAddUser () {
-        this.setState({ wantAdd: !this.state.wantAdd });
     }
 
     _onChange = () => {
         this.setState(this._getAppState());
     };
 
+    _handleClickAddUser = () => {
+        this.setState({ wantAdd: !this.state.wantAdd });
+    };
+
+    _addingFailed = userId => {
+        this.setState({ duplicateUserId: userId});
+    };
+
     componentDidMount () {
-        UserStore.on(CHANGE_EVENT, this._onChange);
+        UserStore.on(EVENT_TYPE.change, this._onChange);
+        UserStore.on(EVENT_TYPE.userAdded, this._onChange);
+        UserStore.on(EVENT_TYPE.addingFailed, this._addingFailed);
     }
 
     componentWillUnmount () {
-        UserStore.removeListener(CHANGE_EVENT, this._onChange);
+        UserStore.off(EVENT_TYPE.change, this._onChange);
+        UserStore.off(EVENT_TYPE.userAdded, this._onChange);
+        UserStore.off(EVENT_TYPE.addingFailed, this._addingFailed);
     }
 
     render () {
-        const { wantAdd, users } = this.state;
+        const { wantAdd, users, duplicateUserId } = this.state;
 
         return (
             <div className="UserList">
-                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this.handleClickAddUser}>
+                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this._handleClickAddUser}>
                     Add new User
                 </button>
                 {
                     wantAdd &&
                     (
-                        <User isNewUser={true}/>
+                        <User isNewUser={true} duplicateUserId={duplicateUserId}/>
                     )
-
                 }
                 <hr/>
                 {
-                    users.map((user) => {
+                    users.map(user => {
                         const info = {
                             id:      user.id,
                             name:    user.name,
@@ -77,7 +82,6 @@ export default class UserList extends React.Component {
                         );
                     })
                 }
-
             </div>
         );
     }

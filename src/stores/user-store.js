@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import Dispatcher from '../dispatcher/app-dispatcher';
 import usersData from '../data/users.json';
 import UserInfo from './user-info';
-import CHANGE_EVENT from './event-type';
+import EVENT_TYPE from './event-type';
 import ACTION_TYPE from '../actions/action-type';
 
 class UserStore extends EventEmitter {
@@ -29,28 +29,44 @@ class UserStore extends EventEmitter {
         Dispatcher.register(this.registerActions.bind(this));
     }
 
+    _findUserIndexByName (user) {
+        return this._users.findIndex((oldUser) => user.name === oldUser.name);
+    }
+
+    _findUserIndexById (user) {
+        return this._users.findIndex((oldUser) => user.id === oldUser.id);
+    }
+
     _addNewUser (user) {
         user.id = this._users.length + 1;
         this._users.push(user);
     }
 
     _updateUser (user) {
-        const index = this._users.findIndex((oldUser) => user.id === oldUser.id);
+        const index = this._findUserIndexById(user);
         if (index >= 0) {
             this._users[index] = user;
-        } else {
-            throw new Error("User with this id not found.")
+        }
+        else {
+            throw new Error('User with this id not found.');
         }
     }
 
     registerActions (action) {
         if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
-            this._addNewUser(action.user);
-            this.emit(CHANGE_EVENT);
+            const index = this._findUserIndexByName(action.user);
+            if (index === -1 || action.force) {
+                this._addNewUser(action.user);
+                this.emit(EVENT_TYPE.userAdded);
+            }
+            else {
+                const userId = this._users[index].id;
+                this.emit(EVENT_TYPE.addingFailed, userId);
+            }
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {
             this._updateUser(action.user);
-            this.emit(CHANGE_EVENT);
+            this.emit(EVENT_TYPE.change);
         }
     }
 

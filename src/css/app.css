@@ -2,6 +2,10 @@
     text-align: center;
     background: url(bg-blurry.jpg) no-repeat fixed;
 }
+.UserInner {
+    margin-left: 20px;
+    text-align: center;
+}
 
 @media (prefers-reduced-motion: no-preference) {
     .App-logo {
@@ -83,3 +87,32 @@ p {
     font-size:20px;
     font-family: 'Montserrat', sans-serif;
 }
+
+.field-error {
+    background: #FB9797;
+    margin-right: 12px;
+}
+
+.formErrors {
+    font-size:15px;
+    font-family: 'Montserrat', sans-serif;
+    color: #800000;
+}
+.ButtonDisabled {
+    height: 60px;
+    width: 300px;
+    text-decoration: none;
+    outline: none;
+    display: inline-block;
+    padding: 10px 30px;
+    margin: 10px 20px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #C0C0C0;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    color: #A9A9A9;
+    transition: .2s ease-in-out;
+    font-size: 24px;
+}
+

@@ -2,11 +2,21 @@ import React from 'react';
 
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
+import classNames from 'classnames';
+import ERRORS from '../errors';
 
 import Address from './address.js';
 import Company from './company.js';
-import Info from './user-info';
+import Info from './info';
+import DuplicateError from './duplicate-error';
 
+const MATCH_PHONE        = /^([\d.\-+x() ]+)$/i;
+const MATCH_EMAIL        = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
+export const FIELD_NAMES = {
+    name:  'name',
+    email: 'email',
+    phone: 'phone'
+};
 
 export default class User extends React.Component {
     constructor (props) {
@@ -15,69 +25,138 @@ export default class User extends React.Component {
         const { info = {}, address = {}, company = {} } = this.props;
 
         this.state = {
-            currentUser: {
+            currentUser:       {
                 info,
                 address,
                 company
             },
-            showAddress: false,
-            showCompany: false,
-            wantEdit:    false
+            unmodifiedUser:    null,
+            formErrors:        {
+                name:  '',
+                email: '',
+                phone: ''
+            },
+            showAddress:       false,
+            showCompany:       false,
+            wantEdit:          false,
+            hasDuplicateError: false
         };
-
-        this.handleClickAddress = this.handleClickAddress.bind(this);
-        this.handleClickCompany = this.handleClickCompany.bind(this);
-        this.handleChange       = this.handleChange.bind(this);
-        this.handleClickEdit    = this.handleClickEdit.bind(this);
-        this.handleClickSubmit  = this.handleClickSubmit.bind(this);
     }
 
-    handleClickAddress (e) {
+    _validateField (fieldName, value) {
+        switch (fieldName) {
+            case FIELD_NAMES.name:
+                return value ? '' : ERRORS.nameInvalid;
+            case FIELD_NAMES.phone:
+                return value && MATCH_PHONE.test(value) ? '' : ERRORS.phoneInvalid;
+            case FIELD_NAMES.email:
+                return value && MATCH_EMAIL.test(value) ? '' : ERRORS.emailInvalid;
+            default:
+                return '';
+        }
+    }
+
+    _validateFields (user) {
+        return {
+            [FIELD_NAMES.name]:  this._validateField(FIELD_NAMES.name, user.name),
+            [FIELD_NAMES.phone]: this._validateField(FIELD_NAMES.phone, user.phone),
+            [FIELD_NAMES.email]: this._validateField(FIELD_NAMES.email, user.email),
+        };
+    }
+
+    _isUserInfoValid (validInfo) {
+        return !validInfo[FIELD_NAMES.name] &&
+               !validInfo[FIELD_NAMES.phone] &&
+               !validInfo[FIELD_NAMES.email];
+    }
+
+    _handleClickAddress = e => {
         this.setState({ showAddress: !this.state.showAddress });
         e.preventDefault();
-    }
+    };
 
-    handleClickCompany (e) {
+    _handleClickCompany = e => {
         this.setState({ showCompany: !this.state.showCompany });
         e.preventDefault();
-    }
+    };
 
-    handleClickEdit (e) {
-        const { currentUser, wantEdit } = this.state;
+    _handleClickEdit = e => {
+        let { currentUser, wantEdit, unmodifiedUser } = this.state;
 
-        if (wantEdit) {
-            const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        unmodifiedUser = {
+            info:    { ...currentUser.info },
+            address: { ...currentUser.address },
+            company: { ...currentUser.company }
+        };
 
-            UserAction.updateUser(newUser);
-        }
-
-        this.setState({ wantEdit: !wantEdit });
+        this.setState({ wantEdit: !wantEdit, unmodifiedUser: unmodifiedUser });
         e.preventDefault();
-    }
+    };
 
-    handleChange (e, type) {
-        const { currentUser, wantEdit } = this.state;
-        const {isNewUser} = this.props;
+    _handleChange = (e, obj) => {
+        let { currentUser, wantEdit, formErrors, hasDuplicateError } = this.state;
+        let { isNewUser }                                            = this.props;
 
         if (wantEdit || isNewUser) {
-            currentUser[type][e.target.name] = e.target.value;
-            this.setState({ currentUser });
+            const name  = e.target.name;
+            const value = e.target.value;
+
+            currentUser[obj][name] = value;
+            formErrors[name]       = this._validateField(name, value);
+            if (name === FIELD_NAMES.name) {
+                hasDuplicateError = false;
+            }
+            this.setState({ currentUser, formErrors, hasDuplicateError });
         }
         e.preventDefault();
-    }
+    };
 
-    handleClickSubmit () {
-        const { currentUser } = this.state;
-        const newUser         = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+    _handleClickSubmit = e => {
+        const { currentUser, hasDuplicateError, formErrors } = this.state;
+        const newUser                                        = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const resultValid                                    = this._validateFields(currentUser.info);
 
-        UserAction.addNewUser(newUser);
-    }
+        if (this._isUserInfoValid(resultValid)) {
+            const forceAdding = !!hasDuplicateError;
+
+            UserAction.addNewUser(newUser, forceAdding);
+            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError });
+        }
+        else {
+            this.setState({ formErrors: { ...resultValid } });
+        }
+        e.preventDefault();
+    };
+
+    _handleClickUndo = e => {
+        const { wantEdit, unmodifiedUser } = this.state;
+
+        this.setState({ wantEdit: !wantEdit, currentUser: unmodifiedUser,  formErrors: {}});
+        e.preventDefault();
+    };
+
+    _handleClickSave = e => {
+        let { currentUser, wantEdit } = this.state;
+        const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+
+        UserAction.updateUser(newUser);
+        this.setState({ wantEdit: !wantEdit });
+        e.preventDefault();
+    };
 
     render () {
-        const { isNewUser }                                       = this.props;
-        const { showAddress, showCompany, wantEdit, currentUser } = this.state;
-        let buttonAddress                                         = '';
-        let buttonCompany                                         = '';
+        const { isNewUser, duplicateUserId } = this.props;
+        const {
+                  showAddress,
+                  showCompany,
+                  wantEdit,
+                  currentUser,
+                  formErrors,
+                  hasDuplicateError
+              }                              = this.state;
+        const isFormFieldsValid              = this._isUserInfoValid(formErrors);
+        let buttonAddress                    = '';
+        let buttonCompany                    = '';
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
@@ -89,36 +168,54 @@ export default class User extends React.Component {
         }
 
         return (
-            <form className="UserInfo">
-                <Info info={currentUser.info} onChange={this.handleChange}/>
-                <button className="ButtonAddDetails" onClick={this.handleClickAddress}>
+            <form className="UserInfo" id={`${currentUser.info.id}`}>
+                {hasDuplicateError &&
+                 (
+                     <DuplicateError userId={duplicateUserId}/>
+                 )
+                }
+                <Info info={currentUser.info}
+                      formErrors={formErrors}
+                      onChange={this._handleChange}
+                      wantEdit={wantEdit}
+                      isNewUser={isNewUser}/>
+                <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
                     {buttonAddress}
                 </button>
                 {
                     showAddress &&
                     (
-                        <Address address={currentUser.address} onChange={this.handleChange}/>
+                        <Address address={currentUser.address} onChange={this._handleChange}/>
                     )
                 }
-                <button className="ButtonAddDetails" onClick={this.handleClickCompany}>
+                <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
                     {buttonCompany}
                 </button>
                 {
                     showCompany &&
                     (
-                        <Company company={currentUser.company} onChange={this.handleChange}/>
+                        <Company company={currentUser.company} onChange={this._handleChange}/>
                     )
                 }
-
                 {
                     isNewUser ?
-                    <button className="ButtonAddUser" onClick={this.handleClickSubmit}>Submit</button> :
+                    <button
+                        className={classNames({ ButtonAddUser: isFormFieldsValid, ButtonDisabled: !isFormFieldsValid })}
+                        disabled={!isFormFieldsValid}
+                        onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <button className="ButtonEdit" onClick={this.handleClickEdit}>
+                        <button className="ButtonEdit"
+                                disabled={!isFormFieldsValid && wantEdit}
+                                onClick={wantEdit ? this._handleClickSave : this._handleClickEdit}>
                             {wantEdit ? 'Save' : 'Edit'}
                         </button>
                     )
-
+                }
+                {
+                    wantEdit &&
+                    (
+                        <button className="ButtonEdit" onClick={this._handleClickUndo}>Undo</button>
+                    )
                 }
             </form>
         );

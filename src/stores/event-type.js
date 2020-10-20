@@ -1,3 +1,7 @@
- const CHANGE_EVENT = 'CHANGE';
+const EVENT_TYPE = {
+ change: 'CHANGE_EVENT',
+ userAdded: 'ADD_SUCCESS_EVENT',
+ addingFailed: 'ADD_FAIL_EVENT'
+};
 
- export default CHANGE_EVENT;
+ export default EVENT_TYPE;
