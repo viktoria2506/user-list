@@ -8,6 +8,7 @@ import ACTION_TYPE from '../actions/action-type';
 
 class UserStore extends EventEmitter {
     _users = [];
+    _searchedUser = new UserInfo({}, {}, {});
 
     constructor () {
         super();
@@ -61,6 +62,15 @@ class UserStore extends EventEmitter {
             ));
     }
 
+    _defineSearchFields () {
+        return {
+            name: this._searchedUser.name !== '',
+            phone: this._searchedUser.phone !== '',
+            email: this._searchedUser.email !== '',
+            website: this._searchedUser.website !== ''
+        }
+    }
+
     registerActions (action) {
         if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
             const index = this._findUserIndexByName(action.user);
@@ -75,11 +85,17 @@ class UserStore extends EventEmitter {
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {
             this._updateUser(action.user);
-            this.emit(EVENT_TYPE.change);
+            if (action.searchMode) {
+                const _foundUsers = this._findUser(this._searchedUser);
+                this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
+            } else {
+                this.emit(EVENT_TYPE.change);
+            }
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.findUser) {
+            this._searchedUser = action.user;
             const _foundUsers = this._findUser(action.user);
-            this.emit(EVENT_TYPE.usersFound, _foundUsers);
+            this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
         }
     }
 

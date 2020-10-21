@@ -6,33 +6,28 @@ import EVENT_TYPE from '../stores/event-type';
 
 import User from './user.js';
 import SearchForm from './search-form';
+import ERRORS from '../errors';
 
 export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state = {
-            wantAdd:  false,
-            wantEdit: false,
-            wantFind: false,
-            users:    UserStore.getUsers()
-        };
-
+        this.state = this._getAppState();
     }
 
     _getAppState () {
         return {
             duplicateUserId: '',
+            highlightFields: '',
             wantAdd:         false,
-            wantEdit:        false,
             wantFind:        false,
+            usersNotFound:   false,
             users:           UserStore.getUsers()
         };
     }
 
-
-    _onChange = (userList) => {
-        this.setState({ users: userList });
+    _onChange = () => {
+        this.setState(this._getAppState());
     };
 
     _handleClickAddUser = () => {
@@ -43,19 +38,23 @@ export default class UserList extends React.Component {
         this.setState({ duplicateUserId: userId });
     };
 
-    _handleClickFindUser = () => {
-
+    _handleClickFindUser = (e) => {
         const { wantFind } = this.state;
 
         this.setState({ wantFind: !wantFind });
+        e.preventDefault();
     };
 
-    _usersFound = (usersFound) => {
-        this.setState({ users: usersFound });
+    _usersFound = (usersFound, highlightFields) => {
+        let { usersNotFound } = this.state;
+
+        usersNotFound = usersFound.length === 0;
+        this.setState({ users: usersFound, usersNotFound, highlightFields: highlightFields });
     };
 
-    _handleClickStopSearch = () => {
+    _handleClickStopSearch = (e) => {
         this.setState(this._getAppState());
+        e.preventDefault();
     };
 
     componentDidMount () {
@@ -73,7 +72,8 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { wantAdd, users, duplicateUserId, wantFind } = this.state;
+        const { wantAdd, users, duplicateUserId, wantFind, usersNotFound, highlightFields } = this.state;
+
         return (
             <div className="UserList">
                 <button className="ButtonFindUser"
@@ -90,9 +90,12 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     wantAdd &&
-                    <User isNewUser={true}/>
+                    <User isNewUser={true} duplicateUserId={duplicateUserId} wantFind={wantFind} highlightFields={''}/>
                 }
                 <hr/>
+                {usersNotFound &&
+                 <p>{ERRORS.usersNotFound}</p>
+                }
                 {
                     users.map(user => {
                         const info = {
@@ -108,7 +111,8 @@ export default class UserList extends React.Component {
                                 <User info={info}
                                       address={user.address}
                                       company={user.company}
-                                      isNewUser={false}
+                                      searchMode={wantFind}
+                                      highlightFields={highlightFields}
                                 />
                                 <hr/>
                             </div>
