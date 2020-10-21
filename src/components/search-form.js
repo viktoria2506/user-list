@@ -38,7 +38,6 @@ export default class SearchForm extends React.Component {
         e.preventDefault();
     }
 
-
     render () {
         return (
             <form className="SearchInfo">

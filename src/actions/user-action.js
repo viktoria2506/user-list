@@ -10,12 +10,14 @@ class UserAction {
         });
     }
 
-    updateUser (user) {
+    updateUser (user, searchMode) {
         Dispatcher.dispatch({
             ACTION_TYPE: ACTION_TYPE.updateUser,
-            user:        user
+            user:        user,
+            searchMode:  searchMode
         });
     }
+
     findUser (user) {
         Dispatcher.dispatch({
             ACTION_TYPE: ACTION_TYPE.findUser,

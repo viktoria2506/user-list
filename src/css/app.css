@@ -117,10 +117,10 @@ p {
 }
 
 .ButtonFindUser {
-    width: 200px !important;
+    width: 300px !important;
     height: 60px !important;
     position: absolute;
-    left: 80%;
+    left: 75%;
     display: inline-block;
     padding: 10px 20px;
     overflow: hidden;
@@ -145,7 +145,7 @@ p {
     position: absolute;
     width: 300px !important;
     height: 260px !important;
-    left: 79%;
+    left: 75%;
     top: 59px;
     background: #E9EFF6;
     line-height: 30px;
@@ -155,3 +155,6 @@ p {
     font-size: 14px;
 }
 
+.UserInfo.found {
+    background: #AFEEEE;
+}
