@@ -155,6 +155,6 @@ p {
     font-size: 14px;
 }
 
-.UserInfo.found {
+.UserInfo.highlighted {
     background: #AFEEEE;
 }

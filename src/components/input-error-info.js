@@ -1,8 +1,8 @@
 import React from 'react';
 import classNames from 'classnames';
 
-function nameClass (error, highlight) {
-    return classNames({ 'UserInfo': !error, 'field-error': error, 'found': highlight });
+function nameClass (error, highlighted) {
+    return classNames({ 'UserInfo': !error, 'field-error': error, highlighted });
 }
 
 export default function InputWithErrorInfo (props) {
