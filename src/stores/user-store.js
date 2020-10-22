@@ -7,7 +7,7 @@ import EVENT_TYPE from './event-type';
 import ACTION_TYPE from '../actions/action-type';
 
 class UserStore extends EventEmitter {
-    _users = [];
+    _users        = [];
     _searchedUser = new UserInfo({}, {}, {});
 
     constructor () {
@@ -64,11 +64,11 @@ class UserStore extends EventEmitter {
 
     _defineSearchFields () {
         return {
-            name: this._searchedUser.name !== '',
-            phone: this._searchedUser.phone !== '',
-            email: this._searchedUser.email !== '',
+            name:    this._searchedUser.name !== '',
+            phone:   this._searchedUser.phone !== '',
+            email:   this._searchedUser.email !== '',
             website: this._searchedUser.website !== ''
-        }
+        };
     }
 
     registerActions (action) {
@@ -88,13 +88,14 @@ class UserStore extends EventEmitter {
             if (action.searchMode) {
                 const _foundUsers = this._findUser(this._searchedUser);
                 this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
-            } else {
+            }
+            else {
                 this.emit(EVENT_TYPE.change);
             }
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.findUser) {
             this._searchedUser = action.user;
-            const _foundUsers = this._findUser(action.user);
+            const _foundUsers  = this._findUser(action.user);
             this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
         }
     }

@@ -9,12 +9,12 @@ export default class UserInfo {
         this.address = new Address(
             addressInfo.city, addressInfo.street,
             addressInfo.suite, addressInfo.zipcode
-        );
+        ) || {};
         this.company = new Company(
             companyInfo.name,
             companyInfo.catchPhrase,
             companyInfo.bs
-        );
+        ) || {};
     }
 }
 

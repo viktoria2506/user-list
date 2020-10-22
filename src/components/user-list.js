@@ -17,12 +17,12 @@ export default class UserList extends React.Component {
 
     _getAppState () {
         return {
-            duplicateUserId: '',
-            highlightFields: '',
-            wantAdd:         false,
-            wantFind:        false,
-            usersNotFound:   false,
-            users:           UserStore.getUsers()
+            duplicateUserId:   '',
+            highlightedFields: '',
+            wantAdd:           false,
+            wantFind:          false,
+            usersNotFound:     false,
+            users:             UserStore.getUsers()
         };
     }
 
@@ -45,11 +45,11 @@ export default class UserList extends React.Component {
         e.preventDefault();
     };
 
-    _usersFound = (usersFound, highlightFields) => {
+    _usersFound = (usersFound, highlightedFields) => {
         let { usersNotFound } = this.state;
 
         usersNotFound = usersFound.length === 0;
-        this.setState({ users: usersFound, usersNotFound, highlightFields: highlightFields });
+        this.setState({ users: usersFound, usersNotFound, highlightedFields: highlightedFields });
     };
 
     _handleClickStopSearch = (e) => {
@@ -72,7 +72,7 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { wantAdd, users, duplicateUserId, wantFind, usersNotFound, highlightFields } = this.state;
+        const { wantAdd, users, duplicateUserId, wantFind, usersNotFound, highlightedFields } = this.state;
 
         return (
             <div className="UserList">
@@ -90,7 +90,7 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     wantAdd &&
-                    <User isNewUser={true} duplicateUserId={duplicateUserId} wantFind={wantFind} highlightFields={''}/>
+                    <User isNewUser={true} duplicateUserId={duplicateUserId} wantFind={wantFind} highlightedFields={''}/>
                 }
                 <hr/>
                 {usersNotFound &&
@@ -112,7 +112,7 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       searchMode={wantFind}
-                                      highlightFields={highlightFields}
+                                      highlightFields={highlightedFields}
                                 />
                                 <hr/>
                             </div>

@@ -146,7 +146,7 @@ export default class User extends React.Component {
     };
 
     render () {
-        const { isNewUser, duplicateUserId, wantFind, highlightFields } = this.props;
+        const { isNewUser, duplicateUserId, wantFind, highlightedFields } = this.props;
         const {
                   showAddress,
                   showCompany,
@@ -155,9 +155,9 @@ export default class User extends React.Component {
                   formErrors,
                   hasDuplicateError
               }                                                         = this.state;
-        const isFormFieldsValid                                         = this._isUserInfoValid(formErrors);
-        let buttonAddress                                               = '';
-        let buttonCompany                                               = '';
+        const isFormFieldsValid = this._isUserInfoValid(formErrors);
+        let buttonAddress       = '';
+        let buttonCompany       = '';
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
@@ -179,7 +179,7 @@ export default class User extends React.Component {
                       onChange={this._handleChange}
                       wantEdit={wantEdit}
                       isNewUser={isNewUser}
-                      highlightFields={highlightFields}/>
+                      highlightFields={highlightedFields}/>
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
                     {buttonAddress}
                 </button>
