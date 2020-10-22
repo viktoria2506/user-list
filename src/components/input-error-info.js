@@ -6,7 +6,7 @@ function nameClass (error, highlighted) {
 }
 
 export default function InputWithErrorInfo (props) {
-    const { name, error, value, onChange, isEditing, highlight, requiredField } = props;
+    const { name, error, value, onChange, isEditing, highlighted, requiredField } = props;
     let requiredMark                                             = requiredField && isEditing ? '*' : '';
 
     return (
@@ -14,7 +14,7 @@ export default function InputWithErrorInfo (props) {
             {requiredMark + name[0].toUpperCase() + name.slice(1)}:
             <input type="text"
                    name={name}
-                   className={`${nameClass(error, highlight)}`}
+                   className={`${nameClass(error, highlighted)}`}
                    value={value}
                    onChange={onChange}/>
             <nobr className="formErrors">{error}</nobr>

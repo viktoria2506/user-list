@@ -179,7 +179,7 @@ export default class User extends React.Component {
                       onChange={this._handleChange}
                       wantEdit={wantEdit}
                       isNewUser={isNewUser}
-                      highlightFields={highlightedFields}/>
+                      highlightedFields={highlightedFields}/>
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
                     {buttonAddress}
                 </button>

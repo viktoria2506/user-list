@@ -18,24 +18,24 @@ export default function Info (props) {
                                 name={FIELD_NAMES.name}
                                 error={formErrors[FIELD_NAMES.name]}
                                 onChange={_onChange}
-                                highlight={highlightedFields[FIELD_NAMES.name]}/>
+                                highlighted={highlightedFields[FIELD_NAMES.name]}/>
             <InputWithErrorInfo value={info[FIELD_NAMES.phone]}
                                 isEditing={isEditing} requiredField={true}
                                 name={FIELD_NAMES.phone}
                                 error={formErrors[FIELD_NAMES.phone]}
                                 onChange={_onChange}
-                                highlight={highlightedFields[FIELD_NAMES.phone]}/>
+                                highlighted={highlightedFields[FIELD_NAMES.phone]}/>
             <InputWithErrorInfo value={info[FIELD_NAMES.email]}
                                 isEditing={isEditing} requiredField={true}
                                 name={FIELD_NAMES.email}
                                 error={formErrors[FIELD_NAMES.email]}
                                 onChange={_onChange}
-                                highlight={highlightedFields[FIELD_NAMES.email]}/>
+                                highlighted={highlightedFields[FIELD_NAMES.email]}/>
             <InputWithErrorInfo value={info[FIELD_NAMES.website]}
                                 isEditing={isEditing} requiredField={false}
                                 name={FIELD_NAMES.website}
                                 onChange={_onChange}
-                                highlight={highlightedFields[FIELD_NAMES.website]}/>
+                                highlighted={highlightedFields[FIELD_NAMES.website]}/>
         </div>
 
     );

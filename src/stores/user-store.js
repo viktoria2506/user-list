@@ -54,12 +54,13 @@ class UserStore extends EventEmitter {
     }
 
     _findUser (user) {
-        return this._users.filter((anyUser) =>
-            (anyUser.name.toLowerCase().includes(user.name.toLowerCase()) &&
-             anyUser.phone.toLowerCase().includes(user.phone.toLowerCase()) &&
-             anyUser.email.toLowerCase().includes(user.email.toLowerCase()) &&
-             anyUser.website.toLowerCase().includes(user.website.toLowerCase())
-            ));
+        return this._users.filter(anyUser => {
+            return (anyUser.name.toLowerCase().includes(user.name.toLowerCase()) &&
+                    anyUser.phone.toLowerCase().includes(user.phone.toLowerCase()) &&
+                    anyUser.email.toLowerCase().includes(user.email.toLowerCase()) &&
+                    anyUser.website.toLowerCase().includes(user.website.toLowerCase())
+            );
+        });
     }
 
     _defineSearchFields () {

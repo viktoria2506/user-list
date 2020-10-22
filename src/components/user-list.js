@@ -38,7 +38,7 @@ export default class UserList extends React.Component {
         this.setState({ duplicateUserId: userId });
     };
 
-    _handleClickFindUser = (e) => {
+    _handleFindUserClick = (e) => {
         const { wantFind } = this.state;
 
         this.setState({ wantFind: !wantFind });
@@ -77,7 +77,7 @@ export default class UserList extends React.Component {
         return (
             <div className="UserList">
                 <button className="ButtonFindUser"
-                        onClick={wantFind ? this._handleClickStopSearch : this._handleClickFindUser}>
+                        onClick={wantFind ? this._handleClickStopSearch : this._handleFindUserClick}>
                     {wantFind ? 'Stop searching' : 'Find User'}
                 </button>
                 {
@@ -112,7 +112,7 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       searchMode={wantFind}
-                                      highlightFields={highlightedFields}
+                                      highlightedFields={highlightedFields}
                                 />
                                 <hr/>
                             </div>
