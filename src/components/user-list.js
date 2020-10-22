@@ -19,9 +19,8 @@ export default class UserList extends React.Component {
         return {
             duplicateUserId:   '',
             highlightedFields: '',
-            wantAdd:           false,
-            wantFind:          false,
-            usersNotFound:     false,
+            userAddMode:           false,
+            searchMode:        false,
             users:             UserStore.getUsers()
         };
     }
@@ -31,7 +30,7 @@ export default class UserList extends React.Component {
     };
 
     _handleClickAddUser = () => {
-        this.setState({ wantAdd: !this.state.wantAdd });
+        this.setState({ userAddMode: !this.state.userAddMode });
     };
 
     _addingFailed = userId => {
@@ -39,17 +38,14 @@ export default class UserList extends React.Component {
     };
 
     _handleFindUserClick = (e) => {
-        const { wantFind } = this.state;
+        const { searchMode } = this.state;
 
-        this.setState({ wantFind: !wantFind });
+        this.setState({ searchMode: !searchMode });
         e.preventDefault();
     };
 
     _usersFound = (usersFound, highlightedFields) => {
-        let { usersNotFound } = this.state;
-
-        usersNotFound = usersFound.length === 0;
-        this.setState({ users: usersFound, usersNotFound, highlightedFields: highlightedFields });
+        this.setState({ users: usersFound, highlightedFields: highlightedFields });
     };
 
     _handleClickStopSearch = (e) => {
@@ -72,28 +68,28 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { wantAdd, users, duplicateUserId, wantFind, usersNotFound, highlightedFields } = this.state;
+        const { userAddMode, users, duplicateUserId, searchMode, highlightedFields } = this.state;
 
         return (
             <div className="UserList">
                 <button className="ButtonFindUser"
-                        onClick={wantFind ? this._handleClickStopSearch : this._handleFindUserClick}>
-                    {wantFind ? 'Stop searching' : 'Find User'}
+                        onClick={searchMode ? this._handleClickStopSearch : this._handleFindUserClick}>
+                    {searchMode ? 'Stop searching' : 'Find User'}
                 </button>
                 {
-                    wantFind &&
+                    searchMode &&
                     <SearchForm/>
                 }
                 <button className="ButtonAddUser" data-testid="ButtonAddUser"
                         onClick={this._handleClickAddUser}>
-                    {wantAdd ? 'Cancel adding' : 'Add new User'}
+                    {userAddMode ? 'Cancel adding' : 'Add new User'}
                 </button>
                 {
-                    wantAdd &&
-                    <User isNewUser={true} duplicateUserId={duplicateUserId} wantFind={wantFind} highlightedFields={''}/>
+                    userAddMode &&
+                    <User isNewUser={true} duplicateUserId={duplicateUserId} searchMode={searchMode} highlightedFields={''}/>
                 }
                 <hr/>
-                {usersNotFound &&
+                {users.length === 0 &&
                  <p>{ERRORS.usersNotFound}</p>
                 }
                 {
@@ -111,7 +107,7 @@ export default class UserList extends React.Component {
                                 <User info={info}
                                       address={user.address}
                                       company={user.company}
-                                      searchMode={wantFind}
+                                      searchMode={searchMode}
                                       highlightedFields={highlightedFields}
                                 />
                                 <hr/>

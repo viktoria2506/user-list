@@ -1,5 +1,5 @@
 export default class UserInfo {
-    constructor (userInfo, addressInfo, companyInfo) {
+    constructor (userInfo = {}, addressInfo = {}, companyInfo = {}) {
         this.id      = userInfo.id || '';
         this.name    = userInfo.name || '';
         this.phone   = userInfo.phone || '';
@@ -9,12 +9,12 @@ export default class UserInfo {
         this.address = new Address(
             addressInfo.city, addressInfo.street,
             addressInfo.suite, addressInfo.zipcode
-        ) || {};
+        );
         this.company = new Company(
             companyInfo.name,
             companyInfo.catchPhrase,
             companyInfo.bs
-        ) || {};
+        );
     }
 }
 

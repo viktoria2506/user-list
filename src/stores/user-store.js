@@ -8,7 +8,7 @@ import ACTION_TYPE from '../actions/action-type';
 
 class UserStore extends EventEmitter {
     _users        = [];
-    _searchedUser = new UserInfo({}, {}, {});
+    _searchedUser = new UserInfo();
 
     constructor () {
         super();

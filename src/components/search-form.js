@@ -16,16 +16,14 @@ export default class SearchForm extends React.Component {
                     phone: '',
                     email: '',
                     website: ''
-                },
-                address: {},
-                company: {}
+                }
             }
         };
     }
 
     _handleFind = e => {
         const { user } = this.state;
-        const findUser = new UserInfo(user.info, user.address, user.company);
+        const findUser = new UserInfo(user.info);
 
         UserAction.findUser(findUser);
         e.preventDefault();

@@ -7,9 +7,9 @@ import InputWithErrorInfo from './input-error-info';
 const INFO = 'info';
 
 export default function Info (props) {
-    const { info = {}, onChange, formErrors, wantEdit, isNewUser, highlightedFields } = props;
+    const { info = {}, onChange, formErrors, editMode, isNewUser, highlightedFields } = props;
     const _onChange                                                                 = e => onChange(e, INFO);
-    const isEditing                                                                 = wantEdit || isNewUser;
+    const isEditing                                                                 = editMode || isNewUser;
 
     return (
         <div className="Info">
