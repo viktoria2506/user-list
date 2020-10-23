@@ -10,22 +10,14 @@ export default class SearchForm extends React.Component {
         super(props);
 
         this.state = {
-            user: {
-                info: {
-                    name:    '',
-                    phone:   '',
-                    email:   '',
-                    website: ''
-                }
-            }
+            user: new UserInfo()
         };
     }
 
     _handleFind = e => {
         const { user } = this.state;
-        const findUser = new UserInfo(user.info);
 
-        UserAction.findUser(findUser);
+        UserAction.findUser(user);
         e.preventDefault();
     };
 
@@ -33,7 +25,7 @@ export default class SearchForm extends React.Component {
         const { user } = this.state;
         const name     = e.target.name;
 
-        user.info[name] = e.target.value;
+        user[name] = e.target.value;
         this.setState({ user });
         e.preventDefault();
     };

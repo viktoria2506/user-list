@@ -13,10 +13,10 @@ export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state = this._getAppState();
+        this.state = this.InitialState();
     }
 
-    _getAppState () {
+    InitialState () {
         return {
             duplicateUserId:   '',
             highlightedFields: '',
@@ -27,7 +27,7 @@ export default class UserList extends React.Component {
     }
 
     _onChange = () => {
-        this.setState(this._getAppState());
+        this.setState(this.InitialState());
     };
 
     _handleAddUserClick = () => {
@@ -46,7 +46,7 @@ export default class UserList extends React.Component {
     };
 
     _usersFound = (usersFound, highlightedFields) => {
-        this.setState({ users: usersFound, highlightedFields: highlightedFields, addUserMode: false });
+        this.setState({ users: usersFound, highlightedFields, addUserMode: false });
     };
 
     _handleClickStopSearch = (e) => {
@@ -87,11 +87,10 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     addUserMode &&
-                    <User isNewUser={true} duplicateUserId={duplicateUserId}
-                          highlightedFields={''}/>
+                    <User isNewUser={true} duplicateUserId={duplicateUserId}/>
                 }
                 <hr/>
-                {users.length === 0 &&
+                {!users.length  &&
                  <p>{ERRORS.usersNotFound}</p>
                 }
                 {

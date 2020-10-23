@@ -120,7 +120,7 @@ export default class User extends React.Component {
             const forceAdding = !!hasDuplicateError;
 
             UserAction.addNewUser(newUser, forceAdding);
-            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError, });
+            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError});
         }
         else {
             this.setState({ formErrors: { ...resultValid } });
@@ -145,7 +145,7 @@ export default class User extends React.Component {
     };
 
     render () {
-        const { isNewUser, duplicateUserId, highlightedFields } = this.props;
+        const { isNewUser, duplicateUserId, highlightedFields = {} } = this.props;
         const {
                   showAddress,
                   showCompany,
