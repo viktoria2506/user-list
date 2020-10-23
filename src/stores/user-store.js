@@ -8,7 +8,7 @@ import ACTION_TYPE from '../actions/action-type';
 
 class UserStore extends EventEmitter {
     _users        = [];
-    _searchedUser = new UserInfo();
+    _searchedUser = {};
 
     constructor () {
         super();
@@ -72,32 +72,62 @@ class UserStore extends EventEmitter {
         };
     }
 
-    registerActions (action) {
-        if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
-            const index = this._findUserIndexByName(action.user);
-            if (index === -1 || action.force) {
-                this._addNewUser(action.user);
-                this.emit(EVENT_TYPE.userAdded);
-            }
-            else {
-                const userId = this._users[index].id;
-                this.emit(EVENT_TYPE.addingFailed, userId);
-            }
-        }
-        else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {
-            this._updateUser(action.user);
-            if (action.searchMode) {
+    _actionAddNewUser (user, force) {
+        debugger;
+        const index = this._findUserIndexByName(user);
+
+        if (index === -1 || force) {
+            this._addNewUser(user);
+            if (this._searchedUser instanceof UserInfo) {
                 const _foundUsers = this._findUser(this._searchedUser);
+
                 this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
             }
             else {
-                this.emit(EVENT_TYPE.change);
+                this.emit(EVENT_TYPE.userAdded);
             }
         }
-        else if (action.ACTION_TYPE === ACTION_TYPE.findUser) {
-            this._searchedUser = action.user;
-            const _foundUsers  = this._findUser(action.user);
+        else {
+            const userId = this._users[index].id;
+            this.emit(EVENT_TYPE.addingFailed, userId);
+        }
+    }
+
+    _actionUpdateUser (user) {
+        this._updateUser(user);
+        if (this._searchedUser) {
+            const _foundUsers = this._findUser(this._searchedUser);
             this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
+        }
+        else {
+            this.emit(EVENT_TYPE.change);
+        }
+    }
+
+    _actionFindUser (user) {
+        this._searchedUser = user;
+        const _foundUsers  = this._findUser(user);
+        this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
+    }
+
+    _actionStopFindUser () {
+        this._searchedUser = {};
+        this.emit(EVENT_TYPE.usersFound);
+        this.emit(EVENT_TYPE.change);
+    }
+
+    registerActions (action) {
+        if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
+            this._actionAddNewUser(action.user, action.force);
+        }
+        else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {
+            this._actionUpdateUser(action.user);
+        }
+        else if (action.ACTION_TYPE === ACTION_TYPE.findUser) {
+            this._actionFindUser(action.user);
+        }
+        else if (action.ACTION_TYPE === ACTION_TYPE.stopFindUser) {
+            this._actionStopFindUser();
         }
     }
 

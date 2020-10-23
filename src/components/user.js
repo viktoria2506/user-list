@@ -120,7 +120,7 @@ export default class User extends React.Component {
             const forceAdding = !!hasDuplicateError;
 
             UserAction.addNewUser(newUser, forceAdding);
-            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError });
+            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError ,});
         }
         else {
             this.setState({ formErrors: { ...resultValid } });
@@ -137,16 +137,15 @@ export default class User extends React.Component {
 
     _handleClickSave = e => {
         let { currentUser, editMode } = this.state;
-        const { searchMode }          = this.props;
         const newUser                 = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        UserAction.updateUser(newUser, searchMode);
+        UserAction.updateUser(newUser);
         this.setState({ editMode: !editMode });
         e.preventDefault();
     };
 
     render () {
-        const { isNewUser, duplicateUserId, searchMode, highlightedFields } = this.props;
+        const { isNewUser, duplicateUserId, highlightedFields } = this.props;
         const {
                   showAddress,
                   showCompany,
@@ -198,10 +197,10 @@ export default class User extends React.Component {
                     isNewUser ?
                     <button
                         className={classNames({
-                            ButtonAddUser:  isFormFieldsValid || !searchMode,
-                            ButtonDisabled: !isFormFieldsValid || searchMode
+                            ButtonAddUser:  isFormFieldsValid,
+                            ButtonDisabled: !isFormFieldsValid
                         })}
-                        disabled={!isFormFieldsValid || searchMode}
+                        disabled={!isFormFieldsValid}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
                         <button className="ButtonEdit"

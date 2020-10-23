@@ -7,6 +7,7 @@ import EVENT_TYPE from '../stores/event-type';
 import User from './user.js';
 import SearchForm from './search-form';
 import ERRORS from '../errors';
+import UserAction from '../actions/user-action';
 
 export default class UserList extends React.Component {
     constructor (props) {
@@ -19,7 +20,7 @@ export default class UserList extends React.Component {
         return {
             duplicateUserId:   '',
             highlightedFields: '',
-            userAddMode:           false,
+            addUserMode:       false,
             searchMode:        false,
             users:             UserStore.getUsers()
         };
@@ -29,11 +30,11 @@ export default class UserList extends React.Component {
         this.setState(this._getAppState());
     };
 
-    _handleClickAddUser = () => {
-        this.setState({ userAddMode: !this.state.userAddMode });
+    _handleAddUserClick = () => {
+        this.setState({ addUserMode: !this.state.addUserMode });
     };
 
-    _addingFailed = userId => {
+    _addingFailed = (userId) => {
         this.setState({ duplicateUserId: userId });
     };
 
@@ -45,11 +46,11 @@ export default class UserList extends React.Component {
     };
 
     _usersFound = (usersFound, highlightedFields) => {
-        this.setState({ users: usersFound, highlightedFields: highlightedFields });
+        this.setState({ users: usersFound, highlightedFields: highlightedFields, addUserMode: false });
     };
 
     _handleClickStopSearch = (e) => {
-        this.setState(this._getAppState());
+        UserAction.stopFindUser();
         e.preventDefault();
     };
 
@@ -68,7 +69,7 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { userAddMode, users, duplicateUserId, searchMode, highlightedFields } = this.state;
+        const { addUserMode, users, duplicateUserId, searchMode, highlightedFields } = this.state;
 
         return (
             <div className="UserList">
@@ -81,12 +82,13 @@ export default class UserList extends React.Component {
                     <SearchForm/>
                 }
                 <button className="ButtonAddUser" data-testid="ButtonAddUser"
-                        onClick={this._handleClickAddUser}>
-                    {userAddMode ? 'Cancel adding' : 'Add new User'}
+                        onClick={this._handleAddUserClick}>
+                    {addUserMode ? 'Cancel adding' : 'Add new User'}
                 </button>
                 {
-                    userAddMode &&
-                    <User isNewUser={true} duplicateUserId={duplicateUserId} searchMode={searchMode} highlightedFields={''}/>
+                    addUserMode &&
+                    <User isNewUser={true} duplicateUserId={duplicateUserId}
+                          highlightedFields={''}/>
                 }
                 <hr/>
                 {users.length === 0 &&
