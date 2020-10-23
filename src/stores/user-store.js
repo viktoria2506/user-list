@@ -94,7 +94,7 @@ class UserStore extends EventEmitter {
 
     _actionUpdateUser (user) {
         this._updateUser(user);
-        if (this._searchedUser) {
+        if (this._searchedUser instanceof UserInfo) {
             const _foundUsers = this._findUser(this._searchedUser);
             this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
         }

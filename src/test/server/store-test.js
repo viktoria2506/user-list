@@ -38,9 +38,7 @@ describe('UserStore', () => {
                         phone:   '89500418181',
                         email:   'vika.chernookaya@mail.ru',
                         website: 'github.com'
-                    },
-                    {},
-                    {}
+                    }
                 );
                 users.push(user);
                 UserAction.addNewUser(user);
@@ -54,9 +52,7 @@ describe('UserStore', () => {
                         phone:   'phone0418181',
                         email:   'vika.chernookaya@mail.ru',
                         website: ''
-                    },
-                    {},
-                    {}
+                    }
                 );
                 UserAction.addNewUser(user);
                 assert(users, UserStore.getUsers());
@@ -69,9 +65,7 @@ describe('UserStore', () => {
                         phone:   '0418181',
                         email:   'ervin@mail.ru',
                         website: 'github.com'
-                    },
-                    {},
-                    {}
+                    }
                 );
                 UserAction.addNewUser(user);
                 assert(users, UserStore.getUsers());
@@ -84,9 +78,7 @@ describe('UserStore', () => {
                         phone:   '111111',
                         email:   'ervin@mail.ru',
                         website: 'github.com'
-                    },
-                    {},
-                    {}
+                    }
                 );
                 users.push(user);
                 UserAction.addNewUser(user, true);
@@ -95,7 +87,31 @@ describe('UserStore', () => {
         });
         describe('updateUser', () => {
             it('User should be updated', () => {
-
+                const user = new UserInfo(
+                    {
+                        id:      2,
+                        name:    'Ervin',
+                        phone:   '555',
+                        email:   'ervin@mail.ru',
+                        website: 'github.com'
+                    }
+                );
+                users[1] = user;
+                UserAction.updateUser(user);
+                assert(users, UserStore.getUsers());
+            });
+            it('User should not be updated', () => {
+                const user = new UserInfo(
+                    {
+                        id:      2,
+                        name:    'Ervin',
+                        phone:   'invalid phone',
+                        email:   'ervin@mail.ru',
+                        website: 'github.com'
+                    }
+                );
+                UserAction.updateUser(user);
+                assert(users, UserStore.getUsers());
             })
         })
     });
