@@ -46,7 +46,7 @@ export default class UserList extends React.Component {
     };
 
     _usersFound = (usersFound, highlightedFields) => {
-        this.setState({ users: usersFound, highlightedFields: highlightedFields, addUserMode: false });
+        this.setState({ users: usersFound, highlightedFields, addUserMode: false });
     };
 
     _handleClickStopSearch = (e) => {
