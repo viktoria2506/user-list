@@ -120,7 +120,7 @@ export default class User extends React.Component {
             const forceAdding = !!hasDuplicateError;
 
             UserAction.addNewUser(newUser, forceAdding);
-            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError ,});
+            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError, });
         }
         else {
             this.setState({ formErrors: { ...resultValid } });
@@ -153,10 +153,10 @@ export default class User extends React.Component {
                   currentUser,
                   formErrors,
                   hasDuplicateError
-              }                                                         = this.state;
-        const isFormFieldsValid = this._isUserInfoValid(formErrors);
-        let buttonAddress       = '';
-        let buttonCompany       = '';
+              }                                                 = this.state;
+        const isFormFieldsValid                                 = this._isUserInfoValid(formErrors);
+        let buttonAddress                                       = '';
+        let buttonCompany                                       = '';
 
         if (isNewUser) {
             buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;

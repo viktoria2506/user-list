@@ -4,7 +4,7 @@ const ADDRESS = 'address';
 
 export default function Address (props) {
     const { address = {}, onChange } = props;
-    const _onChange = e => onChange(e, ADDRESS);
+    const _onChange                  = e => onChange(e, ADDRESS);
 
     return (
         <div className="DetailsAddress">
@@ -12,7 +12,7 @@ export default function Address (props) {
                 City: <input type="text" name="city" value={address.city} onChange={_onChange}/>
             </label></p>
             <p><label>
-                Street: <input type="text" name="street" value={address.street} onChange={_onChange} />
+                Street: <input type="text" name="street" value={address.street} onChange={_onChange}/>
             </label></p>
             <p><label>
                 Suite: <input type="text" name="suite" value={address.suite} onChange={_onChange}/>

@@ -73,7 +73,6 @@ class UserStore extends EventEmitter {
     }
 
     _actionAddNewUser (user, force) {
-        debugger;
         const index = this._findUserIndexByName(user);
 
         if (index === -1 || force) {

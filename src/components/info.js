@@ -8,8 +8,8 @@ const INFO = 'info';
 
 export default function Info (props) {
     const { info = {}, onChange, formErrors, editMode, isNewUser, highlightedFields } = props;
-    const _onChange                                                                 = e => onChange(e, INFO);
-    const isEditing                                                                 = editMode || isNewUser;
+    const _onChange                                                                   = e => onChange(e, INFO);
+    const isEditing                                                                   = editMode || isNewUser;
 
     return (
         <div className="Info">

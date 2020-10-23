@@ -11,10 +11,10 @@ export default class SearchForm extends React.Component {
 
         this.state = {
             user: {
-                info:    {
-                    name: '',
-                    phone: '',
-                    email: '',
+                info: {
+                    name:    '',
+                    phone:   '',
+                    email:   '',
                     website: ''
                 }
             }
@@ -27,7 +27,7 @@ export default class SearchForm extends React.Component {
 
         UserAction.findUser(findUser);
         e.preventDefault();
-    }
+    };
 
     _handleChange = e => {
         const { user } = this.state;
@@ -36,7 +36,7 @@ export default class SearchForm extends React.Component {
         user.info[name] = e.target.value;
         this.setState({ user });
         e.preventDefault();
-    }
+    };
 
     render () {
         return (
