@@ -111,7 +111,6 @@ class UserStore extends EventEmitter {
 
     _actionStopFindUser () {
         this._searchedUser = {};
-        this.emit(EVENT_TYPE.usersFound);
         this.emit(EVENT_TYPE.change);
     }
 

@@ -25,3 +25,5 @@ gulp.task('test-server', () => {
         .src('./src/test/server/**/*-test.js')
         .pipe(mocha({ exit: true }));
 });
+
+gulp.task ('build-and-test', gulp.series('build', 'test-server'))
