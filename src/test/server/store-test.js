@@ -32,6 +32,13 @@ const SEARCH_USER_INFO = new UserInfo(
     }
 );
 
+const SEARCH_USER_INFO_2 = new UserInfo(
+    {
+        name:  'Ervin  ',
+        phone: '  '
+    }
+);
+
 const UPDATE_USER = new UserInfo(
     {
         id:      2,
@@ -88,7 +95,7 @@ describe('UserStore', () => {
     });
 
     afterEach(() => {
-        UserStore._users = _initUserList();
+        UserStore._users        = _initUserList();
         UserStore._searchedUser = {};
     });
 
@@ -103,7 +110,8 @@ describe('UserStore', () => {
             it('Should emit userAdded event', () => {
                 users.push(TEST_USER);
                 UserAction.addNewUser(TEST_USER);
-                assert(UserStore.getUsers(), TEST_USER);
+                assert(UserStore.getUsers(), users);
+                assert(UserStore._users[UserStore._users.length - 1].id, UserStore._users.length);
             });
 
             it('Should emit addingFailed event with duplicateUserId if user exists ', () => {
@@ -130,7 +138,7 @@ describe('UserStore', () => {
 
         describe('updateUser', () => {
             it('Should emit change event', () => {
-                assert.notEqual(users[1],UPDATE_USER);
+                assert.notEqual(users[1], UPDATE_USER);
                 users[1] = UPDATE_USER;
                 UserAction.updateUser(UPDATE_USER);
                 assert(UserStore.getUsers(), users);
@@ -139,7 +147,7 @@ describe('UserStore', () => {
             it('Should emit usersFound event with foundUsers and searchFields if update in search mode', () => {
                 UserAction.findUser(SEARCH_USER_INFO);
                 assert(foundUsers.length, 1);
-                assert.notEqual(users[1],UPDATE_USER);
+                assert.notEqual(users[1], UPDATE_USER);
                 UserAction.updateUser(UPDATE_USER);
                 users[1] = UPDATE_USER;
                 assert(foundUsers, []);
@@ -166,6 +174,27 @@ describe('UserStore', () => {
                 UserAction.stopFindUser();
                 assert(UserStore.getUsers(), users);
                 assert(UserStore._searchedUser, {});
+            });
+        });
+    });
+
+    describe('private methods', () => {
+        describe('_findUserIndexById', () => {
+            it('Should return the index of the user with the same id', () => {
+                assert(UserStore._findUserIndexById(UPDATE_USER), 1);
+            });
+        });
+
+        describe('_findUserIndexByName', () => {
+            it('Should return the index of the user with the same name', () => {
+                assert(UserStore._findUserIndexByName(TEST_USER_EXISTING), 1);
+            });
+        });
+
+        describe('_defineSearchFields', () => {
+            it('Should return the index of the user with the same name', () => {
+                UserStore._searchedUser = SEARCH_USER_INFO_2;
+                assert(UserStore._defineSearchFields, SEARCH_FIELDS);
             });
         });
     });
