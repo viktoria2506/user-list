@@ -17,10 +17,10 @@ class UserAction {
         });
     }
 
-    findUser (user) {
+    findUser (userInfo) {
         Dispatcher.dispatch({
             ACTION_TYPE: ACTION_TYPE.findUser,
-            user:        user
+            userInfo:    userInfo
         });
     }
 

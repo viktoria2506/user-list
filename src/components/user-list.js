@@ -13,10 +13,10 @@ export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state = this.InitialState();
+        this.state = this._getInitialState();
     }
 
-    InitialState () {
+    _getInitialState () {
         return {
             duplicateUserId:   '',
             highlightedFields: '',
@@ -27,7 +27,7 @@ export default class UserList extends React.Component {
     }
 
     _onChange = () => {
-        this.setState(this.InitialState());
+        this.setState(this._getInitialState());
     };
 
     _handleAddUserClick = () => {
@@ -49,7 +49,7 @@ export default class UserList extends React.Component {
         this.setState({ users: usersFound, highlightedFields, addUserMode: false });
     };
 
-    _handleClickStopSearch = (e) => {
+    _handleStopSearchClick = (e) => {
         UserAction.stopFindUser();
         e.preventDefault();
     };
@@ -74,7 +74,7 @@ export default class UserList extends React.Component {
         return (
             <div className="UserList">
                 <button className="ButtonFindUser"
-                        onClick={searchMode ? this._handleClickStopSearch : this._handleFindUserClick}>
+                        onClick={searchMode ? this._handleStopSearchClick : this._handleFindUserClick}>
                     {searchMode ? 'Stop searching' : 'Find User'}
                 </button>
                 {
@@ -90,7 +90,7 @@ export default class UserList extends React.Component {
                     <User isNewUser={true} duplicateUserId={duplicateUserId}/>
                 }
                 <hr/>
-                {!users.length  &&
+                {!users.length &&
                  <p>{ERRORS.usersNotFound}</p>
                 }
                 {
@@ -108,7 +108,6 @@ export default class UserList extends React.Component {
                                 <User info={info}
                                       address={user.address}
                                       company={user.company}
-                                      searchMode={searchMode}
                                       highlightedFields={highlightedFields}
                                 />
                                 <hr/>

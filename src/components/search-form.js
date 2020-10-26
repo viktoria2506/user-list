@@ -10,23 +10,23 @@ export default class SearchForm extends React.Component {
         super(props);
 
         this.state = {
-            user: new UserInfo()
+            userInfo: new UserInfo()
         };
     }
 
     _handleFind = e => {
-        const { user } = this.state;
+        const { userInfo } = this.state;
 
-        UserAction.findUser(user);
+        UserAction.findUser(userInfo);
         e.preventDefault();
     };
 
     _handleChange = e => {
-        const { user } = this.state;
-        const name     = e.target.name;
+        const { userInfo } = this.state;
+        const name         = e.target.name;
 
-        user[name] = e.target.value;
-        this.setState({ user });
+        userInfo[name] = e.target.value;
+        this.setState({ userInfo });
         e.preventDefault();
     };
 

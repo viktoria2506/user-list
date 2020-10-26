@@ -53,8 +53,8 @@ class UserStore extends EventEmitter {
         }
     }
 
-    _findUser (user) {
-        const hasMatchedFields = (item, name) => item[name].toLowerCase().includes(user[name].trim().toLowerCase());
+    _findUser (userInfo) {
+        const hasMatchedFields = (item, name) => item[name].toLowerCase().includes(userInfo[name].trim().toLowerCase());
 
         return this._users.filter(anyUser => {
             return hasMatchedFields(anyUser, 'name') &&
@@ -73,14 +73,14 @@ class UserStore extends EventEmitter {
         };
     }
 
-    _checkSearchModeAndEmit(emit) {
+    _checkSearchModeAndEmit (emit) {
         if (this._searchedUser instanceof UserInfo) {
             const _foundUsers = this._findUser(this._searchedUser);
 
             this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
         }
         else {
-            this.emit(EVENT_TYPE[emit]);
+            this.emit(emit);
         }
     }
 
@@ -89,7 +89,7 @@ class UserStore extends EventEmitter {
 
         if (index === -1 || force) {
             this._addNewUser(user);
-            this._checkSearchModeAndEmit('userAdded')
+            this._checkSearchModeAndEmit(EVENT_TYPE.userAdded);
         }
         else {
             const userId = this._users[index].id;
@@ -99,12 +99,12 @@ class UserStore extends EventEmitter {
 
     _actionUpdateUser (user) {
         this._updateUser(user);
-        this._checkSearchModeAndEmit('change');
+        this._checkSearchModeAndEmit(EVENT_TYPE.change);
     }
 
-    _actionFindUser (user) {
-        this._searchedUser = user;
-        const _foundUsers  = this._findUser(user);
+    _actionFindUser (userInfo) {
+        this._searchedUser = userInfo;
+        const _foundUsers  = this._findUser(userInfo);
         this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
     }
 
@@ -121,7 +121,7 @@ class UserStore extends EventEmitter {
             this._actionUpdateUser(action.user);
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.findUser) {
-            this._actionFindUser(action.user);
+            this._actionFindUser(action.userInfo);
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.stopFindUser) {
             this._actionStopFindUser();
