@@ -6,26 +6,63 @@ const UserInfo   = require('../../../_compiled_/stores/user-info').default;
 const UserStore  = require('../../../_compiled_/stores/user-store').default;
 const EVENT_TYPE = require('../../../_compiled_/stores/event-type').default;
 
+const TEST_USER = new UserInfo(
+    {
+        id:      11,
+        name:    'Ervin New',
+        phone:   '89500418181',
+        email:   'vika.chernookaya@mail.ru',
+        website: 'github.com'
+    }
+);
+
+const TEST_USER_EXISTING = new UserInfo(
+    {
+        id:      11,
+        name:    'Ervin Howell',
+        phone:   '0418181',
+        email:   'ervin@mail.ru',
+        website: 'github.com'
+    }
+);
+
+const SEARCH_USER_INFO = new UserInfo(
+    {
+        name: 'Ervin'
+    }
+);
+
+const UPDATE_USER = new UserInfo(
+    {
+        id:      2,
+        name:    'Vika',
+        phone:   '555',
+        email:   'ervin@mail.ru',
+        website: 'github.com'
+    }
+);
+
+const SEARCH_FIELDS = {
+    name:    true,
+    phone:   false,
+    email:   false,
+    website: false
+};
+
 let users;
-let userData;
-let userAction;
 let foundUsers;
 let searchFields;
 let userId;
 
+UserStore.on(EVENT_TYPE.usersFound, _getFoundUsers);
+UserStore.on(EVENT_TYPE.addingFailed, _getUserID);
 
-UserStore.on(EVENT_TYPE.usersFound, getFoundUsers);
-UserStore.on(EVENT_TYPE.addingFailed, getUserID);
-
-UserStore.off(EVENT_TYPE.usersFound, getFoundUsers);
-UserStore.off(EVENT_TYPE.addingFailed, getUserID);
-
-function getFoundUsers (users, fields) {
+function _getFoundUsers (users, fields) {
     foundUsers   = users;
     searchFields = fields;
 }
 
-function getUserID (id) {
+function _getUserID (id) {
     userId = id;
 }
 
@@ -47,175 +84,88 @@ function _initUserList () {
 
 describe('UserStore', () => {
     beforeEach(() => {
-        users      = _initUserList();
-        userData   = UserStore;
-        userAction = UserAction;
+        users = _initUserList();
+    });
+
+    afterEach(() => {
+        UserStore._users = _initUserList();
+        UserStore._searchedUser = {};
     });
 
     describe('.getUsers()', () => {
         it('Should return a list of users', () => {
-            assert(users, UserStore.getUsers());
+            assert(UserStore.getUsers(), users);
         });
     });
 
     describe('Actions', () => {
         describe('addNewUser', () => {
-            it('A new user should be added', () => {
-                const user = new UserInfo(
-                    {
-                        id:      11,
-                        name:    'Vika',
-                        phone:   '89500418181',
-                        email:   'vika.chernookaya@mail.ru',
-                        website: 'github.com'
-                    }
-                );
-                users.push(user);
-                userAction.addNewUser(user);
-                assert(users, userData.getUsers());
+            it('Should emit userAdded event', () => {
+                users.push(TEST_USER);
+                UserAction.addNewUser(TEST_USER);
+                assert(UserStore.getUsers(), TEST_USER);
             });
-            it('User with incorrect fields should not be added', () => {
-                const user = new UserInfo(
-                    {
-                        id:      11,
-                        name:    'Vika',
-                        phone:   'incorrect0418181',
-                        email:   'vika.chernookaya@mail.ru',
-                        website: ''
-                    }
-                );
-                userAction.addNewUser(user);
-                assert(users, userData.getUsers());
+
+            it('Should emit addingFailed event with duplicateUserId if user exists ', () => {
+                UserAction.addNewUser(TEST_USER_EXISTING);
+                assert(UserStore.getUsers(), users);
+                assert(userId, 2);
             });
-            it('Existing user should not be added', () => {
-                const user = new UserInfo(
-                    {
-                        id:      11,
-                        name:    'Ervin Howell',
-                        phone:   '0418181',
-                        email:   'ervin@mail.ru',
-                        website: 'github.com'
-                    }
-                );
-                userAction.addNewUser(user);
-                assert(users, userData.getUsers());
-                console.assert(2, userId);
+
+            it('Should emit userAdded event if user exists, but force flag is true', () => {
+                users.push(TEST_USER_EXISTING);
+                UserAction.addNewUser(TEST_USER_EXISTING, true);
+                assert(UserStore.getUsers(), users);
             });
-            it('Existing user should be added', () => {
-                const user = new UserInfo(
-                    {
-                        id:      11,
-                        name:    'Ervin Howell',
-                        phone:   '111111',
-                        email:   'ervin@mail.ru',
-                        website: 'github.com'
-                    }
-                );
-                users.push(user);
-                userAction.addNewUser(user, true);
-                assert(users, userData.getUsers());
-            });
-            it('User should be added in search mode', () => {
-                const user     = new UserInfo(
-                    {
-                        id:      11,
-                        name:    'Vika',
-                        phone:   '111111',
-                        email:   'vika@mail.ru',
-                        website: 'github.com'
-                    }
-                );
-                const findUser = new UserInfo(
-                    {
-                        name:    'Vika',
-                        phone:   '',
-                        email:   '',
-                        website: ''
-                    }
-                );
-                const fields   = {
-                    name:    true,
-                    phone:   false,
-                    email:   false,
-                    website: false
-                };
-                users.push(user);
-                userAction.findUser(findUser);
-                userAction.addNewUser(user);
-                assert(users, userData.getUsers());
-                assert([], foundUsers);
-                assert(fields, searchFields);
+
+            it('Should emit usersFound event with foundUsers and searchFields if we are in search mode', () => {
+                users.push(TEST_USER);
+                UserAction.findUser(SEARCH_USER_INFO);
+                UserAction.addNewUser(TEST_USER);
+                assert(UserStore.getUsers(), users);
+                assert(foundUsers, []);
+                assert(searchFields, SEARCH_FIELDS);
             });
         });
 
         describe('updateUser', () => {
-            it('User should be updated', () => {
-                const user = new UserInfo(
-                    {
-                        id:      2,
-                        name:    'Ervin',
-                        phone:   '555',
-                        email:   'ervin@mail.ru',
-                        website: 'github.com'
-                    }
-                );
-                users[1]   = user;
-                userAction.updateUser(user);
-                assert(users, userData.getUsers());
+            it('Should emit change event', () => {
+                assert.notEqual(users[1],UPDATE_USER);
+                users[1] = UPDATE_USER;
+                UserAction.updateUser(UPDATE_USER);
+                assert(UserStore.getUsers(), users);
             });
-            it('User should not be updated', () => {
-                const user = new UserInfo(
-                    {
-                        id:      2,
-                        name:    'Ervin',
-                        phone:   'invalid phone',
-                        email:   'ervin@mail.ru',
-                        website: 'github.com'
-                    }
-                );
-                userAction.updateUser(user);
-                assert(users, userData.getUsers());
+
+            it('Should emit usersFound event with foundUsers and searchFields if update in search mode', () => {
+                UserAction.findUser(SEARCH_USER_INFO);
+                assert(foundUsers.length, 1);
+                assert.notEqual(users[1],UPDATE_USER);
+                UserAction.updateUser(UPDATE_USER);
+                users[1] = UPDATE_USER;
+                assert(foundUsers, []);
+                assert(UserStore.getUsers(), users);
             });
         });
 
         describe('findUser', () => {
-            it('Not found users', () => {
-                const user   = new UserInfo(
-                    {
-                        name:    'Vika',
-                        phone:   '',
-                        email:   '',
-                        website: ''
-                    }
-                );
-                const fields = {
-                    name:    true,
-                    phone:   false,
-                    email:   false,
-                    website: false
-                };
-                userAction.findUser(user);
-                console.log(foundUsers);
-                assert([], foundUsers);
-                assert(fields, searchFields);
+            it('Should emit usersFound event with empty foundUsers and searchFields if users not found', () => {
+                UserAction.findUser(SEARCH_USER_INFO);
+                assert(foundUsers, []);
+                assert(searchFields, SEARCH_FIELDS);
             });
-            it('Should be found 1 user with name Ervin', () => {
 
+            it('Should emit usersFound event with foundUsers and searchFields if user found', () => {
+                UserAction.findUser(SEARCH_USER_INFO);
+                assert(foundUsers.length, 1);
+                assert(searchFields, SEARCH_FIELDS);
             });
         });
 
         describe('stopFindUser', () => {
-            it('Stop find user', () => {
-                const user = new UserInfo(
-                    {
-                        name:    'Ervin',
-                        phone:   '',
-                        email:   '',
-                        website: ''
-                    }
-                );
-                userAction.findUser(user);
-                assert([], foundUsers);
+            it('Should emit change action and clear searchedUser if stop search user', () => {
+                UserAction.stopFindUser();
+                assert(UserStore.getUsers(), users);
+                assert(UserStore._searchedUser, {});
             });
         });
     });
