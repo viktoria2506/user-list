@@ -31,6 +31,7 @@ test('Update user', async t => {
         .typeText(inputName, userInfo.name, { replace: true })
         .typeText(inputPhone, userInfo.phone, { replace: true })
         .click(save)
+
         .expect(inputName.value).eql(userInfo.name)
         .expect(inputPhone.value).eql(userInfo.phone);
 });
@@ -39,9 +40,12 @@ test('User should not be updated with an invalid phone', async t => {
     await t
         .click(edit)
         .typeText(inputPhone, 'incorrect', { replace: true })
+
         .expect(inputPhone.classNames).eql(['field-error'])
         .expect(save.hasAttribute('disabled')).ok()
         .expect(error.textContent).eql(ERRORS.phoneInvalid)
+
         .click(undo)
+
         .expect(inputPhone.value).eql(usersData[0].phone);
 });
