@@ -8,7 +8,7 @@ import ACTION_TYPE from '../actions/action-type';
 
 class UserStore extends EventEmitter {
     _users        = [];
-    _searchedUser = {};
+    _searchedInfo = null;
 
     constructor () {
         super();
@@ -30,12 +30,12 @@ class UserStore extends EventEmitter {
         Dispatcher.register(this.registerActions.bind(this));
     }
 
-    _findUserIndexByName (user) {
-        return this._users.findIndex((oldUser) => user.name === oldUser.name);
+    _findUserIndexByName (name) {
+        return this._users.findIndex((oldUser) => name === oldUser.name);
     }
 
-    _findUserIndexById (user) {
-        return this._users.findIndex((oldUser) => user.id === oldUser.id);
+    _findUserIndexById (id) {
+        return this._users.findIndex((oldUser) => id === oldUser.id);
     }
 
     _addNewUser (user) {
@@ -44,7 +44,7 @@ class UserStore extends EventEmitter {
     }
 
     _updateUser (user) {
-        const index = this._findUserIndexById(user);
+        const index = this._findUserIndexById(user.id);
         if (index >= 0) {
             this._users[index] = user;
         }
@@ -66,30 +66,30 @@ class UserStore extends EventEmitter {
 
     _defineSearchFields () {
         return {
-            name:    !!this._searchedUser.name.trim(),
-            phone:   !!this._searchedUser.phone.trim(),
-            email:   !!this._searchedUser.email.trim(),
-            website: !!this._searchedUser.website.trim()
+            name:    !!this._searchedInfo.name.trim(),
+            phone:   !!this._searchedInfo.phone.trim(),
+            email:   !!this._searchedInfo.email.trim(),
+            website: !!this._searchedInfo.website.trim()
         };
     }
 
-    _checkSearchModeAndEmit (emit) {
-        if (this._searchedUser instanceof UserInfo) {
-            const _foundUsers = this._findUser(this._searchedUser);
+    _executeSearch () {
+        const _foundUsers = this._findUser(this._searchedInfo);
 
-            this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
-        }
-        else {
-            this.emit(emit);
-        }
+        this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
     }
 
     _actionAddNewUser (user, force) {
-        const index = this._findUserIndexByName(user);
+        const index = this._findUserIndexByName(user.name);
 
         if (index === -1 || force) {
             this._addNewUser(user);
-            this._checkSearchModeAndEmit(EVENT_TYPE.userAdded);
+            if (this._searchedInfo) {
+                this._executeSearch();
+            }
+            else {
+                this.emit(EVENT_TYPE.userAdded);
+            }
         }
         else {
             const userId = this._users[index].id;
@@ -99,17 +99,22 @@ class UserStore extends EventEmitter {
 
     _actionUpdateUser (user) {
         this._updateUser(user);
-        this._checkSearchModeAndEmit(EVENT_TYPE.change);
+        if (this._searchedInfo) {
+            this._executeSearch();
+        }
+        else {
+            this.emit(EVENT_TYPE.change);
+        }
     }
 
     _actionFindUser (userInfo) {
-        this._searchedUser = userInfo;
+        this._searchedInfo = userInfo;
         const _foundUsers  = this._findUser(userInfo);
         this.emit(EVENT_TYPE.usersFound, _foundUsers, this._defineSearchFields());
     }
 
     _actionStopFindUser () {
-        this._searchedUser = {};
+        this._searchedInfo = null;
         this.emit(EVENT_TYPE.change);
     }
 

@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const usersData  = require('../../data/users.json');
+const usersData  = require('../../test/data/users.json');
 const UserAction = require('../../../_compiled_/actions/user-action').default;
 const UserInfo   = require('../../../_compiled_/stores/user-info').default;
 const UserStore  = require('../../../_compiled_/stores/user-store').default;
@@ -8,7 +8,6 @@ const EVENT_TYPE = require('../../../_compiled_/stores/event-type').default;
 
 const TEST_USER = new UserInfo(
     {
-        id:      11,
         name:    'Ervin New',
         phone:   '89500418181',
         email:   'vika.chernookaya@mail.ru',
@@ -18,7 +17,6 @@ const TEST_USER = new UserInfo(
 
 const TEST_USER_EXISTING = new UserInfo(
     {
-        id:      11,
         name:    'Ervin Howell',
         phone:   '0418181',
         email:   'ervin@mail.ru',
@@ -26,18 +24,9 @@ const TEST_USER_EXISTING = new UserInfo(
     }
 );
 
-const SEARCH_USER_INFO = new UserInfo(
-    {
-        name: 'Ervin'
-    }
-);
+const SEARCH_USER_INFO = new UserInfo({ name: 'Ervin' });
 
-const SEARCH_USER_INFO_2 = new UserInfo(
-    {
-        name:  'Ervin  ',
-        phone: '  '
-    }
-);
+const SEARCH_NON_EXIST_USER_INFO = new UserInfo({ name: 'Ivan' });
 
 const UPDATE_USER = new UserInfo(
     {
@@ -56,24 +45,16 @@ const SEARCH_FIELDS = {
     website: false
 };
 
-let users;
-let foundUsers;
-let searchFields;
-let userId;
-
-UserStore.on(EVENT_TYPE.usersFound, _getFoundUsers);
-UserStore.on(EVENT_TYPE.addingFailed, _getUserID);
-
-function _getFoundUsers (users, fields) {
-    foundUsers   = users;
-    searchFields = fields;
+function subEvent (name, raiseAction) {
+    return new Promise(resolve => {
+        UserStore.on(name, (...args) => {
+            resolve(args);
+        });
+        raiseAction();
+    });
 }
 
-function _getUserID (id) {
-    userId = id;
-}
-
-function _initUserList () {
+function _getInitialUserList () {
     return usersData.map((user) => {
         return new UserInfo(
             {
@@ -90,90 +71,107 @@ function _initUserList () {
 }
 
 describe('UserStore', () => {
-    beforeEach(() => {
-        users = _initUserList();
-    });
-
     afterEach(() => {
-        UserStore._users        = _initUserList();
-        UserStore._searchedUser = {};
+        UserStore._users        = _getInitialUserList();
+        UserStore._searchedInfo = null;
+        UserStore.removeAllListeners(EVENT_TYPE.userAdded);
+        UserStore.removeAllListeners(EVENT_TYPE.addingFailed);
+        UserStore.removeAllListeners(EVENT_TYPE.change);
+        UserStore.removeAllListeners(EVENT_TYPE.usersFound);
     });
 
     describe('.getUsers()', () => {
         it('Should return a list of users', () => {
-            assert(UserStore.getUsers(), users);
+            const users = _getInitialUserList();
+
+            assert.deepEqual(UserStore.getUsers(), users);
         });
     });
 
     describe('Actions', () => {
         describe('addNewUser', () => {
-            it('Should emit userAdded event', () => {
-                users.push(TEST_USER);
-                UserAction.addNewUser(TEST_USER);
-                assert(UserStore.getUsers(), users);
-                assert(UserStore._users[UserStore._users.length - 1].id, UserStore._users.length);
+            it('Should emit userAdded event', async () => {
+                let newUser = TEST_USER;
+
+                newUser.id = UserStore.getUsers().length + 1;
+                await subEvent(EVENT_TYPE.userAdded, () => UserAction.addNewUser(TEST_USER));
+
+                assert.deepEqual(UserStore._users[UserStore._users.length - 1], newUser);
             });
 
-            it('Should emit addingFailed event with duplicateUserId if user exists ', () => {
-                UserAction.addNewUser(TEST_USER_EXISTING);
-                assert(UserStore.getUsers(), users);
-                assert(userId, 2);
+            it('Should emit addingFailed event with duplicateUserId if user exists ', async () => {
+                const prevUserStoreSize = UserStore.getUsers().length;
+                const [userId]          = await subEvent(EVENT_TYPE.addingFailed, () => UserAction.addNewUser(TEST_USER_EXISTING));
+
+                assert(UserStore.getUsers().length, prevUserStoreSize);
+                assert.strictEqual(userId, 2);
             });
 
-            it('Should emit userAdded event if user exists, but force flag is true', () => {
-                users.push(TEST_USER_EXISTING);
-                UserAction.addNewUser(TEST_USER_EXISTING, true);
-                assert(UserStore.getUsers(), users);
+            it('Should emit userAdded event if user exists, but force flag is true', async () => {
+                let newUser = TEST_USER_EXISTING;
+
+                newUser.id = UserStore.getUsers().length + 1;
+                await subEvent(EVENT_TYPE.userAdded, () => UserAction.addNewUser(TEST_USER_EXISTING, true));
+
+                assert.deepEqual(UserStore._users[UserStore._users.length - 1], newUser);
             });
 
-            it('Should emit usersFound event with foundUsers and searchFields if we are in search mode', () => {
-                users.push(TEST_USER);
-                UserAction.findUser(SEARCH_USER_INFO);
-                UserAction.addNewUser(TEST_USER);
-                assert(UserStore.getUsers(), users);
-                assert(foundUsers, []);
-                assert(searchFields, SEARCH_FIELDS);
+            it('Should emit usersFound event with updated foundUsers if we are in search mode', async () => {
+                const prevUserStoreSize = UserStore.getUsers().length;
+
+                let newUser = TEST_USER;
+
+                newUser.id                  = prevUserStoreSize + 1;
+                UserStore._searchedInfo     = SEARCH_USER_INFO;
+                const [foundUsers, ...args] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.addNewUser(TEST_USER));
+
+                assert(foundUsers.includes(TEST_USER));
+                assert.equal(UserStore.getUsers().length, prevUserStoreSize + 1);
             });
         });
 
         describe('updateUser', () => {
-            it('Should emit change event', () => {
-                assert.notEqual(users[1], UPDATE_USER);
-                users[1] = UPDATE_USER;
-                UserAction.updateUser(UPDATE_USER);
-                assert(UserStore.getUsers(), users);
+            it('Should emit change event', async () => {
+                assert.notEqual(UserStore.getUsers()[1], UPDATE_USER);
+                await subEvent(EVENT_TYPE.change, () => UserAction.updateUser(UPDATE_USER));
+
+                assert.deepEqual(UserStore.getUsers()[1], UPDATE_USER);
             });
 
-            it('Should emit usersFound event with foundUsers and searchFields if update in search mode', () => {
-                UserAction.findUser(SEARCH_USER_INFO);
-                assert(foundUsers.length, 1);
-                assert.notEqual(users[1], UPDATE_USER);
-                UserAction.updateUser(UPDATE_USER);
-                users[1] = UPDATE_USER;
-                assert(foundUsers, []);
-                assert(UserStore.getUsers(), users);
+            it('Should emit usersFound event with updated foundUsers and searchFields if update in search mode', async () => {
+                assert.notEqual(UserStore.getUsers()[1], UPDATE_USER);
+
+                UserStore._searchedInfo = SEARCH_USER_INFO;
+
+                const [updatedFoundUsers, ...args] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.updateUser(UPDATE_USER));
+
+                assert.strictEqual(updatedFoundUsers.length, 0);
+                assert.deepEqual(UserStore.getUsers()[1], UPDATE_USER);
             });
         });
 
         describe('findUser', () => {
-            it('Should emit usersFound event with empty foundUsers and searchFields if users not found', () => {
-                UserAction.findUser(SEARCH_USER_INFO);
-                assert(foundUsers, []);
-                assert(searchFields, SEARCH_FIELDS);
+            it('Should emit usersFound event with empty foundUsers and searchFields if users not found', async () => {
+                const [foundUsers, searchFields] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.findUser(SEARCH_NON_EXIST_USER_INFO));
+
+                assert.deepEqual(UserStore._searchedInfo, SEARCH_NON_EXIST_USER_INFO);
+                assert.equal(foundUsers.length, 0);
+                assert.deepEqual(searchFields, SEARCH_FIELDS);
             });
 
-            it('Should emit usersFound event with foundUsers and searchFields if user found', () => {
-                UserAction.findUser(SEARCH_USER_INFO);
-                assert(foundUsers.length, 1);
-                assert(searchFields, SEARCH_FIELDS);
+            it('Should emit usersFound event with foundUsers and searchFields if user found', async () => {
+                const [foundUsers, searchFields] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.findUser(SEARCH_USER_INFO));
+
+                assert.deepEqual(foundUsers, [UserStore.getUsers()[1]]);
+                assert.deepEqual(searchFields, SEARCH_FIELDS);
             });
         });
 
         describe('stopFindUser', () => {
-            it('Should emit change action and clear searchedUser if stop search user', () => {
-                UserAction.stopFindUser();
-                assert(UserStore.getUsers(), users);
-                assert(UserStore._searchedUser, {});
+            it('Should emit change event and clear searchedUser if stop search user', async () => {
+                await subEvent(EVENT_TYPE.change, () => UserAction.stopFindUser());
+
+                assert.strictEqual(UserStore._searchedInfo, null);
             });
         });
     });
@@ -181,20 +179,24 @@ describe('UserStore', () => {
     describe('private methods', () => {
         describe('_findUserIndexById', () => {
             it('Should return the index of the user with the same id', () => {
-                assert(UserStore._findUserIndexById(UPDATE_USER), 1);
+                assert.strictEqual(UserStore._findUserIndexById(UPDATE_USER.id), 1);
             });
         });
 
         describe('_findUserIndexByName', () => {
             it('Should return the index of the user with the same name', () => {
-                assert(UserStore._findUserIndexByName(TEST_USER_EXISTING), 1);
+                assert.deepEqual(UserStore._findUserIndexByName(TEST_USER_EXISTING.name), 1);
             });
         });
 
         describe('_defineSearchFields', () => {
             it('Should return the index of the user with the same name', () => {
-                UserStore._searchedUser = SEARCH_USER_INFO_2;
-                assert(UserStore._defineSearchFields, SEARCH_FIELDS);
+                UserStore._searchedInfo = new UserInfo({
+                    name:  'Ervin  ',
+                    phone: '  '
+                });
+
+                assert.deepEqual(UserStore._defineSearchFields(), SEARCH_FIELDS);
             });
         });
     });
