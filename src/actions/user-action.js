@@ -16,6 +16,19 @@ class UserAction {
             user:        user
         });
     }
+
+    findUser (userInfo) {
+        Dispatcher.dispatch({
+            ACTION_TYPE: ACTION_TYPE.findUser,
+            userInfo:    userInfo
+        });
+    }
+
+    stopFindUser () {
+        Dispatcher.dispatch({
+            ACTION_TYPE: ACTION_TYPE.stopFindUser
+        });
+    }
 }
 
 export default new UserAction();

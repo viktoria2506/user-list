@@ -3,63 +3,96 @@ import React from 'react';
 import '../css/app.css';
 import UserStore from '../stores/user-store';
 import EVENT_TYPE from '../stores/event-type';
+import ERRORS from '../errors';
+import UserAction from '../actions/user-action';
 
 import User from './user.js';
+import SearchForm from './search-form';
 
 export default class UserList extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state = this._getAppState();
+        this.state = this._getInitialState();
     }
 
-    _getAppState () {
+    _getInitialState () {
         return {
-            duplicateUserId: '',
-            wantAdd:         false,
-            users:           UserStore.getUsers()
+            duplicateUserId:   '',
+            highlightedFields: '',
+            addUserMode:       false,
+            searchMode:        false,
+            users:             UserStore.getUsers()
         };
     }
 
     _onChange = () => {
-        this.setState(this._getAppState());
+        this.setState(this._getInitialState());
     };
 
-    _handleClickAddUser = () => {
-        this.setState({ wantAdd: !this.state.wantAdd });
+    _handleAddUserClick = () => {
+        this.setState({ addUserMode: !this.state.addUserMode });
     };
 
-    _addingFailed = userId => {
-        this.setState({ duplicateUserId: userId});
+    _addingFailed = (userId) => {
+        this.setState({ duplicateUserId: userId });
+    };
+
+    _handleFindUserClick = (e) => {
+        const { searchMode } = this.state;
+
+        this.setState({ searchMode: !searchMode });
+        e.preventDefault();
+    };
+
+    _usersFound = (usersFound, highlightedFields) => {
+        this.setState({ users: usersFound, highlightedFields, addUserMode: false });
+    };
+
+    _handleStopSearchClick = (e) => {
+        UserAction.stopFindUser();
+        e.preventDefault();
     };
 
     componentDidMount () {
         UserStore.on(EVENT_TYPE.change, this._onChange);
         UserStore.on(EVENT_TYPE.userAdded, this._onChange);
         UserStore.on(EVENT_TYPE.addingFailed, this._addingFailed);
+        UserStore.on(EVENT_TYPE.usersFound, this._usersFound);
     }
 
     componentWillUnmount () {
         UserStore.off(EVENT_TYPE.change, this._onChange);
         UserStore.off(EVENT_TYPE.userAdded, this._onChange);
         UserStore.off(EVENT_TYPE.addingFailed, this._addingFailed);
+        UserStore.off(EVENT_TYPE.usersFound, this._usersFound);
     }
 
     render () {
-        const { wantAdd, users, duplicateUserId } = this.state;
+        const { addUserMode, users, duplicateUserId, searchMode, highlightedFields } = this.state;
 
         return (
             <div className="UserList">
-                <button className="ButtonAddUser" data-testid="ButtonAddUser" onClick={this._handleClickAddUser}>
-                    Add new User
+                <button className="ButtonFindUser"
+                        onClick={searchMode ? this._handleStopSearchClick : this._handleFindUserClick}>
+                    {searchMode ? 'Stop searching' : 'Find User'}
                 </button>
                 {
-                    wantAdd &&
-                    (
-                        <User isNewUser={true} duplicateUserId={duplicateUserId}/>
-                    )
+                    searchMode &&
+                    <SearchForm/>
+                }
+                <button className="ButtonAddUser" data-testid="ButtonAddUser"
+                        onClick={this._handleAddUserClick}>
+                    {addUserMode ? 'Cancel adding' : 'Add new User'}
+                </button>
+                {
+                    addUserMode &&
+                    <User isNewUser={true} duplicateUserId={duplicateUserId}/>
                 }
                 <hr/>
+                {!users.length &&
+                 <p>{ERRORS.usersNotFound}</p>
+                }
                 {
                     users.map(user => {
                         const info = {
@@ -75,7 +108,7 @@ export default class UserList extends React.Component {
                                 <User info={info}
                                       address={user.address}
                                       company={user.company}
-                                      isNewUser={false}
+                                      highlightedFields={highlightedFields}
                                 />
                                 <hr/>
                             </div>

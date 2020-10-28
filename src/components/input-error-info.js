@@ -1,20 +1,21 @@
 import React from 'react';
 import classNames from 'classnames';
 
-function errorClass (error) {
-    return classNames({ 'UserInfo': !error, 'field-error': error });
+function nameClass (error, highlighted) {
+    return classNames({ 'UserInfo': !error, 'field-error': error, highlighted });
 }
 
 export default function InputWithErrorInfo (props) {
-    const { name, error, value, onChange, isEditing } = props;
-    let requiredMark =  isEditing ? '*' : '';
+    const { name, error, value, onChange, isEditing, highlighted, requiredField } = props;
+    let requiredMark                                                              = requiredField &&
+                                                                                    isEditing ? '*' : '';
 
     return (
         <p><label>
             {requiredMark + name[0].toUpperCase() + name.slice(1)}:
             <input type="text"
                    name={name}
-                   className={`${errorClass(error)}`}
+                   className={`${nameClass(error, highlighted)}`}
                    value={value}
                    onChange={onChange}/>
             <nobr className="formErrors">{error}</nobr>

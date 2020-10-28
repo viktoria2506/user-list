@@ -7,10 +7,13 @@ export default function DuplicateError (props) {
 
     if (userId) {
         const link = <a href={`#${userId}`}>{textError.substr(0, textError.indexOf(' '))}</a>;
+
         return (
             <nobr>{link} {textError.substr(textError.indexOf(' '), textError.length)}</nobr>
         );
     }
     return null;
 }
+
+
 
