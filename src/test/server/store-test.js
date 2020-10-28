@@ -123,7 +123,7 @@ describe('UserStore', () => {
                 UserStore._searchedInfo     = _.cloneDeep(SEARCH_USER_INFO);
                 const [foundUsers, searchFields] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.addNewUser(TEST_USER));
 
-                assert(foundUsers.includes(newUser));
+                assert(foundUsers.includes(TEST_USER));
                 assert.deepEqual(UserStore.getUsers().length, prevUserStoreSize + 1);
                 assert.deepEqual(searchFields, SEARCH_FIELDS);
             });
