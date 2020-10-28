@@ -1,4 +1,5 @@
 const assert = require('assert');
+const _ = require('lodash');
 
 const usersData  = require('../../test/data/users.json');
 const UserAction = require('../../../_compiled_/actions/user-action').default;
@@ -74,10 +75,7 @@ describe('UserStore', () => {
     afterEach(() => {
         UserStore._users        = _getInitialUserList();
         UserStore._searchedInfo = null;
-        UserStore.removeAllListeners(EVENT_TYPE.userAdded);
-        UserStore.removeAllListeners(EVENT_TYPE.addingFailed);
-        UserStore.removeAllListeners(EVENT_TYPE.change);
-        UserStore.removeAllListeners(EVENT_TYPE.usersFound);
+        UserStore.removeAllListeners();
     });
 
     describe('.getUsers()', () => {
@@ -91,7 +89,7 @@ describe('UserStore', () => {
     describe('Actions', () => {
         describe('addNewUser', () => {
             it('Should emit userAdded event', async () => {
-                let newUser = TEST_USER;
+                let newUser = _.cloneDeep(TEST_USER);
 
                 newUser.id = UserStore.getUsers().length + 1;
                 await subEvent(EVENT_TYPE.userAdded, () => UserAction.addNewUser(TEST_USER));
@@ -108,7 +106,7 @@ describe('UserStore', () => {
             });
 
             it('Should emit userAdded event if user exists, but force flag is true', async () => {
-                let newUser = TEST_USER_EXISTING;
+                let newUser = _.cloneDeep(TEST_USER_EXISTING);
 
                 newUser.id = UserStore.getUsers().length + 1;
                 await subEvent(EVENT_TYPE.userAdded, () => UserAction.addNewUser(TEST_USER_EXISTING, true));
@@ -119,10 +117,10 @@ describe('UserStore', () => {
             it('Should emit usersFound event with updated foundUsers if we are in search mode', async () => {
                 const prevUserStoreSize = UserStore.getUsers().length;
 
-                let newUser = TEST_USER;
+                let newUser = _.cloneDeep(TEST_USER);
 
                 newUser.id                  = prevUserStoreSize + 1;
-                UserStore._searchedInfo     = SEARCH_USER_INFO;
+                UserStore._searchedInfo     = _.cloneDeep(SEARCH_USER_INFO);
                 const [foundUsers, ...args] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.addNewUser(TEST_USER));
 
                 assert(foundUsers.includes(TEST_USER));
@@ -141,7 +139,7 @@ describe('UserStore', () => {
             it('Should emit usersFound event with updated foundUsers and searchFields if update in search mode', async () => {
                 assert.notEqual(UserStore.getUsers()[1], UPDATE_USER);
 
-                UserStore._searchedInfo = SEARCH_USER_INFO;
+                UserStore._searchedInfo = _.cloneDeep(SEARCH_USER_INFO);
 
                 const [updatedFoundUsers, ...args] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.updateUser(UPDATE_USER));
 
