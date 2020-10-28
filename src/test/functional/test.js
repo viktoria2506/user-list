@@ -1,7 +1,5 @@
 import { ReactSelector, waitForReact } from 'testcafe-react-selectors';
-import '@testing-library/jest-dom';
 import UserInfo from '../../stores/user-info';
-import usersData from '../../data/users.json';
 import ERRORS from '../../errors';
 
 fixture`App tests`
@@ -25,7 +23,7 @@ const save       = user.find('button').withText('Save');
 const undo       = user.find('button').withText('Undo');
 const error      = user.find('p').nth(1).find('label').find('nobr');
 
-test('Update user', async t => {
+test('User should be updated', async t => {
     await t
         .click(edit)
         .typeText(inputName, userInfo.name, { replace: true })
@@ -37,6 +35,8 @@ test('Update user', async t => {
 });
 
 test('User should not be updated with an invalid phone', async t => {
+    const phoneInitialValue = inputPhone.value;
+
     await t
         .click(edit)
         .typeText(inputPhone, 'incorrect', { replace: true })
@@ -47,5 +47,5 @@ test('User should not be updated with an invalid phone', async t => {
 
         .click(undo)
 
-        .expect(inputPhone.value).eql(usersData[0].phone);
+        .expect(inputPhone.value).eql(await phoneInitialValue);
 });
