@@ -121,10 +121,11 @@ describe('UserStore', () => {
 
                 newUser.id                  = prevUserStoreSize + 1;
                 UserStore._searchedInfo     = _.cloneDeep(SEARCH_USER_INFO);
-                const [foundUsers, ...args] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.addNewUser(TEST_USER));
+                const [foundUsers, searchFields] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.addNewUser(TEST_USER));
 
                 assert(foundUsers.includes(TEST_USER));
-                assert.equal(UserStore.getUsers().length, prevUserStoreSize + 1);
+                assert.deepEqual(UserStore.getUsers().length, prevUserStoreSize + 1);
+                assert.deepEqual(searchFields, SEARCH_FIELDS);
             });
         });
 
@@ -141,10 +142,11 @@ describe('UserStore', () => {
 
                 UserStore._searchedInfo = _.cloneDeep(SEARCH_USER_INFO);
 
-                const [updatedFoundUsers, ...args] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.updateUser(UPDATE_USER));
+                const [updatedFoundUsers, searchFields] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.updateUser(UPDATE_USER));
 
-                assert.strictEqual(updatedFoundUsers.length, 0);
+                assert.deepEqual(updatedFoundUsers.length, 0);
                 assert.deepEqual(UserStore.getUsers()[1], UPDATE_USER);
+                assert.deepEqual(searchFields, SEARCH_FIELDS);
             });
         });
 
@@ -153,7 +155,7 @@ describe('UserStore', () => {
                 const [foundUsers, searchFields] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.findUser(SEARCH_NON_EXIST_USER_INFO));
 
                 assert.deepEqual(UserStore._searchedInfo, SEARCH_NON_EXIST_USER_INFO);
-                assert.equal(foundUsers.length, 0);
+                assert.deepEqual(foundUsers.length, 0);
                 assert.deepEqual(searchFields, SEARCH_FIELDS);
             });
 
@@ -169,7 +171,7 @@ describe('UserStore', () => {
             it('Should emit change event and clear searchedUser if stop search user', async () => {
                 await subEvent(EVENT_TYPE.change, () => UserAction.stopFindUser());
 
-                assert.strictEqual(UserStore._searchedInfo, null);
+                assert.deepEqual(UserStore._searchedInfo, null);
             });
         });
     });
@@ -177,7 +179,7 @@ describe('UserStore', () => {
     describe('private methods', () => {
         describe('_findUserIndexById', () => {
             it('Should return the index of the user with the same id', () => {
-                assert.strictEqual(UserStore._findUserIndexById(UPDATE_USER.id), 1);
+                assert.deepEqual(UserStore._findUserIndexById(UPDATE_USER.id), 1);
             });
         });
 
