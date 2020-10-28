@@ -1,4 +1,5 @@
 import { ReactSelector, waitForReact } from 'testcafe-react-selectors';
+
 import UserInfo from '../../stores/user-info';
 import ERRORS from '../../errors';
 
