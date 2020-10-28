@@ -1,5 +1,5 @@
 export default class UserInfo {
-    constructor (userInfo, addressInfo, companyInfo) {
+    constructor (userInfo = {}, addressInfo ={}, companyInfo={}) {
         this.id      = userInfo.id;
         this.name    = userInfo.name;
         this.phone   = userInfo.phone;
