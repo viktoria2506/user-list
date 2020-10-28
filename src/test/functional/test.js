@@ -36,7 +36,7 @@ test('User should be updated', async t => {
 });
 
 test('User should not be updated with an invalid phone', async t => {
-    const phoneInitialValue = inputPhone.value;
+    const phoneInitialValue = await inputPhone.value;
 
     await t
         .click(edit)
@@ -48,5 +48,5 @@ test('User should not be updated with an invalid phone', async t => {
 
         .click(undo)
 
-        .expect(inputPhone.value).eql(await phoneInitialValue);
+        .expect(inputPhone.value).eql(phoneInitialValue);
 });
