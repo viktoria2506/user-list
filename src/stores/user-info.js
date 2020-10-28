@@ -1,11 +1,10 @@
 export default class UserInfo {
-    constructor (userInfo = {}, addressInfo ={}, companyInfo={}) {
-        this.id      = userInfo.id;
-        this.name    = userInfo.name;
-        this.phone   = userInfo.phone;
-        this.email   = userInfo.email;
-        this.website = userInfo.website;
-
+    constructor (userInfo = {}, addressInfo = {}, companyInfo = {}) {
+        this.id      = userInfo.id || '';
+        this.name    = userInfo.name || '';
+        this.phone   = userInfo.phone || '';
+        this.email   = userInfo.email || '';
+        this.website = userInfo.website || '';
 
         this.address = new Address(
             addressInfo.city, addressInfo.street,
