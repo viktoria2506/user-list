@@ -34,27 +34,27 @@ export default function Info (props) {
         };
     };
 
-    const _isUserInfoValid = (info) => {
+  /*  const _isUserInfoValid = (info) => {
         return !_validateField(FIELD_NAMES.name, info.name) &&
                !_validateField(FIELD_NAMES.phone, info.phone) &&
                !_validateField(FIELD_NAMES.email, info.email);
-    };
+    };*/
 
     const _handleChange = (e) => {
         const name    = e.target.name;
         const value   = e.target.value;
         let formError = { ...formErrors };
-
         let changedInfo   = { ...info };
+
         changedInfo[name] = value;
         formError[name]   = _validateField(name, value);
         if (name === FIELD_NAMES.name) {
             const hasDuplicateError = false;
 
-            onChange(INFO, changedInfo, formError, _isUserInfoValid(changedInfo), _validateFields(changedInfo), hasDuplicateError);
+            onChange(INFO, changedInfo, formError,  _validateFields(changedInfo), hasDuplicateError);
         }
         else {
-            onChange(INFO, changedInfo, formError, _isUserInfoValid(changedInfo), _validateFields(changedInfo));
+            onChange(INFO, changedInfo, formError,  _validateFields(changedInfo));
         }
         e.preventDefault();
     };
