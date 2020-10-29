@@ -9,6 +9,7 @@ import Address from './address.js';
 import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
+import Edit from './edit';
 
 const MATCH_PHONE        = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL        = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
@@ -81,16 +82,8 @@ export default class User extends React.Component {
         e.preventDefault();
     };
 
-    _handleClickEdit = e => {
-        let { currentUser, editMode, unmodifiedUser } = this.state;
-
-        unmodifiedUser = {
-            info:    { ...currentUser.info },
-            address: { ...currentUser.address },
-            company: { ...currentUser.company }
-        };
-        this.setState({ editMode: !editMode, unmodifiedUser });
-        e.preventDefault();
+    _handleClickEdit = unmodifiedUser => {
+        this.setState({ editMode: !this.state.editMode, unmodifiedUser: unmodifiedUser });
     };
 
     _handleChange = (e, type) => {
@@ -128,20 +121,14 @@ export default class User extends React.Component {
         e.preventDefault();
     };
 
-    _handleClickUndo = e => {
+    _handleClickUndo = () => {
         const { editMode, unmodifiedUser } = this.state;
 
         this.setState({ editMode: !editMode, currentUser: unmodifiedUser, formErrors: {} });
-        e.preventDefault();
     };
 
-    _handleClickSave = e => {
-        let { currentUser, editMode } = this.state;
-        const newUser                 = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-
-        UserAction.updateUser(newUser);
-        this.setState({ editMode: !editMode });
-        e.preventDefault();
+    _handleClickSave = () => {
+        this.setState({ editMode: !this.state.editMode });
     };
 
     render () {
@@ -203,16 +190,14 @@ export default class User extends React.Component {
                         disabled={!isFormFieldsValid}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <button className="ButtonEdit"
-                                disabled={!isFormFieldsValid && editMode}
-                                onClick={editMode ? this._handleClickSave : this._handleClickEdit}>
-                            {editMode ? 'Save' : 'Edit'}
-                        </button>
+                        <Edit disabled={!isFormFieldsValid && editMode}
+                              onClickSave={this._handleClickSave}
+                              onClickEdit={this._handleClickEdit}
+                              onClickUndo={this._handleClickUndo}
+                              currentUser={currentUser}
+                              editMode={editMode}
+                        />
                     )
-                }
-                {
-                    editMode &&
-                    <button className="ButtonEdit" onClick={this._handleClickUndo}>Undo</button>
                 }
             </form>
         );
