@@ -17,16 +17,17 @@ const userInfo = new UserInfo(
 );
 
 const user       = ReactSelector('User form');
-const edit       = user.find('button').withText('Edit');
+const edit       = ReactSelector('Edit');
+const editButton = edit.find('button').withText('Edit');
 const inputName  = user.find('input').nth(0);
 const inputPhone = user.find('input').nth(1);
-const save       = user.find('button').withText('Save');
-const undo       = user.find('button').withText('Undo');
+const save       = edit.find('button').withText('Save');
+const undo       = edit.find('button').withText('Undo');
 const error      = user.find('p').nth(1).find('label').find('nobr');
 
 test('User should be updated', async t => {
     await t
-        .click(edit)
+        .click(editButton)
         .typeText(inputName, userInfo.name, { replace: true })
         .typeText(inputPhone, userInfo.phone, { replace: true })
         .click(save)
@@ -39,7 +40,7 @@ test('User should not be updated with an invalid phone', async t => {
     const phoneInitialValue = await inputPhone.value;
 
     await t
-        .click(edit)
+        .click(editButton)
         .typeText(inputPhone, 'incorrect', { replace: true })
 
         .expect(inputPhone.classNames).eql(['field-error'])

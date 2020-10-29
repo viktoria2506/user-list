@@ -3,7 +3,7 @@ import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 
 export default function Edit (props) {
-    const { disabled, currentUser, editMode } = props;
+    const { disabled, currentUser, editMode, onClickSave, onClickUndo, onClickEdit } = props;
 
     const _handleClickEdit = e => {
         const unmodifiedUser = {
@@ -12,12 +12,12 @@ export default function Edit (props) {
             company: { ...currentUser.company }
         };
 
-        props.onClickEdit(unmodifiedUser);
+        onClickEdit(unmodifiedUser);
         e.preventDefault();
     };
 
     const _handleClickUndo = e => {
-        props.onClickUndo();
+        onClickUndo();
         e.preventDefault();
     };
 
@@ -25,7 +25,7 @@ export default function Edit (props) {
         const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
         UserAction.updateUser(newUser);
-        props.onClickSave(editMode);
+        onClickSave(editMode);
         e.preventDefault();
     };
 

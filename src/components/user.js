@@ -11,8 +11,6 @@ import Info from './info';
 import DuplicateError from './duplicate-error';
 import Edit from './edit';
 
-const MATCH_PHONE        = /^([\d.\-+x() ]+)$/i;
-const MATCH_EMAIL        = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
 export const FIELD_NAMES = {
     name:    'name',
     email:   'email',
@@ -35,41 +33,28 @@ export default class User extends React.Component {
             unmodifiedUser:    null,
             formErrors:        {
                 name:  '',
-                email: '',
-                phone: ''
+                phone: '',
+                email: ''
             },
             showAddress:       false,
             showCompany:       false,
             editMode:          false,
-            hasDuplicateError: false
+            hasDuplicateError: false,
+            validInfo:         true,
+            formAllErrors:     {
+                name:  ERRORS.nameInvalid,
+                phone: ERRORS.phoneInvalid,
+                email: ERRORS.emailInvalid,
+            }
         };
     }
 
-    _validateField (fieldName, value) {
-        switch (fieldName) {
-            case FIELD_NAMES.name:
-                return value ? '' : ERRORS.nameInvalid;
-            case FIELD_NAMES.phone:
-                return value && MATCH_PHONE.test(value) ? '' : ERRORS.phoneInvalid;
-            case FIELD_NAMES.email:
-                return value && MATCH_EMAIL.test(value) ? '' : ERRORS.emailInvalid;
-            default:
-                return '';
-        }
-    }
+    _isUserInfoValid () {
+        const {formErrors} = this.state;
 
-    _validateFields (user) {
-        return {
-            [FIELD_NAMES.name]:  this._validateField(FIELD_NAMES.name, user.name),
-            [FIELD_NAMES.phone]: this._validateField(FIELD_NAMES.phone, user.phone),
-            [FIELD_NAMES.email]: this._validateField(FIELD_NAMES.email, user.email),
-        };
-    }
-
-    _isUserInfoValid (validInfo) {
-        return !validInfo[FIELD_NAMES.name] &&
-               !validInfo[FIELD_NAMES.phone] &&
-               !validInfo[FIELD_NAMES.email];
+        return !formErrors.name &&
+               !formErrors.phone &&
+               !formErrors.email;
     }
 
     _handleClickAddress = e => {
@@ -86,37 +71,31 @@ export default class User extends React.Component {
         this.setState({ editMode: !this.state.editMode, unmodifiedUser: unmodifiedUser });
     };
 
-    _handleChange = (e, type) => {
-        let { currentUser, editMode, formErrors, hasDuplicateError } = this.state;
-        const { isNewUser }                                          = this.props;
+    _handleChange = (type, userValue, formErrors,  infoValid, allErrors, hasDuplicateError = this.state.hasDuplicateError) => {
+        const { currentUser } = this.state;
 
-        if (editMode || isNewUser) {
-            const name  = e.target.name;
-            const value = e.target.value;
-
-            currentUser[type][name] = value;
-            formErrors[name]        = this._validateField(name, value);
-            if (name === FIELD_NAMES.name) {
-                hasDuplicateError = false;
-            }
-            this.setState({ currentUser, formErrors, hasDuplicateError });
-        }
-        e.preventDefault();
+        currentUser[type] = userValue;
+        this.setState({
+            currentUser,
+            formErrors:        formErrors,
+            hasDuplicateError: hasDuplicateError,
+            validInfo:         infoValid,
+            formAllErrors:     allErrors
+        });
     };
 
     _handleClickSubmit = e => {
-        const { currentUser, hasDuplicateError, formErrors } = this.state;
-        const newUser                                        = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-        const resultValid                                    = this._validateFields(currentUser.info);
+        const { currentUser, hasDuplicateError, formErrors, validInfo, formAllErrors } = this.state;
+        const newUser                                                                  = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        if (this._isUserInfoValid(resultValid)) {
+        if (validInfo) {
             const forceAdding = !!hasDuplicateError;
 
             UserAction.addNewUser(newUser, forceAdding);
             this.setState({ formErrors, hasDuplicateError: !hasDuplicateError });
         }
         else {
-            this.setState({ formErrors: { ...resultValid } });
+            this.setState({ validInfo: this._isUserInfoValid(), formErrors: formAllErrors });
         }
         e.preventDefault();
     };
@@ -141,7 +120,6 @@ export default class User extends React.Component {
                   formErrors,
                   hasDuplicateError
               }                                                      = this.state;
-        const isFormFieldsValid                                      = this._isUserInfoValid(formErrors);
         let buttonAddress                                            = '';
         let buttonCompany                                            = '';
 
@@ -184,13 +162,13 @@ export default class User extends React.Component {
                     isNewUser ?
                     <button
                         className={classNames({
-                            ButtonAddUser:  isFormFieldsValid,
-                            ButtonDisabled: !isFormFieldsValid
+                            ButtonAddUser:  this._isUserInfoValid(),
+                            ButtonDisabled: !this._isUserInfoValid()
                         })}
-                        disabled={!isFormFieldsValid}
+                        disabled={!this._isUserInfoValid()}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <Edit disabled={!isFormFieldsValid && editMode}
+                        <Edit disabled={!this._isUserInfoValid() && editMode}
                               onClickSave={this._handleClickSave}
                               onClickEdit={this._handleClickEdit}
                               onClickUndo={this._handleClickUndo}
