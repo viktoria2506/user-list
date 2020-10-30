@@ -40,6 +40,7 @@ export default class User extends React.Component {
             showCompany:       false,
             editMode:          false,
             hasDuplicateError: false,
+            validInfo:         true,
             formAllErrors:     {
                 name:  ERRORS.nameInvalid,
                 phone: ERRORS.phoneInvalid,
@@ -49,19 +50,11 @@ export default class User extends React.Component {
     }
 
     _isUserInfoValid () {
-        const { formErrors } = this.state;
+        const {formErrors} = this.state;
 
         return !formErrors.name &&
                !formErrors.phone &&
                !formErrors.email;
-    }
-
-    _isUserAllInfoValid () {
-        const { formAllErrors } = this.state;
-
-        return !formAllErrors.name &&
-               !formAllErrors.phone &&
-               !formAllErrors.email;
     }
 
     _handleClickAddress = e => {
@@ -78,7 +71,7 @@ export default class User extends React.Component {
         this.setState({ editMode: !this.state.editMode, unmodifiedUser: unmodifiedUser });
     };
 
-    _handleChange = (type, userValue, formErrors, allErrors, hasDuplicateError = this.state.hasDuplicateError) => {
+    _handleChange = (type, userValue, formErrors,  infoValid, allErrors, hasDuplicateError = this.state.hasDuplicateError) => {
         const { currentUser } = this.state;
 
         currentUser[type] = userValue;
@@ -86,22 +79,23 @@ export default class User extends React.Component {
             currentUser,
             formErrors:        formErrors,
             hasDuplicateError: hasDuplicateError,
+            validInfo:         infoValid,
             formAllErrors:     allErrors
         });
     };
 
     _handleClickSubmit = e => {
-        const { currentUser, hasDuplicateError, formErrors, formAllErrors } = this.state;
-        const newUser                                                       = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const { currentUser, hasDuplicateError, formErrors, validInfo, formAllErrors } = this.state;
+        const newUser                                                                  = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        if (this._isUserAllInfoValid()) {
+        if (validInfo) {
             const forceAdding = !!hasDuplicateError;
 
             UserAction.addNewUser(newUser, forceAdding);
             this.setState({ formErrors, hasDuplicateError: !hasDuplicateError });
         }
         else {
-            this.setState({ formErrors: formAllErrors });
+            this.setState({ validInfo: this._isUserInfoValid(), formErrors: formAllErrors });
         }
         e.preventDefault();
     };
