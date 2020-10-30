@@ -3,7 +3,6 @@ import React from 'react';
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 import classNames from 'classnames';
-import ERRORS from '../errors';
 
 import Address from './address.js';
 import Company from './company.js';
@@ -31,37 +30,14 @@ export default class User extends React.Component {
                 company
             },
             unmodifiedUser:    null,
-            formErrors:        {
-                name:  '',
-                phone: '',
-                email: ''
-            },
             showAddress:       false,
             showCompany:       false,
             editMode:          false,
             hasDuplicateError: false,
-            formAllErrors:     {
-                name:  ERRORS.nameInvalid,
-                phone: ERRORS.phoneInvalid,
-                email: ERRORS.emailInvalid,
-            }
+            checkAllFields:    false,
+            noCurrentErrors:   true,
+            allFieldsCorrect:  false
         };
-    }
-
-    _isUserInfoValid () {
-        const { formErrors } = this.state;
-
-        return !formErrors.name &&
-               !formErrors.phone &&
-               !formErrors.email;
-    }
-
-    _isUserAllInfoValid () {
-        const { formAllErrors } = this.state;
-
-        return !formAllErrors.name &&
-               !formAllErrors.phone &&
-               !formAllErrors.email;
     }
 
     _handleClickAddress = e => {
@@ -78,30 +54,30 @@ export default class User extends React.Component {
         this.setState({ editMode: !this.state.editMode, unmodifiedUser: unmodifiedUser });
     };
 
-    _handleChange = (type, userValue, formErrors, allErrors, hasDuplicateError = this.state.hasDuplicateError) => {
+    _handleChange = (type, userValue, noCurrentErrors, allFieldsCorrect, hasDuplicateError = this.state.hasDuplicateError) => {
         const { currentUser } = this.state;
 
         currentUser[type] = userValue;
         this.setState({
             currentUser,
-            formErrors:        formErrors,
             hasDuplicateError: hasDuplicateError,
-            formAllErrors:     allErrors
+            noCurrentErrors:   noCurrentErrors,
+            allFieldsCorrect:  allFieldsCorrect
         });
     };
 
     _handleClickSubmit = e => {
-        const { currentUser, hasDuplicateError, formErrors, formAllErrors } = this.state;
-        const newUser                                                       = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const { currentUser, hasDuplicateError, allFieldsCorrect } = this.state;
+        const newUser                                              = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        if (this._isUserAllInfoValid()) {
+        if (allFieldsCorrect) {
             const forceAdding = !!hasDuplicateError;
 
             UserAction.addNewUser(newUser, forceAdding);
-            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError });
+            this.setState({ hasDuplicateError: !hasDuplicateError });
         }
         else {
-            this.setState({ formErrors: formAllErrors });
+            this.setState({ checkAllFields: true, noCurrentErrors: allFieldsCorrect });
         }
         e.preventDefault();
     };
@@ -109,7 +85,7 @@ export default class User extends React.Component {
     _handleClickUndo = () => {
         const { editMode, unmodifiedUser } = this.state;
 
-        this.setState({ editMode: !editMode, currentUser: unmodifiedUser, formErrors: {} });
+        this.setState({ editMode: !editMode, currentUser: unmodifiedUser, checkAllFields: true });
     };
 
     _handleClickSave = () => {
@@ -123,8 +99,9 @@ export default class User extends React.Component {
                   showCompany,
                   editMode,
                   currentUser,
-                  formErrors,
-                  hasDuplicateError
+                  hasDuplicateError,
+                  checkAllFields,
+                  noCurrentErrors
               }                                                      = this.state;
         let buttonAddress                                            = '';
         let buttonCompany                                            = '';
@@ -145,10 +122,10 @@ export default class User extends React.Component {
                     <DuplicateError userId={duplicateUserId}/>
                 }
                 <Info info={currentUser.info}
-                      formErrors={formErrors}
                       onChange={this._handleChange}
                       editMode={editMode}
                       isNewUser={isNewUser}
+                      checkAllFields={checkAllFields}
                       highlightedFields={highlightedFields}/>
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
                     {buttonAddress}
@@ -168,13 +145,13 @@ export default class User extends React.Component {
                     isNewUser ?
                     <button
                         className={classNames({
-                            ButtonAddUser:  this._isUserInfoValid(),
-                            ButtonDisabled: !this._isUserInfoValid()
+                            ButtonAddUser:  noCurrentErrors,
+                            ButtonDisabled: !noCurrentErrors
                         })}
-                        disabled={!this._isUserInfoValid()}
+                        disabled={!noCurrentErrors}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <Edit disabled={!this._isUserInfoValid() && editMode}
+                        <Edit disabled={!noCurrentErrors && editMode}
                               onClickSave={this._handleClickSave}
                               onClickEdit={this._handleClickEdit}
                               onClickUndo={this._handleClickUndo}
