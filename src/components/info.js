@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { FIELD_NAMES } from './user';
 
@@ -10,27 +10,8 @@ const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
 
 export default function Info (props) {
-    const { info = {}, onChange, editMode, isNewUser, highlightedFields, checkAllFields } = props;
-    const isEditing                                                                       = editMode || isNewUser;
-
-    const [formErrors, setFormErrors]                                                     = useState({
-        name:  '',
-        phone: '',
-        email: ''
-    });
-    const [formAllErrors, setFormAllErrors]                                               = useState({
-        name:  ERRORS.nameInvalid,
-        phone: ERRORS.phoneInvalid,
-        email: ERRORS.emailInvalid,
-    });
-
-    const showError = (field) => {
-        if (checkAllFields) {
-            return _validateField(FIELD_NAMES[field], info[field]);
-        }
-        return formErrors[field];
-    };
-
+    const { info = {}, onChange, formErrors, editMode, isNewUser, highlightedFields } = props;
+    const isEditing                                                                   = editMode || isNewUser;
 
     const _validateField = (fieldName, value) => {
         switch (fieldName) {
@@ -45,45 +26,35 @@ export default function Info (props) {
         }
     };
 
-    useEffect(() => {
-        debugger;
-            formErrors.name  = _validateField(FIELD_NAMES.name, info.name);
-            formErrors.phone = _validateField(FIELD_NAMES.phone, info.phone);
-            formErrors.email = _validateField(FIELD_NAMES.email, info.email);
-            setFormErrors(formErrors);
-    }, [checkAllFields, info, formErrors]);
-
-    const _allFieldsCorrect = () => {
-        return !formAllErrors.name &&
-               !formAllErrors.phone &&
-               !formAllErrors.email;
+    const _validateFields = (info) => {
+        return {
+            [FIELD_NAMES.name]:  _validateField(FIELD_NAMES.name, info.name),
+            [FIELD_NAMES.phone]: _validateField(FIELD_NAMES.phone, info.phone),
+            [FIELD_NAMES.email]: _validateField(FIELD_NAMES.email, info.email),
+        };
     };
 
-    const _noCurrentErrors = () => {
-        return !formErrors.name &&
-               !formErrors.phone &&
-               !formErrors.email;
-    };
+  /*  const _isUserInfoValid = (info) => {
+        return !_validateField(FIELD_NAMES.name, info.name) &&
+               !_validateField(FIELD_NAMES.phone, info.phone) &&
+               !_validateField(FIELD_NAMES.email, info.email);
+    };*/
 
     const _handleChange = (e) => {
-        const name      = e.target.name;
-        const value     = e.target.value;
-        let changedInfo = { ...info };
+        const name    = e.target.name;
+        const value   = e.target.value;
+        let formError = { ...formErrors };
+        let changedInfo   = { ...info };
 
         changedInfo[name] = value;
-
-        formErrors[name]  = _validateField(name, value);
-        setFormErrors(formErrors);
-        formAllErrors[name] = _validateField(name, value);
-        setFormAllErrors(formAllErrors);
-
+        formError[name]   = _validateField(name, value);
         if (name === FIELD_NAMES.name) {
             const hasDuplicateError = false;
 
-            onChange(INFO, changedInfo, _noCurrentErrors(), _allFieldsCorrect(), hasDuplicateError);
+            onChange(INFO, changedInfo, formError,  _validateFields(changedInfo), hasDuplicateError);
         }
         else {
-            onChange(INFO, changedInfo, _noCurrentErrors(), _allFieldsCorrect());
+            onChange(INFO, changedInfo, formError,  _validateFields(changedInfo));
         }
         e.preventDefault();
     };
@@ -99,13 +70,13 @@ export default function Info (props) {
             <InputWithErrorInfo value={info[FIELD_NAMES.phone]}
                                 isEditing={isEditing} requiredField={true}
                                 name={FIELD_NAMES.phone}
-                                error={showError(FIELD_NAMES.phone)}
+                                error={formErrors[FIELD_NAMES.phone]}
                                 onChange={_handleChange}
                                 highlighted={highlightedFields[FIELD_NAMES.phone]}/>
             <InputWithErrorInfo value={info[FIELD_NAMES.email]}
                                 isEditing={isEditing} requiredField={true}
                                 name={FIELD_NAMES.email}
-                                error={showError(FIELD_NAMES.email)}
+                                error={formErrors[FIELD_NAMES.email]}
                                 onChange={_handleChange}
                                 highlighted={highlightedFields[FIELD_NAMES.email]}/>
             <InputWithErrorInfo value={info[FIELD_NAMES.website]}
