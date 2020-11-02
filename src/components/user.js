@@ -10,6 +10,7 @@ import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
 import Edit from './edit';
+import { MODES } from '../modes';
 
 const MATCH_PHONE        = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL        = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
@@ -19,46 +20,45 @@ export const FIELD_NAMES = {
     phone:   'phone',
     website: 'website'
 };
-const MODES              = {
-    editing: 'editing',
-    new:     'new',
-    default: 'default'
-};
-const SHOW               = {
+
+const SHOW = {
     show: 'show',
     hide: 'hide'
 };
 
-const VIEWS = {
+export const VIEWS = {
     [MODES.editing]: {
-        [SHOW.show]: {
+        [SHOW.show]:      {
             buttonAddress: 'Show Address',
             buttonCompany: 'Show Company'
         },
-        [SHOW.hide]: {
+        [SHOW.hide]:      {
             buttonAddress: 'Hide Address',
             buttonCompany: 'Hide Company'
-        }
+        },
+        showRequiredMark: true
     },
-    [MODES.new]: {
-        [SHOW.show]: {
+    [MODES.new]:     {
+        [SHOW.show]:      {
             buttonAddress: 'Add Address',
             buttonCompany: 'Add Company'
         },
-        [SHOW.hide]: {
+        [SHOW.hide]:      {
             buttonAddress: 'Remove Address',
             buttonCompany: 'Remove Company'
-        }
+        },
+        showRequiredMark: true
     },
-    [MODES.editing]: {
-        [SHOW.show]: {
+    [MODES.default]: {
+        [SHOW.show]:      {
             buttonAddress: 'Show Address',
             buttonCompany: 'Show Company'
         },
-        [SHOW.hide]: {
+        [SHOW.hide]:      {
             buttonAddress: 'Hide Address',
             buttonCompany: 'Hide Company'
-        }
+        },
+        showRequiredMark: false
     }
 };
 
@@ -82,9 +82,8 @@ export default class User extends React.Component {
             },
             showAddress:       SHOW.show,
             showCompany:       SHOW.show,
-            editMode:          false,
             hasDuplicateError: false,
-            mode: MODES.default
+            mode:              (isNewUser ? MODES.new : MODES.default)
         };
     }
 
@@ -116,22 +115,19 @@ export default class User extends React.Component {
     }
 
     _handleClickAddress = e => {
-        if (this.state.showAddress === SHOW.hide) this.setState({ showAddress: SHOW.show });
-        else this.setState({ showAddress: SHOW.hide });
+        this.setState({ showAddress: this.state.showAddress === SHOW.hide ? SHOW.show : SHOW.hide });
         e.preventDefault();
     };
 
     _handleClickCompany = e => {
-        if (this.state.showCompany === SHOW.hide) this.setState({ showCompany: SHOW.show });
-        else this.setState({ showCompany: SHOW.hide });
+        this.setState({ showCompany: this.state.showCompany === SHOW.hide ? SHOW.show : SHOW.hide });
         e.preventDefault();
     };
 
     _handleChange = (e, type) => {
-        let { currentUser, editMode, formErrors, hasDuplicateError } = this.state;
-        const { isNewUser }                                          = this.props;
+        let { currentUser, formErrors, hasDuplicateError, mode } = this.state;
 
-        if (editMode || isNewUser) {
+        if (mode !== MODES.default) {
             const name  = e.target.name;
             const value = e.target.value;
 
@@ -154,7 +150,11 @@ export default class User extends React.Component {
             const forceAdding = !!hasDuplicateError;
 
             UserAction.addNewUser(newUser, forceAdding);
-            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError });
+            this.setState({
+                formErrors,
+                hasDuplicateError: !hasDuplicateError,
+                mode:              forceAdding ? MODES.default : MODES.new
+            });
         }
         else {
             this.setState({ formErrors: { ...resultValid } });
@@ -163,42 +163,30 @@ export default class User extends React.Component {
     };
 
     _handleClickEdit = unmodifiedUser => {
-        this.setState({ editMode: !this.state.editMode, unmodifiedUser: unmodifiedUser });
+        this.setState({ mode: MODES.editing, unmodifiedUser: unmodifiedUser });
     };
 
     _handleClickUndo = () => {
-        const { editMode, unmodifiedUser } = this.state;
+        const { unmodifiedUser } = this.state;
 
-        this.setState({ editMode: !editMode, currentUser: unmodifiedUser, formErrors: {} });
+        this.setState({ mode: MODES.default, currentUser: unmodifiedUser, formErrors: {} });
     };
 
     _handleClickSave = () => {
-        this.setState({ editMode: !this.state.editMode });
+        this.setState({ mode: MODES.default });
     };
 
     render () {
-        const { isNewUser, duplicateUserId, highlightedFields = {} } = this.props;
+        const { duplicateUserId, highlightedFields = {} } = this.props;
         const {
                   showAddress,
                   showCompany,
-                  editMode,
                   currentUser,
                   formErrors,
-                  hasDuplicateError
+                  hasDuplicateError,
+                  mode
               }                                                      = this.state;
         const isFormFieldsValid                                      = this._isUserInfoValid(formErrors);
-        let buttonAddress                                            = '';
-        let buttonCompany                                            = '';
-
-
-        if (isNewUser) {
-            buttonAddress = VIEWS[MODES.new][showAddress].buttonAddress;
-            buttonCompany = VIEWS[MODES.new][showCompany].buttonAddress;
-        }
-        else {
-            buttonAddress = VIEWS[MODES.editing][showAddress].buttonAddress;
-            buttonCompany = VIEWS[MODES.editing][showCompany].buttonAddress;
-        }
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
@@ -209,25 +197,24 @@ export default class User extends React.Component {
                 <Info info={currentUser.info}
                       formErrors={formErrors}
                       onChange={this._handleChange}
-                      editMode={editMode}
-                      isNewUser={isNewUser}
+                      mode={mode}
                       highlightedFields={highlightedFields}/>
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
-                    {buttonAddress}
+                    {VIEWS[mode][showAddress].buttonAddress}
                 </button>
                 {
                     (showAddress === SHOW.hide) &&
                     <Address address={currentUser.address} onChange={this._handleChange}/>
                 }
                 <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
-                    {buttonCompany}
+                    {VIEWS[mode][showCompany].buttonAddress}
                 </button>
                 {
-                    (showCompany  === SHOW.hide)&&
+                    (showCompany === SHOW.hide) &&
                     <Company company={currentUser.company} onChange={this._handleChange}/>
                 }
                 {
-                    isNewUser ?
+                    mode === MODES.new ?
                     <button
                         className={classNames({
                             ButtonAddUser:  isFormFieldsValid,
@@ -236,12 +223,12 @@ export default class User extends React.Component {
                         disabled={!isFormFieldsValid}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <Edit disabled={!isFormFieldsValid && editMode}
+                        <Edit disabled={!isFormFieldsValid}
                               onClickSave={this._handleClickSave}
                               onClickEdit={this._handleClickEdit}
                               onClickUndo={this._handleClickUndo}
                               currentUser={currentUser}
-                              editMode={editMode}
+                              mode={mode}
                         />
                     )
                 }

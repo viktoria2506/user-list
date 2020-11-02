@@ -6,9 +6,9 @@ function nameClass (error, highlighted) {
 }
 
 export default function InputWithErrorInfo (props) {
-    const { name, error, value, onChange, isEditing, highlighted, requiredField } = props;
+    const { name, error, value, onChange, showMark, highlighted, requiredField } = props;
     let requiredMark                                                              = requiredField &&
-                                                                                    isEditing ? '*' : '';
+                                                                                    showMark ? '*' : '';
 
     return (
         <p><label>
