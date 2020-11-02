@@ -4,44 +4,59 @@ import { MODES } from '../modes';
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 
-export default function EditingButtons (props) {
-    const { disabled, currentUser, isEditing, onChange } = props;
+export default class EditingButtons extends React.Component {
+    constructor (props) {
+        super(props);
 
-    const _handleClickUndo = e => {
-        onChange({ mode: MODES.default, formErrors: {} });
+        this.state = {
+            unmodifiedUser: null
+        };
+    }
+
+    _handleClickUndo = e => {
+        const { onChange }       = this.props;
+        const { unmodifiedUser } = this.state;
+
+        onChange({ mode: MODES.default, undo: true, currentUser: unmodifiedUser });
         e.preventDefault();
     };
 
-    const _handleClickSave = e => {
-        const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+    _handleClickSave = e => {
+        const { currentUser, onChange } = this.props;
+        const newUser                   = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
         UserAction.updateUser(newUser);
-        onChange({ mode: MODES.default, currentUser: currentUser });
+        onChange({ mode: MODES.default, currentUser });
         e.preventDefault();
     };
 
-    const _handleClickEdit = e => {
-        const unmodifiedUser = {
+    _handleClickEdit = e => {
+        const { currentUser, onChange } = this.props;
+        const unmodifiedUser            = {
             info:    { ...currentUser.info },
             address: { ...currentUser.address },
             company: { ...currentUser.company }
         };
 
-        onChange({ mode: MODES.editing, currentUser: currentUser, unmodifiedUser: unmodifiedUser });
+        this.setState({unmodifiedUser});
+        onChange({ mode: MODES.editing, currentUser });
         e.preventDefault();
     };
 
-    return (
-        <React.Fragment>
-            <button className="ButtonEdit"
-                    disabled={disabled}
-                    onClick={isEditing ? _handleClickSave : _handleClickEdit}>
-                {isEditing ? 'Save' : 'Edit'}
-            </button>
-            {
-                isEditing &&
-                <button className="ButtonEdit" onClick={_handleClickUndo}>Undo</button>
-            }
-        </React.Fragment>
-    );
+    render () {
+        const { disabled, isEditing } = this.props;
+        return (
+            <React.Fragment>
+                <button className="ButtonEdit"
+                        disabled={disabled}
+                        onClick={isEditing ? this._handleClickSave : this._handleClickEdit}>
+                    {isEditing ? 'Save' : 'Edit'}
+                </button>
+                {
+                    isEditing &&
+                    <button className="ButtonEdit" onClick={this._handleClickUndo}>Undo</button>
+                }
+            </React.Fragment>
+        );
+    }
 };

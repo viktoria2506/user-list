@@ -21,6 +21,23 @@ export const FIELD_NAMES = {
     phone:   'phone',
     website: 'website'
 };
+const VIEWS              = {
+    [MODES.editing]: {
+        showButtonPrefix: 'Show',
+        hideButtonPrefix: 'Hide',
+        showRequiredMark: true
+    },
+    [MODES.new]:     {
+        showButtonPrefix: 'Add',
+        hideButtonPrefix: 'Remove',
+        showRequiredMark: true
+    },
+    [MODES.default]: {
+        showButtonPrefix: 'Show',
+        hideButtonPrefix: 'Hide',
+        showRequiredMark: false
+    }
+};
 
 export default class User extends React.Component {
     constructor (props) {
@@ -34,7 +51,6 @@ export default class User extends React.Component {
                 address,
                 company
             },
-            unmodifiedUser:    null,
             formErrors:        {
                 name:  '',
                 email: '',
@@ -75,7 +91,7 @@ export default class User extends React.Component {
     }
 
     _handleClickAddress = e => {
-        this.setState({ showAddress: !this.state.showAddress  });
+        this.setState({ showAddress: !this.state.showAddress });
         e.preventDefault();
     };
 
@@ -125,9 +141,8 @@ export default class User extends React.Component {
     _handleEdit = (newState) => {
         this.setState({
             mode:           newState.mode,
-            unmodifiedUser: newState.unmodifiedUser || this.state.unmodifiedUser,
-            formErrors:     newState.formErrors || this.state.formErrors,
-            currentUser:    newState.currentUser || this.state.unmodifiedUser
+            formErrors:     newState.undo ? {} : this.state.formErrors,
+            currentUser:    newState.currentUser || this.state.currentUser
         });
     };
 
@@ -143,24 +158,6 @@ export default class User extends React.Component {
               }                                           = this.state;
         const isFormFieldsValid                           = this._isUserInfoValid(formErrors);
 
-        const VIEWS = {
-            [MODES.editing]: {
-                buttonAddress:    showAddress ?  'Hide Address' : 'Show Address' ,
-                buttonCompany:    showCompany ? 'Show Company' : 'Hide Company',
-                showRequiredMark: true
-            },
-            [MODES.new]:     {
-                buttonAddress:    showAddress ? 'Remove Address' : 'Add Address',
-                buttonCompany:    showCompany ? 'Remove Company' : 'Add Company',
-                showRequiredMark: true
-            },
-            [MODES.default]: {
-                buttonAddress:    showAddress ?  'Hide Address' : 'Show Address' ,
-                buttonCompany:    showCompany ? 'Show Company' : 'Hide Company',
-                showRequiredMark: false
-            }
-        };
-
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
@@ -173,14 +170,14 @@ export default class User extends React.Component {
                       showRequiredMark={VIEWS[mode].showRequiredMark}
                       highlightedFields={highlightedFields}/>
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
-                    {VIEWS[mode].buttonAddress}
+                    {`${showAddress ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Address`}
                 </button>
                 {
                     showAddress &&
                     <Address address={currentUser.address} onChange={this._handleChange}/>
                 }
                 <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
-                    {VIEWS[mode].buttonAddress}
+                    {`${showCompany ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Company`}
                 </button>
                 {
                     showCompany &&
