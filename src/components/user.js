@@ -136,11 +136,14 @@ export default class User extends React.Component {
     };
 
     _handleClickSave = e => {
-        let { currentUser, editMode } = this.state;
+        debugger;
+        let { currentUser, editMode , hasDuplicateError} = this.state;
         const newUser                 = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const forceAdding = !!hasDuplicateError;
 
-        UserAction.updateUser(newUser);
-        this.setState({ editMode: !editMode });
+        UserAction.updateUser(newUser, forceAdding);
+        if (forceAdding) this.setState({editMode: !editMode});
+        this.setState({ hasDuplicateError: !hasDuplicateError });
         e.preventDefault();
     };
 

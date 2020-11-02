@@ -35,6 +35,7 @@ export default class UserList extends React.Component {
     };
 
     _addingFailed = (userId) => {
+        debugger;
         this.setState({ duplicateUserId: userId });
     };
 
@@ -109,6 +110,7 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       highlightedFields={highlightedFields}
+                                      duplicateUserId={duplicateUserId}
                                 />
                                 <hr/>
                             </div>
