@@ -1,5 +1,5 @@
 const assert = require('assert');
-const _ = require('lodash');
+const _      = require('lodash');
 
 const usersData  = require('../../test/data/users.json');
 const UserAction = require('../../../_compiled_/actions/user-action').default;
@@ -38,6 +38,16 @@ const UPDATE_USER = new UserInfo(
         website: 'github.com'
     }
 );
+
+const UPDATE_USER_EXISTING = new UserInfo(
+    {
+        id:      4,
+        name:    'Ervin Howell',
+        phone:   '555',
+        email:   'ervin@mail.ru',
+        website: 'github.com'
+    });
+
 
 const SEARCH_FIELDS = {
     name:    true,
@@ -119,8 +129,8 @@ describe('UserStore', () => {
 
                 let newUser = _.cloneDeep(TEST_USER);
 
-                newUser.id                  = prevUserStoreSize + 1;
-                UserStore._searchedInfo     = _.cloneDeep(SEARCH_USER_INFO);
+                newUser.id                       = prevUserStoreSize + 1;
+                UserStore._searchedInfo          = _.cloneDeep(SEARCH_USER_INFO);
                 const [foundUsers, searchFields] = await subEvent(EVENT_TYPE.usersFound, () => UserAction.addNewUser(TEST_USER));
 
                 assert(foundUsers.includes(TEST_USER));
@@ -147,6 +157,21 @@ describe('UserStore', () => {
                 assert.deepEqual(updatedFoundUsers.length, 0);
                 assert.deepEqual(UserStore.getUsers()[1], UPDATE_USER);
                 assert.deepEqual(searchFields, SEARCH_FIELDS);
+            });
+
+            it('Should emit addingFailed event with duplicateUserId if user exists', async () => {
+                assert.notEqual(UserStore.getUsers()[4], UPDATE_USER_EXISTING);
+                const [userId] = await subEvent(EVENT_TYPE.addingFailed, () => UserAction.updateUser(UPDATE_USER_EXISTING));
+
+                assert.strictEqual(userId, 2);
+            });
+
+            it('Should emit change event if user exists, but force flag is true', async () => {
+                let newUser = _.cloneDeep(UPDATE_USER_EXISTING);
+
+                await subEvent(EVENT_TYPE.change, () => UserAction.updateUser(UPDATE_USER_EXISTING, true));
+
+                assert.deepEqual(UserStore._users[3], newUser);
             });
         });
 
