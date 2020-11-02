@@ -39,16 +39,6 @@ const UPDATE_USER = new UserInfo(
     }
 );
 
-const UPDATE_USER_EXISTING = new UserInfo(
-    {
-        id:      4,
-        name:    'Ervin Howell',
-        phone:   '555',
-        email:   'ervin@mail.ru',
-        website: 'github.com'
-    });
-
-
 const SEARCH_FIELDS = {
     name:    true,
     phone:   false,
@@ -157,21 +147,6 @@ describe('UserStore', () => {
                 assert.deepEqual(updatedFoundUsers.length, 0);
                 assert.deepEqual(UserStore.getUsers()[1], UPDATE_USER);
                 assert.deepEqual(searchFields, SEARCH_FIELDS);
-            });
-
-            it('Should emit addingFailed event with duplicateUserId if user exists', async () => {
-                assert.notEqual(UserStore.getUsers()[4], UPDATE_USER_EXISTING);
-                const [userId] = await subEvent(EVENT_TYPE.addingFailed, () => UserAction.updateUser(UPDATE_USER_EXISTING));
-
-                assert.strictEqual(userId, 2);
-            });
-
-            it('Should emit change event if user exists, but force flag is true', async () => {
-                let newUser = _.cloneDeep(UPDATE_USER_EXISTING);
-
-                await subEvent(EVENT_TYPE.change, () => UserAction.updateUser(UPDATE_USER_EXISTING, true));
-
-                assert.deepEqual(UserStore._users[3], newUser);
             });
         });
 
