@@ -19,12 +19,54 @@ export const FIELD_NAMES = {
     phone:   'phone',
     website: 'website'
 };
+const MODES              = {
+    editing: 'editing',
+    new:     'new',
+    default: 'default'
+};
+const SHOW               = {
+    show: 'show',
+    hide: 'hide'
+};
+
+const VIEWS = {
+    [MODES.editing]: {
+        [SHOW.show]: {
+            buttonAddress: 'Show Address',
+            buttonCompany: 'Show Company'
+        },
+        [SHOW.hide]: {
+            buttonAddress: 'Hide Address',
+            buttonCompany: 'Hide Company'
+        }
+    },
+    [MODES.new]: {
+        [SHOW.show]: {
+            buttonAddress: 'Add Address',
+            buttonCompany: 'Add Company'
+        },
+        [SHOW.hide]: {
+            buttonAddress: 'Remove Address',
+            buttonCompany: 'Remove Company'
+        }
+    },
+    [MODES.editing]: {
+        [SHOW.show]: {
+            buttonAddress: 'Show Address',
+            buttonCompany: 'Show Company'
+        },
+        [SHOW.hide]: {
+            buttonAddress: 'Hide Address',
+            buttonCompany: 'Hide Company'
+        }
+    }
+};
 
 export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = {}, address = {}, company = {} } = this.props;
+        const { info = {}, address = {}, company = {}, isNewUser } = this.props;
 
         this.state = {
             currentUser:       {
@@ -38,10 +80,11 @@ export default class User extends React.Component {
                 email: '',
                 phone: ''
             },
-            showAddress:       false,
-            showCompany:       false,
+            showAddress:       SHOW.show,
+            showCompany:       SHOW.show,
             editMode:          false,
-            hasDuplicateError: false
+            hasDuplicateError: false,
+            mode: MODES.default
         };
     }
 
@@ -73,17 +116,15 @@ export default class User extends React.Component {
     }
 
     _handleClickAddress = e => {
-        this.setState({ showAddress: !this.state.showAddress });
+        if (this.state.showAddress === SHOW.hide) this.setState({ showAddress: SHOW.show });
+        else this.setState({ showAddress: SHOW.hide });
         e.preventDefault();
     };
 
     _handleClickCompany = e => {
-        this.setState({ showCompany: !this.state.showCompany });
+        if (this.state.showCompany === SHOW.hide) this.setState({ showCompany: SHOW.show });
+        else this.setState({ showCompany: SHOW.hide });
         e.preventDefault();
-    };
-
-    _handleClickEdit = unmodifiedUser => {
-        this.setState({ editMode: !this.state.editMode, unmodifiedUser: unmodifiedUser });
     };
 
     _handleChange = (e, type) => {
@@ -121,6 +162,10 @@ export default class User extends React.Component {
         e.preventDefault();
     };
 
+    _handleClickEdit = unmodifiedUser => {
+        this.setState({ editMode: !this.state.editMode, unmodifiedUser: unmodifiedUser });
+    };
+
     _handleClickUndo = () => {
         const { editMode, unmodifiedUser } = this.state;
 
@@ -145,13 +190,14 @@ export default class User extends React.Component {
         let buttonAddress                                            = '';
         let buttonCompany                                            = '';
 
+
         if (isNewUser) {
-            buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
-            buttonCompany = `${showCompany ? 'Remove' : 'Add'} Company`;
+            buttonAddress = VIEWS[MODES.new][showAddress].buttonAddress;
+            buttonCompany = VIEWS[MODES.new][showCompany].buttonAddress;
         }
         else {
-            buttonAddress = `${showAddress ? 'Hide' : 'Show'} Address`;
-            buttonCompany = `${showCompany ? 'Hide' : 'Show'} Company`;
+            buttonAddress = VIEWS[MODES.editing][showAddress].buttonAddress;
+            buttonCompany = VIEWS[MODES.editing][showCompany].buttonAddress;
         }
 
         return (
@@ -170,14 +216,14 @@ export default class User extends React.Component {
                     {buttonAddress}
                 </button>
                 {
-                    showAddress &&
+                    (showAddress === SHOW.hide) &&
                     <Address address={currentUser.address} onChange={this._handleChange}/>
                 }
                 <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
                     {buttonCompany}
                 </button>
                 {
-                    showCompany &&
+                    (showCompany  === SHOW.hide)&&
                     <Company company={currentUser.company} onChange={this._handleChange}/>
                 }
                 {
