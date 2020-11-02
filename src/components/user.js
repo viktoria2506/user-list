@@ -4,62 +4,22 @@ import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 import classNames from 'classnames';
 import ERRORS from '../errors';
+import { MODES } from '../modes';
 
 import Address from './address.js';
 import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
-import Edit from './edit';
-import { MODES } from '../modes';
+import EditingButtons from './editing-buttons';
 
-const MATCH_PHONE        = /^([\d.\-+x() ]+)$/i;
-const MATCH_EMAIL        = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
+const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
+const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
+
 export const FIELD_NAMES = {
     name:    'name',
     email:   'email',
     phone:   'phone',
     website: 'website'
-};
-
-const SHOW = {
-    show: 'show',
-    hide: 'hide'
-};
-
-export const VIEWS = {
-    [MODES.editing]: {
-        [SHOW.show]:      {
-            buttonAddress: 'Show Address',
-            buttonCompany: 'Show Company'
-        },
-        [SHOW.hide]:      {
-            buttonAddress: 'Hide Address',
-            buttonCompany: 'Hide Company'
-        },
-        showRequiredMark: true
-    },
-    [MODES.new]:     {
-        [SHOW.show]:      {
-            buttonAddress: 'Add Address',
-            buttonCompany: 'Add Company'
-        },
-        [SHOW.hide]:      {
-            buttonAddress: 'Remove Address',
-            buttonCompany: 'Remove Company'
-        },
-        showRequiredMark: true
-    },
-    [MODES.default]: {
-        [SHOW.show]:      {
-            buttonAddress: 'Show Address',
-            buttonCompany: 'Show Company'
-        },
-        [SHOW.hide]:      {
-            buttonAddress: 'Hide Address',
-            buttonCompany: 'Hide Company'
-        },
-        showRequiredMark: false
-    }
 };
 
 export default class User extends React.Component {
@@ -80,10 +40,10 @@ export default class User extends React.Component {
                 email: '',
                 phone: ''
             },
-            showAddress:       SHOW.show,
-            showCompany:       SHOW.show,
+            showAddress:       false,
+            showCompany:       false,
             hasDuplicateError: false,
-            mode:              (isNewUser ? MODES.new : MODES.default)
+            mode:              isNewUser ? MODES.new : MODES.default
         };
     }
 
@@ -115,12 +75,12 @@ export default class User extends React.Component {
     }
 
     _handleClickAddress = e => {
-        this.setState({ showAddress: this.state.showAddress === SHOW.hide ? SHOW.show : SHOW.hide });
+        this.setState({ showAddress: !this.state.showAddress  });
         e.preventDefault();
     };
 
     _handleClickCompany = e => {
-        this.setState({ showCompany: this.state.showCompany === SHOW.hide ? SHOW.show : SHOW.hide });
+        this.setState({ showCompany: !this.state.showCompany });
         e.preventDefault();
     };
 
@@ -162,18 +122,13 @@ export default class User extends React.Component {
         e.preventDefault();
     };
 
-    _handleClickEdit = unmodifiedUser => {
-        this.setState({ mode: MODES.editing, unmodifiedUser: unmodifiedUser });
-    };
-
-    _handleClickUndo = () => {
-        const { unmodifiedUser } = this.state;
-
-        this.setState({ mode: MODES.default, currentUser: unmodifiedUser, formErrors: {} });
-    };
-
-    _handleClickSave = () => {
-        this.setState({ mode: MODES.default });
+    _handleEdit = (newState) => {
+        this.setState({
+            mode:           newState.mode,
+            unmodifiedUser: newState.unmodifiedUser || this.state.unmodifiedUser,
+            formErrors:     newState.formErrors || this.state.formErrors,
+            currentUser:    newState.currentUser || this.state.unmodifiedUser
+        });
     };
 
     render () {
@@ -185,8 +140,26 @@ export default class User extends React.Component {
                   formErrors,
                   hasDuplicateError,
                   mode
-              }                                                      = this.state;
-        const isFormFieldsValid                                      = this._isUserInfoValid(formErrors);
+              }                                           = this.state;
+        const isFormFieldsValid                           = this._isUserInfoValid(formErrors);
+
+        const VIEWS = {
+            [MODES.editing]: {
+                buttonAddress:    showAddress ?  'Hide Address' : 'Show Address' ,
+                buttonCompany:    showCompany ? 'Show Company' : 'Hide Company',
+                showRequiredMark: true
+            },
+            [MODES.new]:     {
+                buttonAddress:    showAddress ? 'Remove Address' : 'Add Address',
+                buttonCompany:    showCompany ? 'Remove Company' : 'Add Company',
+                showRequiredMark: true
+            },
+            [MODES.default]: {
+                buttonAddress:    showAddress ?  'Hide Address' : 'Show Address' ,
+                buttonCompany:    showCompany ? 'Show Company' : 'Hide Company',
+                showRequiredMark: false
+            }
+        };
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
@@ -197,20 +170,20 @@ export default class User extends React.Component {
                 <Info info={currentUser.info}
                       formErrors={formErrors}
                       onChange={this._handleChange}
-                      mode={mode}
+                      showRequiredMark={VIEWS[mode].showRequiredMark}
                       highlightedFields={highlightedFields}/>
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
-                    {VIEWS[mode][showAddress].buttonAddress}
+                    {VIEWS[mode].buttonAddress}
                 </button>
                 {
-                    (showAddress === SHOW.hide) &&
+                    showAddress &&
                     <Address address={currentUser.address} onChange={this._handleChange}/>
                 }
                 <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
-                    {VIEWS[mode][showCompany].buttonAddress}
+                    {VIEWS[mode].buttonAddress}
                 </button>
                 {
-                    (showCompany === SHOW.hide) &&
+                    showCompany &&
                     <Company company={currentUser.company} onChange={this._handleChange}/>
                 }
                 {
@@ -223,12 +196,10 @@ export default class User extends React.Component {
                         disabled={!isFormFieldsValid}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <Edit disabled={!isFormFieldsValid}
-                              onClickSave={this._handleClickSave}
-                              onClickEdit={this._handleClickEdit}
-                              onClickUndo={this._handleClickUndo}
-                              currentUser={currentUser}
-                              mode={mode}
+                        <EditingButtons disabled={!isFormFieldsValid}
+                                        onChange={this._handleEdit}
+                                        currentUser={currentUser}
+                                        isEditing={mode === MODES.editing}
                         />
                     )
                 }

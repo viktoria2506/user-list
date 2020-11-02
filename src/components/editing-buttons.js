@@ -1,13 +1,14 @@
 import React from 'react';
+
+import { MODES } from '../modes';
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
-import { MODES } from '../modes';
 
-export default function Edit (props) {
-    const { disabled, currentUser, mode } = props;
+export default function EditingButtons (props) {
+    const { disabled, currentUser, isEditing, onChange } = props;
 
     const _handleClickUndo = e => {
-        props.onClickUndo();
+        onChange({ mode: MODES.default, formErrors: {} });
         e.preventDefault();
     };
 
@@ -15,9 +16,10 @@ export default function Edit (props) {
         const newUser = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
         UserAction.updateUser(newUser);
-        props.onClickSave();
+        onChange({ mode: MODES.default, currentUser: currentUser });
         e.preventDefault();
     };
+
     const _handleClickEdit = e => {
         const unmodifiedUser = {
             info:    { ...currentUser.info },
@@ -25,32 +27,21 @@ export default function Edit (props) {
             company: { ...currentUser.company }
         };
 
-        props.onClickEdit(unmodifiedUser);
+        onChange({ mode: MODES.editing, currentUser: currentUser, unmodifiedUser: unmodifiedUser });
         e.preventDefault();
-    };
-    const VIEWS            = {
-        [MODES.editing]: {
-            buttonEdit: 'Save',
-            buttonUndo: 'Undo',
-            handle:     _handleClickSave
-        },
-        [MODES.default]: {
-            buttonEdit: 'Edit',
-            handle:     _handleClickEdit
-        }
     };
 
     return (
-        <div>
+        <React.Fragment>
             <button className="ButtonEdit"
                     disabled={disabled}
-                    onClick={VIEWS[mode].handle}>
-                {VIEWS[mode].buttonEdit}
+                    onClick={isEditing ? _handleClickSave : _handleClickEdit}>
+                {isEditing ? 'Save' : 'Edit'}
             </button>
             {
-                (mode === MODES.editing) &&
-                <button className="ButtonEdit" onClick={_handleClickUndo}>{VIEWS[mode].buttonUndo}</button>
+                isEditing &&
+                <button className="ButtonEdit" onClick={_handleClickUndo}>Undo</button>
             }
-        </div>
+        </React.Fragment>
     );
 };
