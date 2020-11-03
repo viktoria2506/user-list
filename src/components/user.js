@@ -4,26 +4,46 @@ import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 import classNames from 'classnames';
 import ERRORS from '../errors';
+import { MODES } from '../modes';
 
 import Address from './address.js';
 import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
+import EditingButtons from './editing-buttons';
 
-const MATCH_PHONE        = /^([\d.\-+x() ]+)$/i;
-const MATCH_EMAIL        = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
+const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
+const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
+
 export const FIELD_NAMES = {
     name:    'name',
     email:   'email',
     phone:   'phone',
     website: 'website'
 };
+const VIEWS              = {
+    [MODES.editing]: {
+        showButtonPrefix: 'Show',
+        hideButtonPrefix: 'Hide',
+        showRequiredMark: true
+    },
+    [MODES.new]:     {
+        showButtonPrefix: 'Add',
+        hideButtonPrefix: 'Remove',
+        showRequiredMark: true
+    },
+    [MODES.default]: {
+        showButtonPrefix: 'Show',
+        hideButtonPrefix: 'Hide',
+        showRequiredMark: false
+    }
+};
 
 export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = {}, address = {}, company = {} } = this.props;
+        const { info = {}, address = {}, company = {}, isNewUser } = this.props;
 
         this.state = {
             currentUser:       {
@@ -31,7 +51,6 @@ export default class User extends React.Component {
                 address,
                 company
             },
-            unmodifiedUser:    null,
             formErrors:        {
                 name:  '',
                 email: '',
@@ -39,8 +58,8 @@ export default class User extends React.Component {
             },
             showAddress:       false,
             showCompany:       false,
-            editMode:          false,
-            hasDuplicateError: false
+            hasDuplicateError: false,
+            mode:              isNewUser ? MODES.new : MODES.default
         };
     }
 
@@ -81,23 +100,10 @@ export default class User extends React.Component {
         e.preventDefault();
     };
 
-    _handleClickEdit = e => {
-        let { currentUser, editMode, unmodifiedUser } = this.state;
-
-        unmodifiedUser = {
-            info:    { ...currentUser.info },
-            address: { ...currentUser.address },
-            company: { ...currentUser.company }
-        };
-        this.setState({ editMode: !editMode, unmodifiedUser });
-        e.preventDefault();
-    };
-
     _handleChange = (e, type) => {
-        let { currentUser, editMode, formErrors, hasDuplicateError } = this.state;
-        const { isNewUser }                                          = this.props;
+        let { currentUser, formErrors, hasDuplicateError, mode } = this.state;
 
-        if (editMode || isNewUser) {
+        if (mode !== MODES.default) {
             const name  = e.target.name;
             const value = e.target.value;
 
@@ -120,7 +126,11 @@ export default class User extends React.Component {
             const forceAdding = !!hasDuplicateError;
 
             UserAction.addNewUser(newUser, forceAdding);
-            this.setState({ formErrors, hasDuplicateError: !hasDuplicateError });
+            this.setState({
+                formErrors,
+                hasDuplicateError: !hasDuplicateError,
+                mode:              forceAdding ? MODES.default : MODES.new
+            });
         }
         else {
             this.setState({ formErrors: { ...resultValid } });
@@ -128,44 +138,25 @@ export default class User extends React.Component {
         e.preventDefault();
     };
 
-    _handleClickUndo = e => {
-        const { editMode, unmodifiedUser } = this.state;
-
-        this.setState({ editMode: !editMode, currentUser: unmodifiedUser, formErrors: {} });
-        e.preventDefault();
-    };
-
-    _handleClickSave = e => {
-        let { currentUser, editMode } = this.state;
-        const newUser                 = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-
-        UserAction.updateUser(newUser);
-        this.setState({ editMode: !editMode });
-        e.preventDefault();
+    _handleEdit = (newState) => {
+        this.setState({
+            mode:           newState.mode,
+            formErrors:     newState.undo ? {} : this.state.formErrors,
+            currentUser:    newState.currentUser || this.state.currentUser
+        });
     };
 
     render () {
-        const { isNewUser, duplicateUserId, highlightedFields = {} } = this.props;
+        const { duplicateUserId, highlightedFields = {} } = this.props;
         const {
                   showAddress,
                   showCompany,
-                  editMode,
                   currentUser,
                   formErrors,
-                  hasDuplicateError
-              }                                                      = this.state;
-        const isFormFieldsValid                                      = this._isUserInfoValid(formErrors);
-        let buttonAddress                                            = '';
-        let buttonCompany                                            = '';
-
-        if (isNewUser) {
-            buttonAddress = `${showAddress ? 'Remove' : 'Add'} Address`;
-            buttonCompany = `${showCompany ? 'Remove' : 'Add'} Company`;
-        }
-        else {
-            buttonAddress = `${showAddress ? 'Hide' : 'Show'} Address`;
-            buttonCompany = `${showCompany ? 'Hide' : 'Show'} Company`;
-        }
+                  hasDuplicateError,
+                  mode
+              }                                           = this.state;
+        const isFormFieldsValid                           = this._isUserInfoValid(formErrors);
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
@@ -176,25 +167,24 @@ export default class User extends React.Component {
                 <Info info={currentUser.info}
                       formErrors={formErrors}
                       onChange={this._handleChange}
-                      editMode={editMode}
-                      isNewUser={isNewUser}
+                      showRequiredMark={VIEWS[mode].showRequiredMark}
                       highlightedFields={highlightedFields}/>
                 <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
-                    {buttonAddress}
+                    {`${showAddress ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Address`}
                 </button>
                 {
                     showAddress &&
                     <Address address={currentUser.address} onChange={this._handleChange}/>
                 }
                 <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
-                    {buttonCompany}
+                    {`${showCompany ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Company`}
                 </button>
                 {
                     showCompany &&
                     <Company company={currentUser.company} onChange={this._handleChange}/>
                 }
                 {
-                    isNewUser ?
+                    mode === MODES.new ?
                     <button
                         className={classNames({
                             ButtonAddUser:  isFormFieldsValid,
@@ -203,16 +193,12 @@ export default class User extends React.Component {
                         disabled={!isFormFieldsValid}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <button className="ButtonEdit"
-                                disabled={!isFormFieldsValid && editMode}
-                                onClick={editMode ? this._handleClickSave : this._handleClickEdit}>
-                            {editMode ? 'Save' : 'Edit'}
-                        </button>
+                        <EditingButtons disabled={!isFormFieldsValid}
+                                        onChange={this._handleEdit}
+                                        currentUser={currentUser}
+                                        isEditing={mode === MODES.editing}
+                        />
                     )
-                }
-                {
-                    editMode &&
-                    <button className="ButtonEdit" onClick={this._handleClickUndo}>Undo</button>
                 }
             </form>
         );
