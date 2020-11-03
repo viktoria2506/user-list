@@ -17,6 +17,11 @@ export default class UserInfo {
             companyInfo.bs
         );
     }
+
+   /* isAddressEmpty = () => {
+        return !this.address.city && !this.address.street &&
+            !this.address.suite && !this.address.zipcode
+    }*/
 }
 
 class Address {

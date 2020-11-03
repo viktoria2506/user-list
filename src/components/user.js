@@ -91,6 +91,7 @@ export default class User extends React.Component {
     }
 
     _handleClickAddress = e => {
+
         this.setState({ showAddress: !this.state.showAddress });
         e.preventDefault();
     };
@@ -139,12 +140,55 @@ export default class User extends React.Component {
     };
 
     _handleEdit = (newState) => {
+        if (this._isAddressEmpty()) {
+            this.setState({ showAddress: false });
+        }
+        if (this._isCompanyEmpty()) {
+            this.setState({ showCompany: false });
+        }
         this.setState({
-            mode:           newState.mode,
-            formErrors:     newState.undo ? {} : this.state.formErrors,
-            currentUser:    newState.currentUser || this.state.currentUser
+            mode:        newState.mode,
+            formErrors:  newState.undo ? {} : this.state.formErrors,
+            currentUser: newState.currentUser || this.state.currentUser
         });
     };
+
+    _isCompanyEmpty = () => {
+        const { currentUser } = this.state;
+
+        return !currentUser.company || (!currentUser.company.name &&
+               !currentUser.company.catchPhrase &&
+               !currentUser.company.bs);
+    };
+
+    _isAddressEmpty = () => {
+        const { currentUser } = this.state;
+
+        return !currentUser.address || (!currentUser.address.city &&
+               !currentUser.address.street &&
+               !currentUser.address.suite &&
+               !currentUser.address.zipcode);
+    };
+
+    _handleDeleteAddress = e => {
+        const { currentUser } = this.state;
+
+        currentUser.address.street = '';
+        currentUser.address.city = '';
+        currentUser.address.suite = '';
+        currentUser.address.zipcode = '';
+        this.setState(currentUser);
+        e.preventDefault();
+    }
+
+    _handleDeleteCompany = () => {
+        const { currentUser } = this.state;
+
+        currentUser.company.name = '';
+        currentUser.company.catchPhrase = '';
+        currentUser.company.bs = '';
+        this.setState(currentUser);
+    }
 
     render () {
         const { duplicateUserId, highlightedFields = {} } = this.props;
@@ -158,6 +202,7 @@ export default class User extends React.Component {
               }                                           = this.state;
         const isFormFieldsValid                           = this._isUserInfoValid(formErrors);
 
+
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
@@ -169,19 +214,37 @@ export default class User extends React.Component {
                       onChange={this._handleChange}
                       showRequiredMark={VIEWS[mode].showRequiredMark}
                       highlightedFields={highlightedFields}/>
-                <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
-                    {`${showAddress ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Address`}
-                </button>
+                {
+                    (mode !== MODES.default || !this._isAddressEmpty()) &&
+                    <React.Fragment>
+                        <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
+                            {`${showAddress ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Address`}
+                        </button>
+                        {
+                            mode === MODES.editing && !this._isAddressEmpty() &&
+                            <button className="ButtonDeleteDetails" onClick={this._handleDeleteAddress}>Delete Address</button>
+                        }
+                    </React.Fragment>
+                }
                 {
                     showAddress &&
-                    <Address address={currentUser.address} onChange={this._handleChange}/>
+                    <Address address={currentUser.address} onChange={this._handleChange} mode={mode}/>
                 }
-                <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
-                    {`${showCompany ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Company`}
-                </button>
+                {
+                    (mode !== MODES.default || !this._isCompanyEmpty()) &&
+                    <React.Fragment>
+                        <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
+                            {`${showCompany ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Company`}
+                        </button>
+                        {
+                            mode === MODES.editing && !this._isCompanyEmpty() &&
+                            <button className="ButtonDeleteDetails" onClick={this._handleDeleteCompany}>Delete Company</button>
+                        }
+                    </React.Fragment>
+                }
                 {
                     showCompany &&
-                    <Company company={currentUser.company} onChange={this._handleChange}/>
+                    <Company address={currentUser.address} onChange={this._handleChange} mode={mode}/>
                 }
                 {
                     mode === MODES.new ?

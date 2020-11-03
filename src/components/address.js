@@ -1,4 +1,5 @@
 import React from 'react';
+import { MODES } from '../modes';
 
 const ADDRESS = 'address';
 

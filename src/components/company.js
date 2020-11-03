@@ -6,6 +6,7 @@ export default function Company (props) {
     const { company = {}, onChange } = props;
     const _onChange                  = e => onChange(e, COMPANY);
 
+
     return (
         <div className="DetailsCompany">
             <p><label>

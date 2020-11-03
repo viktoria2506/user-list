@@ -70,6 +70,22 @@ html {
 
 }
 
+.ButtonDeleteDetails {
+    margin: 10px auto;
+    text-align: center;
+    height: 20px;
+    width: 100px;
+    display: block;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #696969;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    color: #000000;
+    font-size: 11px;
+
+}
+
 .DetailsAddress input
 .DetailsCompany input {
     width: 30%;
@@ -157,4 +173,11 @@ p {
 
 .UserInfo.highlighted {
     background: #AFEEEE;
+}
+
+.ButtonEdit {
+    border-radius: 20px;
+    border: 2px solid #556B2F;
+    height: 20px;
+    width: 50px;
 }
