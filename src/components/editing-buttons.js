@@ -17,21 +17,23 @@ export default class EditingButtons extends React.Component {
         const { onChange }       = this.props;
         const { unmodifiedUser } = this.state;
 
-        onChange({ mode: MODES.default, undo: true, currentUser: unmodifiedUser });
+        onChange({ mode: MODES.default, undo: true, currentUser: unmodifiedUser, hasDuplicateError: false });
         e.preventDefault();
     };
 
     _handleClickSave = e => {
-        const { currentUser, onChange } = this.props;
+        const { currentUser, onChange, hasDuplicateError, forceSave} = this.props;
         const newUser                   = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const forceAdding = !!hasDuplicateError;
 
         UserAction.updateUser(newUser);
-        onChange({ mode: MODES.default, currentUser });
+        debugger;
+        onChange({ mode: (!forceSave || forceAdding) ? MODES.default : MODES.editing, currentUser, hasDuplicateError: !hasDuplicateError  });
         e.preventDefault();
     };
 
     _handleClickEdit = e => {
-        const { currentUser, onChange } = this.props;
+        const { currentUser, onChange, hasDuplicateError } = this.props;
         const unmodifiedUser            = {
             info:    { ...currentUser.info },
             address: { ...currentUser.address },
@@ -39,7 +41,7 @@ export default class EditingButtons extends React.Component {
         };
 
         this.setState({ unmodifiedUser });
-        onChange({ mode: MODES.editing, currentUser });
+        onChange({ mode: MODES.editing, currentUser, hasDuplicateError });
         e.preventDefault();
     };
 

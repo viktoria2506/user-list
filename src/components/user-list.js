@@ -16,18 +16,19 @@ export default class UserList extends React.Component {
         this.state = this._getInitialState();
     }
 
-    _getInitialState () {
+    _getInitialState (f) {
         return {
             duplicateUserId:   '',
             highlightedFields: '',
             addUserMode:       false,
             searchMode:        false,
+            forceSave:         f || false,
             users:             UserStore.getUsers()
         };
     }
 
     _onChange = () => {
-        this.setState(this._getInitialState());
+        this.setState(this._getInitialState(true));
     };
 
     _handleAddUserClick = () => {
@@ -69,7 +70,7 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { addUserMode, users, duplicateUserId, searchMode, highlightedFields } = this.state;
+        const { addUserMode, users, duplicateUserId, searchMode, highlightedFields, forceSave } = this.state;
 
         return (
             <div className="UserList">
@@ -109,6 +110,8 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       highlightedFields={highlightedFields}
+                                      duplicateUserId={duplicateUserId}
+                                      forceSave={forceSave}
                                 />
                                 <hr/>
                             </div>

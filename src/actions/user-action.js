@@ -10,10 +10,11 @@ class UserAction {
         });
     }
 
-    updateUser (user) {
+    updateUser (user, force) {
         Dispatcher.dispatch({
             ACTION_TYPE: ACTION_TYPE.updateUser,
-            user:        user
+            user:        user,
+            force: force
         });
     }
 

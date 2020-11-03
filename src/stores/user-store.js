@@ -92,19 +92,30 @@ class UserStore extends EventEmitter {
             }
         }
         else {
-            const userId = this._users[index].id;
-            this.emit(EVENT_TYPE.addingFailed, userId);
+            this._emitDuplicateError(index);
         }
     }
 
-    _actionUpdateUser (user) {
-        this._updateUser(user);
-        if (this._searchedInfo) {
-            this._executeSearch();
+    _actionUpdateUser (user, force) {
+        const index = this._findUserIndexByName(user.name);
+
+        if (index === -1 || force) {
+            this._updateUser(user);
+            if (this._searchedInfo) {
+                this._executeSearch();
+            }
+            else {
+                this.emit(EVENT_TYPE.change);
+            }
         }
         else {
-            this.emit(EVENT_TYPE.change);
+            this._emitDuplicateError(index);
         }
+    }
+
+    _emitDuplicateError (index) {
+        const userId = this._users[index].id;
+        this.emit(EVENT_TYPE.addingFailed, userId);
     }
 
     _actionFindUser (userInfo) {
@@ -123,7 +134,7 @@ class UserStore extends EventEmitter {
             this._actionAddNewUser(action.user, action.force);
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.updateUser) {
-            this._actionUpdateUser(action.user);
+            this._actionUpdateUser(action.user, action.force);
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.findUser) {
             this._actionFindUser(action.userInfo);

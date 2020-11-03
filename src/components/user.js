@@ -43,7 +43,7 @@ export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = {}, address = {}, company = {}, isNewUser } = this.props;
+        const { info = {}, address = {}, company = {}, forceSave, isNewUser } = this.props;
 
         this.state = {
             currentUser:       {
@@ -59,7 +59,8 @@ export default class User extends React.Component {
             showAddress:       false,
             showCompany:       false,
             hasDuplicateError: false,
-            mode:              isNewUser ? MODES.new : MODES.default
+            mode: isNewUser ? MODES.new : MODES.default,
+            forceSave: forceSave
         };
     }
 
@@ -139,15 +140,17 @@ export default class User extends React.Component {
     };
 
     _handleEdit = (newState) => {
+        debugger;
         this.setState({
             mode:           newState.mode,
             formErrors:     newState.undo ? {} : this.state.formErrors,
-            currentUser:    newState.currentUser || this.state.currentUser
+            currentUser:    newState.currentUser || this.state.currentUser,
+            hasDuplicateError: newState.hasDuplicateError
         });
     };
 
     render () {
-        const { duplicateUserId, highlightedFields = {} } = this.props;
+        const { duplicateUserId, highlightedFields = {}, forceSave } = this.props;
         const {
                   showAddress,
                   showCompany,
@@ -197,6 +200,8 @@ export default class User extends React.Component {
                                         onChange={this._handleEdit}
                                         currentUser={currentUser}
                                         isEditing={mode === MODES.editing}
+                                        hasDuplicateError={hasDuplicateError}
+                                        forceSave={forceSave}
                         />
                     )
                 }
