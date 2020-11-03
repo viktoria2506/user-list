@@ -23,7 +23,7 @@ export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = {}, address = {}, company = {} } = this.props;
+        const { info = {}, address = {}, company = {}, forceSave } = this.props;
 
         this.state = {
             currentUser:       {
@@ -39,7 +39,7 @@ export default class User extends React.Component {
             },
             showAddress:       false,
             showCompany:       false,
-            editMode:          false,
+            editMode:          forceSave,
             hasDuplicateError: false
         };
     }
@@ -138,11 +138,12 @@ export default class User extends React.Component {
     _handleClickSave = e => {
         debugger;
         let { currentUser, editMode , hasDuplicateError} = this.state;
+        const {forceSave} = this.props;
         const newUser                 = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
         const forceAdding = !!hasDuplicateError;
 
         UserAction.updateUser(newUser, forceAdding);
-        if (forceAdding) this.setState({editMode: !editMode});
+        if (!forceSave || forceAdding) this.setState({editMode: !editMode});
         this.setState({ hasDuplicateError: !hasDuplicateError });
         e.preventDefault();
     };
