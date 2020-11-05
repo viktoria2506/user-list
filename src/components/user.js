@@ -67,15 +67,15 @@ export default class User extends React.Component {
     }
 
     componentWillUnmount () {
-        UserStore.off(EVENT_TYPE.updateFailed, this._updateFailed);
-        UserStore.off(EVENT_TYPE.userUpdated, this._updateMode);
+        UserStore.off(EVENT_TYPE.updateFailed, this._onUpdateFailed);
+        UserStore.off(EVENT_TYPE.userUpdated, this._onUpdateMode);
     }
 
-    _updateFailed = (userId) => {
+    _onUpdateFailed = (userId) => {
         this.setState({ duplicateUserId: userId, hasDuplicateError: true });
     };
 
-    _updateMode = () => {
+    _onUpdateMode = () => {
         this.setState({ mode: MODES.default, hasDuplicateError: false });
         this.props.onChange();
     };
@@ -171,8 +171,8 @@ export default class User extends React.Component {
                   hasDuplicateError,
                   mode,
                   duplicateUserId
-              }                          = this.state;
-        const isFormFieldsValid          = this._isUserInfoValid(formErrors);
+              }                                              = this.state;
+        const isFormFieldsValid                              = this._isUserInfoValid(formErrors);
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
@@ -214,8 +214,8 @@ export default class User extends React.Component {
                                         currentUser={currentUser}
                                         isEditing={mode === MODES.editing}
                                         hasDuplicateError={hasDuplicateError}
-                                        updateFailed={this._updateFailed}
-                                        updateMode={this._updateMode}
+                                        updateFailed={this._onUpdateFailed}
+                                        updateMode={this._onUpdateMode}
                         />
                     )
                 }

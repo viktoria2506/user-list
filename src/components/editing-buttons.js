@@ -31,11 +31,11 @@ export default class EditingButtons extends React.Component {
         e.preventDefault();
     };
 
-    _updateFailed = (userId) => {
+    _onUpdateFailed = (userId) => {
         this.props.updateFailed(userId);
     };
 
-    _updateMode = () => {
+    _onUpdateMode = () => {
         this.props.updateMode();
     };
 
@@ -47,8 +47,8 @@ export default class EditingButtons extends React.Component {
             company: { ...currentUser.company }
         };
 
-        UserStore.on(EVENT_TYPE.updateFailed, this._updateFailed);
-        UserStore.on(EVENT_TYPE.userUpdated, this._updateMode);
+        UserStore.on(EVENT_TYPE.updateFailed, this._onUpdateFailed);
+        UserStore.on(EVENT_TYPE.userUpdated, this._onUpdateMode);
         this.setState({ unmodifiedUser });
         onChange({ mode: MODES.editing, currentUser });
         e.preventDefault();

@@ -18,11 +18,11 @@ export default class UserList extends React.Component {
 
     _getInitialState () {
         return {
-            duplicateNewUserId:   '',
-            highlightedFields: '',
-            addUserMode:       false,
-            searchMode:        false,
-            users:             UserStore.getUsers()
+            duplicateNewUserId: '',
+            highlightedFields:  '',
+            addUserMode:        false,
+            searchMode:         false,
+            users:              UserStore.getUsers()
         };
     }
 
@@ -34,7 +34,7 @@ export default class UserList extends React.Component {
         this.setState({ addUserMode: !this.state.addUserMode });
     };
 
-    _addingFailed = (userId) => {
+    _onAddingFailed = (userId) => {
         this.setState({ duplicateNewUserId: userId });
     };
 
@@ -45,7 +45,7 @@ export default class UserList extends React.Component {
         e.preventDefault();
     };
 
-    _usersFound = (usersFound, highlightedFields) => {
+    _onUsersFound = (usersFound, highlightedFields) => {
         this.setState({ users: usersFound, highlightedFields, addUserMode: false });
     };
 
@@ -57,15 +57,15 @@ export default class UserList extends React.Component {
     componentDidMount () {
         UserStore.on(EVENT_TYPE.change, this._onChange);
         UserStore.on(EVENT_TYPE.userAdded, this._onChange);
-        UserStore.on(EVENT_TYPE.addingFailed, this._addingFailed);
-        UserStore.on(EVENT_TYPE.usersFound, this._usersFound);
+        UserStore.on(EVENT_TYPE.addingFailed, this._onAddingFailed);
+        UserStore.on(EVENT_TYPE.usersFound, this._onUsersFound);
     }
 
     componentWillUnmount () {
         UserStore.off(EVENT_TYPE.change, this._onChange);
         UserStore.off(EVENT_TYPE.userAdded, this._onChange);
-        UserStore.off(EVENT_TYPE.addingFailed, this._addingFailed);
-        UserStore.off(EVENT_TYPE.usersFound, this._usersFound);
+        UserStore.off(EVENT_TYPE.addingFailed, this._onAddingFailed);
+        UserStore.off(EVENT_TYPE.usersFound, this._onUsersFound);
     }
 
     render () {
