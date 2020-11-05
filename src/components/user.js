@@ -45,7 +45,7 @@ export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = {}, address = {}, company = {}, isNewUser } = this.props;
+        const { info = {}, address = {}, company = {}, isNewUser, duplicateNewUserId, hasDuplicateError } = this.props;
 
         this.state = {
             currentUser:       {
@@ -60,8 +60,8 @@ export default class User extends React.Component {
             },
             showAddress:       false,
             showCompany:       false,
-            hasDuplicateError: false,
-            duplicateUserId:   '',
+            hasDuplicateError: hasDuplicateError || false,
+            duplicateUserId:   duplicateNewUserId || '',
             mode:              isNewUser ? MODES.new : MODES.default
         };
     }
@@ -142,8 +142,8 @@ export default class User extends React.Component {
         if (this._isUserInfoValid(resultValid)) {
             UserAction.addNewUser(newUser, hasDuplicateError);
             this.setState({
-                formErrors,
-                hasDuplicateError: !hasDuplicateError
+                formErrors
+                //hasDuplicateError: !hasDuplicateError
             });
         }
         else {
@@ -162,7 +162,7 @@ export default class User extends React.Component {
     };
 
     render () {
-        const { highlightedFields = {}, duplicateNewUserId } = this.props;
+        const { highlightedFields = {} } = this.props;
         const {
                   showAddress,
                   showCompany,
@@ -178,7 +178,7 @@ export default class User extends React.Component {
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
                     hasDuplicateError &&
-                    <DuplicateError userId={duplicateUserId || duplicateNewUserId}/>
+                    <DuplicateError userId={duplicateUserId}/>
                 }
                 <Info info={currentUser.info}
                       formErrors={formErrors}

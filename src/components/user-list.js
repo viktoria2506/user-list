@@ -22,6 +22,7 @@ export default class UserList extends React.Component {
             highlightedFields:  '',
             addUserMode:        false,
             searchMode:         false,
+            hasDuplicateError:  false,
             users:              UserStore.getUsers()
         };
     }
@@ -35,7 +36,7 @@ export default class UserList extends React.Component {
     };
 
     _onAddingFailed = (userId) => {
-        this.setState({ duplicateNewUserId: userId });
+        this.setState({ duplicateNewUserId: userId, hasDuplicateError: true });
     };
 
     _handleFindUserClick = (e) => {
@@ -69,7 +70,7 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { addUserMode, users, duplicateNewUserId, searchMode, highlightedFields } = this.state;
+        const { addUserMode, users, duplicateNewUserId, searchMode, highlightedFields, hasDuplicateError } = this.state;
 
         return (
             <div className="UserList">
@@ -87,7 +88,8 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     addUserMode &&
-                    <User isNewUser={true} duplicateNewUserId={duplicateNewUserId}/>
+                    <User isNewUser={true} duplicateNewUserId={duplicateNewUserId}
+                          hasDuplicateError={hasDuplicateError}/>
                 }
                 <hr/>
                 {!users.length &&
