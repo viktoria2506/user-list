@@ -35,7 +35,6 @@ export default class UserList extends React.Component {
     };
 
     _addingFailed = (userId) => {
-        debugger;
         this.setState({ duplicateNewUserId: userId });
     };
 
