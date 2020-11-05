@@ -2,17 +2,17 @@ import React from 'react';
 
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
+import UserStore from '../stores/user-store';
 import classNames from 'classnames';
 import ERRORS from '../errors';
 import { MODES } from '../modes';
+import EVENT_TYPE from '../stores/event-type';
 
 import Address from './address.js';
 import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
 import EditingButtons from './editing-buttons';
-import UserStore from '../stores/user-store';
-import EVENT_TYPE from '../stores/event-type';
 
 const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
@@ -162,7 +162,7 @@ export default class User extends React.Component {
     };
 
     render () {
-        const { highlightedFields = {} } = this.props;
+        const { highlightedFields = {}, duplicateNewUserId } = this.props;
         const {
                   showAddress,
                   showCompany,
@@ -178,7 +178,7 @@ export default class User extends React.Component {
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
                     hasDuplicateError &&
-                    <DuplicateError userId={duplicateUserId || this.props.duplicateNewUserId}/>
+                    <DuplicateError userId={duplicateUserId || duplicateNewUserId}/>
                 }
                 <Info info={currentUser.info}
                       formErrors={formErrors}

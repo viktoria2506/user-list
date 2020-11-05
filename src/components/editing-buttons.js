@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { MODES } from '../modes';
-import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
+import UserInfo from '../stores/user-info';
 import UserStore from '../stores/user-store';
 import EVENT_TYPE from '../stores/event-type';
+import { MODES } from '../modes';
 
 export default class EditingButtons extends React.Component {
     constructor (props) {
@@ -41,7 +41,7 @@ export default class EditingButtons extends React.Component {
 
     _handleClickEdit = e => {
         const { currentUser, onChange } = this.props;
-        const unmodifiedUser                               = {
+        const unmodifiedUser            = {
             info:    { ...currentUser.info },
             address: { ...currentUser.address },
             company: { ...currentUser.company }
