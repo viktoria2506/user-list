@@ -11,6 +11,7 @@ import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
 import EditingButtons from './editing-buttons';
+import AddressButtons from './address-buttons';
 
 const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
@@ -91,7 +92,6 @@ export default class User extends React.Component {
     }
 
     _handleClickAddress = e => {
-
         this.setState({ showAddress: !this.state.showAddress });
         e.preventDefault();
     };
@@ -153,42 +153,42 @@ export default class User extends React.Component {
         });
     };
 
-    _isCompanyEmpty = () => {
-        const { currentUser } = this.state;
-
-        return !currentUser.company || (!currentUser.company.name &&
-               !currentUser.company.catchPhrase &&
-               !currentUser.company.bs);
-    };
-
     _isAddressEmpty = () => {
         const { currentUser } = this.state;
 
         return !currentUser.address || (!currentUser.address.city &&
-               !currentUser.address.street &&
-               !currentUser.address.suite &&
-               !currentUser.address.zipcode);
+                                        !currentUser.address.street &&
+                                        !currentUser.address.suite &&
+                                        !currentUser.address.zipcode);
+    };
+
+    _isCompanyEmpty = () => {
+        const { currentUser } = this.state;
+
+        return !currentUser.company || (!currentUser.company.name &&
+                                        !currentUser.company.catchPhrase &&
+                                        !currentUser.company.bs);
     };
 
     _handleDeleteAddress = e => {
         const { currentUser } = this.state;
 
-        currentUser.address.street = '';
-        currentUser.address.city = '';
-        currentUser.address.suite = '';
+        currentUser.address.street  = '';
+        currentUser.address.city    = '';
+        currentUser.address.suite   = '';
         currentUser.address.zipcode = '';
         this.setState(currentUser);
         e.preventDefault();
-    }
+    };
 
     _handleDeleteCompany = () => {
         const { currentUser } = this.state;
 
-        currentUser.company.name = '';
+        currentUser.company.name        = '';
         currentUser.company.catchPhrase = '';
-        currentUser.company.bs = '';
+        currentUser.company.bs          = '';
         this.setState(currentUser);
-    }
+    };
 
     render () {
         const { duplicateUserId, highlightedFields = {} } = this.props;
@@ -218,11 +218,15 @@ export default class User extends React.Component {
                     (mode !== MODES.default || !this._isAddressEmpty()) &&
                     <React.Fragment>
                         <button className="ButtonAddDetails" onClick={this._handleClickAddress}>
-                            {`${showAddress ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Address`}
+                            {this._isAddressEmpty() ?
+                             `${showAddress ? VIEWS[MODES.new].hideButtonPrefix : VIEWS[MODES.new].showButtonPrefix} Address` :
+                             `${showAddress ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Address`
+                            }
                         </button>
                         {
                             mode === MODES.editing && !this._isAddressEmpty() &&
-                            <button className="ButtonDeleteDetails" onClick={this._handleDeleteAddress}>Delete Address</button>
+                            <button className="ButtonDeleteDetails" onClick={this._handleDeleteAddress}>Delete
+                                Address</button>
                         }
                     </React.Fragment>
                 }
@@ -234,11 +238,15 @@ export default class User extends React.Component {
                     (mode !== MODES.default || !this._isCompanyEmpty()) &&
                     <React.Fragment>
                         <button className="ButtonAddDetails" onClick={this._handleClickCompany}>
-                            {`${showCompany ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Company`}
+                            {this._isCompanyEmpty() ?
+                             `${showCompany ? VIEWS[MODES.new].hideButtonPrefix : VIEWS[MODES.new].showButtonPrefix} Company` :
+                             `${showCompany ? VIEWS[mode].hideButtonPrefix : VIEWS[mode].showButtonPrefix} Company`
+                            }
                         </button>
                         {
                             mode === MODES.editing && !this._isCompanyEmpty() &&
-                            <button className="ButtonDeleteDetails" onClick={this._handleDeleteCompany}>Delete Company</button>
+                            <button className="ButtonDeleteDetails" onClick={this._handleDeleteCompany}>Delete
+                                Company</button>
                         }
                     </React.Fragment>
                 }
