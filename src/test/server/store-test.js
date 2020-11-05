@@ -130,9 +130,9 @@ describe('UserStore', () => {
         });
 
         describe('updateUser', () => {
-            it('Should emit change event', async () => {
+            it('Should emit userUpdated event', async () => {
                 assert.notEqual(UserStore.getUsers()[1], UPDATE_USER);
-                await subEvent(EVENT_TYPE.change, () => UserAction.updateUser(UPDATE_USER));
+                await subEvent(EVENT_TYPE.userUpdated, () => UserAction.updateUser(UPDATE_USER));
 
                 assert.deepEqual(UserStore.getUsers()[1], UPDATE_USER);
             });

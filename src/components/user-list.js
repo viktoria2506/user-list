@@ -16,19 +16,18 @@ export default class UserList extends React.Component {
         this.state = this._getInitialState();
     }
 
-    _getInitialState (f) {
+    _getInitialState () {
         return {
-            duplicateUserId:   '',
+            duplicateNewUserId:   '',
             highlightedFields: '',
             addUserMode:       false,
             searchMode:        false,
-            forceSave:         f || false,
             users:             UserStore.getUsers()
         };
     }
 
     _onChange = () => {
-        this.setState(this._getInitialState(true));
+        this.setState(this._getInitialState());
     };
 
     _handleAddUserClick = () => {
@@ -36,7 +35,8 @@ export default class UserList extends React.Component {
     };
 
     _addingFailed = (userId) => {
-        this.setState({ duplicateUserId: userId });
+        debugger;
+        this.setState({ duplicateNewUserId: userId });
     };
 
     _handleFindUserClick = (e) => {
@@ -70,7 +70,7 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { addUserMode, users, duplicateUserId, searchMode, highlightedFields, forceSave } = this.state;
+        const { addUserMode, users, duplicateNewUserId, searchMode, highlightedFields } = this.state;
 
         return (
             <div className="UserList">
@@ -88,7 +88,7 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     addUserMode &&
-                    <User isNewUser={true} duplicateUserId={duplicateUserId}/>
+                    <User isNewUser={true} duplicateNewUserId={duplicateNewUserId}/>
                 }
                 <hr/>
                 {!users.length &&
@@ -110,8 +110,7 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       highlightedFields={highlightedFields}
-                                      duplicateUserId={duplicateUserId}
-                                      forceSave={forceSave}
+                                      onChange={this._onChange}
                                 />
                                 <hr/>
                             </div>

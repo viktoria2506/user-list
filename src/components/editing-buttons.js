@@ -3,6 +3,8 @@ import React from 'react';
 import { MODES } from '../modes';
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
+import UserStore from '../stores/user-store';
+import EVENT_TYPE from '../stores/event-type';
 
 export default class EditingButtons extends React.Component {
     constructor (props) {
@@ -17,36 +19,44 @@ export default class EditingButtons extends React.Component {
         const { onChange }       = this.props;
         const { unmodifiedUser } = this.state;
 
-        onChange({ mode: MODES.default, undo: true, currentUser: unmodifiedUser, hasDuplicateError: false });
+        onChange({ mode: MODES.default, undo: true, currentUser: unmodifiedUser });
         e.preventDefault();
     };
 
     _handleClickSave = e => {
-        const { currentUser, onChange, hasDuplicateError, forceSave} = this.props;
-        const newUser                   = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-        const forceAdding = !!hasDuplicateError;
+        const { currentUser, hasDuplicateError } = this.props;
+        const newUser                            = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        UserAction.updateUser(newUser);
-        debugger;
-        onChange({ mode: (!forceSave || forceAdding) ? MODES.default : MODES.editing, currentUser, hasDuplicateError: !hasDuplicateError  });
+        UserAction.updateUser(newUser, hasDuplicateError);
         e.preventDefault();
     };
 
+    _updateFailed = (userId) => {
+        this.props.updateFailed(userId);
+    };
+
+    _updateMode = () => {
+        this.props.updateMode();
+    };
+
     _handleClickEdit = e => {
-        const { currentUser, onChange, hasDuplicateError } = this.props;
-        const unmodifiedUser            = {
+        const { currentUser, onChange } = this.props;
+        const unmodifiedUser                               = {
             info:    { ...currentUser.info },
             address: { ...currentUser.address },
             company: { ...currentUser.company }
         };
 
+        UserStore.on(EVENT_TYPE.updateFailed, this._updateFailed);
+        UserStore.on(EVENT_TYPE.userUpdated, this._updateMode);
         this.setState({ unmodifiedUser });
-        onChange({ mode: MODES.editing, currentUser, hasDuplicateError });
+        onChange({ mode: MODES.editing, currentUser });
         e.preventDefault();
     };
 
     render () {
         const { disabled, isEditing } = this.props;
+
         return (
             <React.Fragment>
                 <button className="ButtonEdit"

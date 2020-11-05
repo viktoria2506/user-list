@@ -92,7 +92,8 @@ class UserStore extends EventEmitter {
             }
         }
         else {
-            this._emitDuplicateError(index);
+            const userId = this._users[index].id;
+            this.emit(EVENT_TYPE.addingFailed, userId);
         }
     }
 
@@ -105,17 +106,13 @@ class UserStore extends EventEmitter {
                 this._executeSearch();
             }
             else {
-                this.emit(EVENT_TYPE.change);
+                this.emit(EVENT_TYPE.userUpdated);
             }
         }
         else {
-            this._emitDuplicateError(index);
+            const userId = this._users[index].id;
+            this.emit(EVENT_TYPE.updateFailed, userId);
         }
-    }
-
-    _emitDuplicateError (index) {
-        const userId = this._users[index].id;
-        this.emit(EVENT_TYPE.addingFailed, userId);
     }
 
     _actionFindUser (userInfo) {

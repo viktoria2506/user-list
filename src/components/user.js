@@ -11,6 +11,8 @@ import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
 import EditingButtons from './editing-buttons';
+import UserStore from '../stores/user-store';
+import EVENT_TYPE from '../stores/event-type';
 
 const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
@@ -43,7 +45,7 @@ export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = {}, address = {}, company = {}, forceSave, isNewUser } = this.props;
+        const { info = {}, address = {}, company = {}, isNewUser } = this.props;
 
         this.state = {
             currentUser:       {
@@ -59,10 +61,24 @@ export default class User extends React.Component {
             showAddress:       false,
             showCompany:       false,
             hasDuplicateError: false,
-            mode: isNewUser ? MODES.new : MODES.default,
-            forceSave: forceSave
+            duplicateUserId:   '',
+            mode:              isNewUser ? MODES.new : MODES.default
         };
     }
+
+    componentWillUnmount () {
+        UserStore.off(EVENT_TYPE.updateFailed, this._updateFailed);
+        UserStore.off(EVENT_TYPE.userUpdated, this._updateMode);
+    }
+
+    _updateFailed = (userId) => {
+        this.setState({ duplicateUserId: userId, hasDuplicateError: true });
+    };
+
+    _updateMode = () => {
+        this.setState({ mode: MODES.default, hasDuplicateError: false });
+        this.props.onChange();
+    };
 
     _validateField (fieldName, value) {
         switch (fieldName) {
@@ -124,13 +140,10 @@ export default class User extends React.Component {
         const resultValid                                    = this._validateFields(currentUser.info);
 
         if (this._isUserInfoValid(resultValid)) {
-            const forceAdding = !!hasDuplicateError;
-
-            UserAction.addNewUser(newUser, forceAdding);
+            UserAction.addNewUser(newUser, hasDuplicateError);
             this.setState({
                 formErrors,
-                hasDuplicateError: !hasDuplicateError,
-                mode:              forceAdding ? MODES.default : MODES.new
+                hasDuplicateError: !hasDuplicateError
             });
         }
         else {
@@ -140,32 +153,32 @@ export default class User extends React.Component {
     };
 
     _handleEdit = (newState) => {
-        debugger;
         this.setState({
-            mode:           newState.mode,
-            formErrors:     newState.undo ? {} : this.state.formErrors,
-            currentUser:    newState.currentUser || this.state.currentUser,
-            hasDuplicateError: newState.hasDuplicateError
+            mode:              newState.mode || MODES.default,
+            formErrors:        newState.undo ? {} : this.state.formErrors,
+            currentUser:       newState.currentUser || this.state.currentUser,
+            hasDuplicateError: newState.undo ? false : this.state.hasDuplicateError
         });
     };
 
     render () {
-        const { duplicateUserId, highlightedFields = {}, forceSave } = this.props;
+        const { highlightedFields = {} } = this.props;
         const {
                   showAddress,
                   showCompany,
                   currentUser,
                   formErrors,
                   hasDuplicateError,
-                  mode
-              }                                           = this.state;
-        const isFormFieldsValid                           = this._isUserInfoValid(formErrors);
+                  mode,
+                  duplicateUserId
+              }                          = this.state;
+        const isFormFieldsValid          = this._isUserInfoValid(formErrors);
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
                     hasDuplicateError &&
-                    <DuplicateError userId={duplicateUserId}/>
+                    <DuplicateError userId={duplicateUserId || this.props.duplicateNewUserId}/>
                 }
                 <Info info={currentUser.info}
                       formErrors={formErrors}
@@ -201,7 +214,8 @@ export default class User extends React.Component {
                                         currentUser={currentUser}
                                         isEditing={mode === MODES.editing}
                                         hasDuplicateError={hasDuplicateError}
-                                        forceSave={forceSave}
+                                        updateFailed={this._updateFailed}
+                                        updateMode={this._updateMode}
                         />
                     )
                 }

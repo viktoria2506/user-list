@@ -51,7 +51,7 @@ describe('UserStore', () => {
         describe('updateUser', () => {
             it('Should emit addingFailed event with duplicateUserId if user exists', async () => {
                 assert.notEqual(UserStore.getUsers()[4], UPDATE_USER_EXISTING);
-                const [userId] = await subEvent(EVENT_TYPE.addingFailed, () => UserAction.updateUser(UPDATE_USER_EXISTING));
+                const [userId] = await subEvent(EVENT_TYPE.updateFailed, () => UserAction.updateUser(UPDATE_USER_EXISTING));
 
                 assert.strictEqual(userId, 2);
             });
@@ -59,7 +59,7 @@ describe('UserStore', () => {
             it('Should emit change event if user exists, but force flag is true', async () => {
                 let newUser = _.cloneDeep(UPDATE_USER_EXISTING);
 
-                await subEvent(EVENT_TYPE.change, () => UserAction.updateUser(UPDATE_USER_EXISTING, true));
+                await subEvent(EVENT_TYPE.userUpdated, () => UserAction.updateUser(UPDATE_USER_EXISTING, true));
 
                 assert.deepEqual(UserStore._users[3], newUser);
             });
