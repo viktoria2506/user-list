@@ -18,11 +18,11 @@ export default class UserList extends React.Component {
 
     _getInitialState () {
         return {
-            duplicateNewUserId: '',
-            highlightedFields:  '',
-            addUserMode:        false,
-            searchMode:         false,
-            users:              UserStore.getUsers()
+            duplicateUserId:   '',
+            highlightedFields: '',
+            addUserMode:       false,
+            searchMode:        false,
+            users:             UserStore.getUsers()
         };
     }
 
@@ -34,8 +34,8 @@ export default class UserList extends React.Component {
         this.setState({ addUserMode: !this.state.addUserMode });
     };
 
-    _onAddingFailed = (userId) => {
-        this.setState({ duplicateNewUserId: userId });
+    _addingFailed = (userId) => {
+        this.setState({ duplicateUserId: userId });
     };
 
     _handleFindUserClick = (e) => {
@@ -45,7 +45,7 @@ export default class UserList extends React.Component {
         e.preventDefault();
     };
 
-    _onUsersFound = (usersFound, highlightedFields) => {
+    _usersFound = (usersFound, highlightedFields) => {
         this.setState({ users: usersFound, highlightedFields, addUserMode: false });
     };
 
@@ -57,19 +57,19 @@ export default class UserList extends React.Component {
     componentDidMount () {
         UserStore.on(EVENT_TYPE.change, this._onChange);
         UserStore.on(EVENT_TYPE.userAdded, this._onChange);
-        UserStore.on(EVENT_TYPE.addingFailed, this._onAddingFailed);
-        UserStore.on(EVENT_TYPE.usersFound, this._onUsersFound);
+        UserStore.on(EVENT_TYPE.addingFailed, this._addingFailed);
+        UserStore.on(EVENT_TYPE.usersFound, this._usersFound);
     }
 
     componentWillUnmount () {
         UserStore.off(EVENT_TYPE.change, this._onChange);
         UserStore.off(EVENT_TYPE.userAdded, this._onChange);
-        UserStore.off(EVENT_TYPE.addingFailed, this._onAddingFailed);
-        UserStore.off(EVENT_TYPE.usersFound, this._onUsersFound);
+        UserStore.off(EVENT_TYPE.addingFailed, this._addingFailed);
+        UserStore.off(EVENT_TYPE.usersFound, this._usersFound);
     }
 
     render () {
-        const { addUserMode, users, duplicateNewUserId, searchMode, highlightedFields } = this.state;
+        const { addUserMode, users, duplicateUserId, searchMode, highlightedFields } = this.state;
 
         return (
             <div className="UserList">
@@ -87,7 +87,7 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     addUserMode &&
-                    <User isNewUser={true} duplicateNewUserId={duplicateNewUserId}/>
+                    <User isNewUser={true} duplicateUserId={duplicateUserId}/>
                 }
                 <hr/>
                 {!users.length &&
@@ -109,7 +109,6 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       highlightedFields={highlightedFields}
-                                      onChange={this._onChange}
                                 />
                                 <hr/>
                             </div>
