@@ -49,6 +49,10 @@ export default class EditingButtons extends React.Component {
         e.preventDefault();
     };
 
+    componentWillUnmount () {
+        UserStore.off(EVENT_TYPE.userUpdated, this._onUpdateMode);
+    }
+
     render () {
         const { disabled, isEditing } = this.props;
 

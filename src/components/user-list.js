@@ -22,6 +22,7 @@ export default class UserList extends React.Component {
             highlightedFields: '',
             addUserMode:       false,
             searchMode:        false,
+            userId:            '',
             users:             UserStore.getUsers()
         };
     }
@@ -34,16 +35,13 @@ export default class UserList extends React.Component {
         this.setState({ addUserMode: !this.state.addUserMode });
     };
 
-    _onAddingFailed = (userId) => {
-        this.setState({ duplicateUserId: userId });
+    _onAddingFailed = (duplicateUserId) => {
+        this.setState({ duplicateUserId: duplicateUserId });
 
     };
 
-    _handleFindUserClick = (e) => {
-        const { searchMode } = this.state;
-
-        this.setState({ searchMode: !searchMode });
-        e.preventDefault();
+    _onUpdateFailed = (duplicateUserId, userId) => {
+        this.setState({ duplicateUserId: duplicateUserId, userId: userId });
     };
 
     _onUsersFound = (usersFound, highlightedFields) => {
@@ -55,14 +53,16 @@ export default class UserList extends React.Component {
         e.preventDefault();
     };
 
-    _onUpdateFailed = (userId) => {
-        this.setState({ duplicateUserId: userId });
-    };
-
     _resetDuplicateUserId = () => {
         this.setState({ duplicateUserId: '' });
     };
 
+    _handleFindUserClick = (e) => {
+        const { searchMode } = this.state;
+
+        this.setState({ searchMode: !searchMode });
+        e.preventDefault();
+    };
 
     componentDidMount () {
         UserStore.on(EVENT_TYPE.change, this._onChange);
@@ -81,7 +81,7 @@ export default class UserList extends React.Component {
     }
 
     render () {
-        const { addUserMode, users, duplicateUserId, searchMode, highlightedFields } = this.state;
+        const { addUserMode, users, duplicateUserId, searchMode, highlightedFields, userId } = this.state;
 
         return (
             <div className="UserList">
@@ -100,7 +100,8 @@ export default class UserList extends React.Component {
                 {
                     addUserMode &&
                     <User isNewUser={true} duplicateUserId={duplicateUserId} onChange={this._onChange}
-                          resetDuplicateUserId={this._resetDuplicateUserId}/>
+                          resetDuplicateUserId={this._resetDuplicateUserId}
+                          userId={userId}/>
                 }
                 <hr/>
                 {!users.length &&
@@ -123,6 +124,7 @@ export default class UserList extends React.Component {
                                       company={user.company}
                                       highlightedFields={highlightedFields}
                                       duplicateUserId={duplicateUserId}
+                                      userId={userId}
                                       onUpdateMode={this._onUpdateMode}
                                       onChange={this._onChange}
                                       resetDuplicateUserId={this._resetDuplicateUserId}

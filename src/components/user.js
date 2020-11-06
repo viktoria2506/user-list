@@ -11,6 +11,8 @@ import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
 import EditingButtons from './editing-buttons';
+import UserStore from '../stores/user-store';
+import EVENT_TYPE from '../stores/event-type';
 
 const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
@@ -47,7 +49,7 @@ const initializedInfo    = {
 };
 const initializedAddress = {
     city:    '',
-    street: '',
+    street:  '',
     suite:   '',
     zipcode: ''
 };
@@ -81,6 +83,7 @@ export default class User extends React.Component {
 
     _onUpdateMode = () => {
         this.setState({ mode: MODES.default });
+        this.props.resetDuplicateUserId();
         this.props.onChange();
     };
 
@@ -165,6 +168,10 @@ export default class User extends React.Component {
             formErrors:  newState.undo ? {} : this.state.formErrors,
             currentUser: newState.currentUser || this.state.currentUser
         });
+        if (newState.undo &&
+            newState.currentUser.info.id === this.props.userId) {
+            this.props.resetDuplicateUserId();
+        }
     };
 
     _isAddressEmpty = () => {
@@ -207,7 +214,8 @@ export default class User extends React.Component {
     render () {
         const {
                   highlightedFields = {},
-                  duplicateUserId
+                  duplicateUserId,
+                  userId
               } = this.props;
 
         const {
@@ -222,7 +230,7 @@ export default class User extends React.Component {
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
-                    !!duplicateUserId && mode !== MODES.default &&
+                    !!duplicateUserId && mode !== MODES.default && currentUser.info.id === userId &&
                     <DuplicateError userId={duplicateUserId}/>
                 }
                 <Info info={currentUser.info}
@@ -275,18 +283,19 @@ export default class User extends React.Component {
                     mode === MODES.new ?
                     <button
                         className={classNames({
-                            ButtonAddUser:  isFormFieldsValid,
-                            ButtonDisabled: !isFormFieldsValid
+                            ButtonAddUser:  isFormFieldsValid && !(!!duplicateUserId && currentUser.info.id !== userId),
+                            ButtonDisabled: !isFormFieldsValid || (!!duplicateUserId && currentUser.info.id !== userId)
                         })}
-                        disabled={!isFormFieldsValid}
+                        disabled={!isFormFieldsValid || (!!duplicateUserId && currentUser.info.id !== userId)}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <EditingButtons disabled={!isFormFieldsValid}
-                                        onChange={this._handleEdit}
-                                        currentUser={currentUser}
-                                        isEditing={mode === MODES.editing}
-                                        duplicateUserId={duplicateUserId}
-                                        updateMode={this._onUpdateMode}
+                        <EditingButtons
+                            disabled={!isFormFieldsValid || (!!duplicateUserId && currentUser.info.id !== userId)}
+                            onChange={this._handleEdit}
+                            currentUser={currentUser}
+                            isEditing={mode === MODES.editing}
+                            duplicateUserId={duplicateUserId}
+                            updateMode={this._onUpdateMode}
                         />
                     )
                 }

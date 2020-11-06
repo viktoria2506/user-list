@@ -99,8 +99,9 @@ class UserStore extends EventEmitter {
 
     _actionUpdateUser (user, force) {
         const index = this._findUserIndexByName(user.name);
+        const userId = this._users[index].id;
 
-        if (index === -1 || force) {
+        if (index === -1 || force || userId === user.id) {
             this._updateUser(user);
             if (this._searchedInfo) {
                 this._executeSearch();
@@ -110,8 +111,7 @@ class UserStore extends EventEmitter {
             }
         }
         else {
-            const userId = this._users[index].id;
-            this.emit(EVENT_TYPE.updateFailed, userId);
+            this.emit(EVENT_TYPE.updateFailed, userId, user.id );
         }
     }
 
