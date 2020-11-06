@@ -38,27 +38,29 @@ const VIEWS              = {
         showRequiredMark: false
     }
 };
-const initializedUser    = {
+const initializedInfo    = {
     id:      '',
     name:    '',
     email:   '',
     phone:   '',
-    website: '',
-    address: {
-        city:    '',
-        address: '',
-        suite:   '',
-        zipcode: ''
-    },
-    company: {
-        companyName: ''
-    }
+    website: ''
+};
+const initializedAddress = {
+    city:    '',
+    street: '',
+    suite:   '',
+    zipcode: ''
+};
+const initializedCompany = {
+    companyName: '',
+    catchPhrase: '',
+    bs:          ''
 };
 export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = initializedUser, address = {}, company = {}, isNewUser } = this.props;
+        const { info = initializedInfo, address = initializedAddress, company = initializedCompany, isNewUser } = this.props;
 
         this.state = {
             currentUser: {

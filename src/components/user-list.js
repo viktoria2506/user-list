@@ -23,7 +23,6 @@ export default class UserList extends React.Component {
             addUserMode:       false,
             searchMode:        false,
             users:             UserStore.getUsers()
-
         };
     }
 
