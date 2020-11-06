@@ -38,7 +38,7 @@ export default class EditingButtons extends React.Component {
             company: { ...currentUser.company }
         };
 
-        this.setState({unmodifiedUser});
+        this.setState({ unmodifiedUser });
         onChange({ mode: MODES.editing, currentUser });
         e.preventDefault();
     };
