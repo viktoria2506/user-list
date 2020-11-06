@@ -17,11 +17,6 @@ export default class UserInfo {
             companyInfo.bs
         );
     }
-
-   /* isAddressEmpty = () => {
-        return !this.address.city && !this.address.street &&
-            !this.address.suite && !this.address.zipcode
-    }*/
 }
 
 class Address {
@@ -35,7 +30,7 @@ class Address {
 
 class Company {
     constructor (name, catchPhrase, bs) {
-        this.name        = name;
+        this.companyName        = name;
         this.catchPhrase = catchPhrase;
         this.bs          = bs;
     }

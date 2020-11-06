@@ -117,13 +117,6 @@ class UserStore extends EventEmitter {
         this._searchedInfo = null;
         this.emit(EVENT_TYPE.change);
     }
-    _actionDeleteCompany () {
-
-    }
-
-    _actionDeleteAddress () {
-
-    }
 
     registerActions (action) {
         if (action.ACTION_TYPE === ACTION_TYPE.addNewUser) {
@@ -137,12 +130,6 @@ class UserStore extends EventEmitter {
         }
         else if (action.ACTION_TYPE === ACTION_TYPE.stopFindUser) {
             this._actionStopFindUser();
-        }
-        else if (action.ACTION_TYPE === ACTION_TYPE.deleteCompany) {
-            this._actionDeleteCompany();
-        }
-        else if (action.ACTION_TYPE === ACTION_TYPE.deleteAddress) {
-            this._actionDeleteAddress();
         }
     }
 

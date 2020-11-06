@@ -160,7 +160,7 @@ export default class User extends React.Component {
     _isCompanyEmpty = () => {
         const { currentUser } = this.state;
 
-        return !currentUser.company || (!currentUser.company.name &&
+        return !currentUser.company || (!currentUser.company.companyName &&
                                         !currentUser.company.catchPhrase &&
                                         !currentUser.company.bs);
     };
@@ -179,7 +179,7 @@ export default class User extends React.Component {
     _handleDeleteCompany = () => {
         const { currentUser } = this.state;
 
-        currentUser.company.name        = '';
+        currentUser.company.companyName        = '';
         currentUser.company.catchPhrase = '';
         currentUser.company.bs          = '';
         this.setState(currentUser);
