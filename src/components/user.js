@@ -11,7 +11,6 @@ import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
 import EditingButtons from './editing-buttons';
-import AddressButtons from './address-buttons';
 
 const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
@@ -140,13 +139,9 @@ export default class User extends React.Component {
     };
 
     _handleEdit = (newState) => {
-        if (this._isAddressEmpty()) {
-            this.setState({ showAddress: false });
-        }
-        if (this._isCompanyEmpty()) {
-            this.setState({ showCompany: false });
-        }
         this.setState({
+            showAddress: this._isAddressEmpty() ? false : this.state.showAddress,
+            showCompany: this._isCompanyEmpty() ? false : this.state.showCompany,
             mode:        newState.mode,
             formErrors:  newState.undo ? {} : this.state.formErrors,
             currentUser: newState.currentUser || this.state.currentUser
@@ -252,7 +247,7 @@ export default class User extends React.Component {
                 }
                 {
                     showCompany &&
-                    <Company address={currentUser.address} onChange={this._handleChange} mode={mode}/>
+                    <Company company={currentUser.company} onChange={this._handleChange} mode={mode}/>
                 }
                 {
                     mode === MODES.new ?
