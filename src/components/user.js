@@ -11,8 +11,6 @@ import Company from './company.js';
 import Info from './info';
 import DuplicateError from './duplicate-error';
 import EditingButtons from './editing-buttons';
-import UserStore from '../stores/user-store';
-import EVENT_TYPE from '../stores/event-type';
 
 const MATCH_PHONE = /^([\d.\-+x() ]+)$/i;
 const MATCH_EMAIL = /^([\w.-]+)@([\w-]+\.)+([\w]{2,})$/i;
