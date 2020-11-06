@@ -34,7 +34,7 @@ export default class UserList extends React.Component {
         this.setState({ addUserMode: !this.state.addUserMode });
     };
 
-    _addingFailed = (userId) => {
+    _onAddingFailed = (userId) => {
         this.setState({ duplicateUserId: userId });
     };
 
@@ -45,7 +45,7 @@ export default class UserList extends React.Component {
         e.preventDefault();
     };
 
-    _usersFound = (usersFound, highlightedFields) => {
+    _onUsersFound = (usersFound, highlightedFields) => {
         this.setState({ users: usersFound, highlightedFields, addUserMode: false });
     };
 
@@ -54,18 +54,29 @@ export default class UserList extends React.Component {
         e.preventDefault();
     };
 
+    _onUpdateFailed = (userId) => {
+        this.setState({ duplicateUserId: userId });
+    };
+
+    _resetDuplicateUserId = () => {
+        this.setState({ duplicateUserId: '' });
+    };
+
+
     componentDidMount () {
         UserStore.on(EVENT_TYPE.change, this._onChange);
         UserStore.on(EVENT_TYPE.userAdded, this._onChange);
-        UserStore.on(EVENT_TYPE.addingFailed, this._addingFailed);
-        UserStore.on(EVENT_TYPE.usersFound, this._usersFound);
+        UserStore.on(EVENT_TYPE.addingFailed, this._onAddingFailed);
+        UserStore.on(EVENT_TYPE.usersFound, this._onUsersFound);
+        UserStore.on(EVENT_TYPE.updateFailed, this._onUpdateFailed);
     }
 
     componentWillUnmount () {
         UserStore.off(EVENT_TYPE.change, this._onChange);
         UserStore.off(EVENT_TYPE.userAdded, this._onChange);
-        UserStore.off(EVENT_TYPE.addingFailed, this._addingFailed);
-        UserStore.off(EVENT_TYPE.usersFound, this._usersFound);
+        UserStore.off(EVENT_TYPE.addingFailed, this._onAddingFailed);
+        UserStore.off(EVENT_TYPE.usersFound, this._onUsersFound);
+        UserStore.off(EVENT_TYPE.updateFailed, this._onUpdateFailed);
     }
 
     render () {
@@ -87,7 +98,8 @@ export default class UserList extends React.Component {
                 </button>
                 {
                     addUserMode &&
-                    <User isNewUser={true} duplicateUserId={duplicateUserId}/>
+                    <User isNewUser={true} duplicateUserId={duplicateUserId} onChange={this._onChange}
+                          resetDuplicateUserId={this._resetDuplicateUserId}/>
                 }
                 <hr/>
                 {!users.length &&
@@ -109,7 +121,10 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       highlightedFields={highlightedFields}
+                                      duplicateUserId={duplicateUserId}
+                                      onUpdateMode={this._onUpdateMode}
                                       onChange={this._onChange}
+                                      resetDuplicateUserId={this._resetDuplicateUserId}
                                 />
                                 <hr/>
                             </div>

@@ -2,11 +2,9 @@ import React from 'react';
 
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
-import UserStore from '../stores/user-store';
 import classNames from 'classnames';
 import ERRORS from '../errors';
 import { MODES } from '../modes';
-import EVENT_TYPE from '../stores/event-type';
 
 import Address from './address.js';
 import Company from './company.js';
@@ -48,35 +46,25 @@ export default class User extends React.Component {
         const { info = {}, address = {}, company = {}, isNewUser } = this.props;
 
         this.state = {
-            currentUser:       {
+            currentUser:        {
                 info,
                 address,
                 company
             },
-            formErrors:        {
+            formErrors:         {
                 name:  '',
                 email: '',
                 phone: ''
             },
-            showAddress:       false,
-            showCompany:       false,
-            hasDuplicateError: false,
-            duplicateUserId:   '',
-            mode:              isNewUser ? MODES.new : MODES.default
+            showAddress:        false,
+            showCompany:        false,
+            showDuplicateError: true,
+            mode:               isNewUser ? MODES.new : MODES.default
         };
     }
 
-    componentWillUnmount () {
-        UserStore.off(EVENT_TYPE.updateFailed, this._onUpdateFailed);
-        UserStore.off(EVENT_TYPE.userUpdated, this._onUpdateMode);
-    }
-
-    _onUpdateFailed = (userId) => {
-        this.setState({ duplicateUserId: userId, hasDuplicateError: true });
-    };
-
     _onUpdateMode = () => {
-        this.setState({ mode: MODES.default, hasDuplicateError: false });
+        this.setState({ mode: MODES.default });
         this.props.onChange();
     };
 
@@ -118,7 +106,8 @@ export default class User extends React.Component {
     };
 
     _handleChange = (e, type) => {
-        let { currentUser, formErrors, hasDuplicateError, mode } = this.state;
+        let { currentUser, formErrors, mode }           = this.state;
+        const { duplicateUserId, resetDuplicateUserId } = this.props;
 
         if (mode !== MODES.default) {
             const name  = e.target.name;
@@ -126,26 +115,24 @@ export default class User extends React.Component {
 
             currentUser[type][name] = value;
             formErrors[name]        = this._validateField(name, value);
-            if (name === FIELD_NAMES.name) {
-                hasDuplicateError = false;
+            if (name === FIELD_NAMES.name && !!duplicateUserId) {
+                resetDuplicateUserId();
             }
-            this.setState({ currentUser, formErrors, hasDuplicateError });
+            this.setState({ currentUser, formErrors });
         }
         e.preventDefault();
     };
 
     _handleClickSubmit = e => {
-        const { currentUser, hasDuplicateError, formErrors } = this.state;
-        const newUser                                        = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-        const resultValid                                    = this._validateFields(currentUser.info);
+        const { currentUser, formErrors } = this.state;
+        const { duplicateUserId }         = this.props;
+        const newUser                     = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const resultValid                 = this._validateFields(currentUser.info);
 
         if (this._isUserInfoValid(resultValid)) {
-            const forceAdding = !!hasDuplicateError;
-
-            UserAction.addNewUser(newUser, forceAdding);
+            UserAction.addNewUser(newUser, !!duplicateUserId);
             this.setState({
                 formErrors,
-                hasDuplicateError: !hasDuplicateError
             });
         }
         else {
@@ -160,8 +147,7 @@ export default class User extends React.Component {
             showCompany: this._isCompanyEmpty() ? false : this.state.showCompany,
             mode:        newState.mode,
             formErrors:  newState.undo ? {} : this.state.formErrors,
-            currentUser: newState.currentUser || this.state.currentUser,
-            hasDuplicateError: newState.undo ? false : this.state.hasDuplicateError
+            currentUser: newState.currentUser || this.state.currentUser
         });
     };
 
@@ -203,22 +189,23 @@ export default class User extends React.Component {
     };
 
     render () {
-        const {  highlightedFields = {} } = this.props;
+        const {
+                  highlightedFields = {},
+                  duplicateUserId
+              }                 = this.props;
         const {
                   showAddress,
                   showCompany,
                   currentUser,
                   formErrors,
-                  hasDuplicateError,
-                  duplicateUserId,
-                  mode
-              }                                           = this.state;
-        const isFormFieldsValid                           = this._isUserInfoValid(formErrors);
+                  mode, showDuplicateError
+              }                 = this.state;
+        const isFormFieldsValid = this._isUserInfoValid(formErrors);
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
-                    hasDuplicateError &&
+                    showDuplicateError && !!duplicateUserId && mode !== MODES.default &&
                     <DuplicateError userId={duplicateUserId}/>
                 }
                 <Info info={currentUser.info}
@@ -281,8 +268,7 @@ export default class User extends React.Component {
                                         onChange={this._handleEdit}
                                         currentUser={currentUser}
                                         isEditing={mode === MODES.editing}
-                                        hasDuplicateError={hasDuplicateError}
-                                        updateFailed={this._onUpdateFailed}
+                                        duplicateUserId={duplicateUserId}
                                         updateMode={this._onUpdateMode}
                         />
                     )

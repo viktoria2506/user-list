@@ -24,15 +24,11 @@ export default class EditingButtons extends React.Component {
     };
 
     _handleClickSave = e => {
-        const { currentUser, hasDuplicateError } = this.props;
-        const newUser                            = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const { currentUser, duplicateUserId } = this.props;
+        const newUser                          = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        UserAction.updateUser(newUser, hasDuplicateError);
+        UserAction.updateUser(newUser, !!duplicateUserId);
         e.preventDefault();
-    };
-
-    _onUpdateFailed = (userId) => {
-        this.props.updateFailed(userId);
     };
 
     _onUpdateMode = () => {
@@ -47,7 +43,6 @@ export default class EditingButtons extends React.Component {
             company: { ...currentUser.company }
         };
 
-        UserStore.on(EVENT_TYPE.updateFailed, this._onUpdateFailed);
         UserStore.on(EVENT_TYPE.userUpdated, this._onUpdateMode);
         this.setState({ unmodifiedUser });
         onChange({ mode: MODES.editing, currentUser });
