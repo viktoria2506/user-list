@@ -23,6 +23,7 @@ export default class UserList extends React.Component {
             addUserMode:       false,
             searchMode:        false,
             users:             UserStore.getUsers()
+
         };
     }
 
@@ -36,6 +37,7 @@ export default class UserList extends React.Component {
 
     _onAddingFailed = (userId) => {
         this.setState({ duplicateUserId: userId });
+
     };
 
     _handleFindUserClick = (e) => {

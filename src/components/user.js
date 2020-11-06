@@ -58,7 +58,6 @@ export default class User extends React.Component {
             },
             showAddress:        false,
             showCompany:        false,
-            showDuplicateError: true,
             mode:               isNewUser ? MODES.new : MODES.default
         };
     }
@@ -193,6 +192,7 @@ export default class User extends React.Component {
                   highlightedFields = {},
                   duplicateUserId
               }                 = this.props;
+
         const {
                   showAddress,
                   showCompany,
