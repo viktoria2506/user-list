@@ -30,7 +30,7 @@ class Address {
 
 class Company {
     constructor (name, catchPhrase, bs) {
-        this.name        = name;
+        this.companyName        = name;
         this.catchPhrase = catchPhrase;
         this.bs          = bs;
     }
