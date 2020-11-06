@@ -2,9 +2,11 @@ import React from 'react';
 
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
+import UserStore from '../stores/user-store';
 import classNames from 'classnames';
 import ERRORS from '../errors';
 import { MODES } from '../modes';
+import EVENT_TYPE from '../stores/event-type';
 
 import Address from './address.js';
 import Company from './company.js';
@@ -59,9 +61,24 @@ export default class User extends React.Component {
             showAddress:       false,
             showCompany:       false,
             hasDuplicateError: false,
+            duplicateUserId:   '',
             mode:              isNewUser ? MODES.new : MODES.default
         };
     }
+
+    componentWillUnmount () {
+        UserStore.off(EVENT_TYPE.updateFailed, this._onUpdateFailed);
+        UserStore.off(EVENT_TYPE.userUpdated, this._onUpdateMode);
+    }
+
+    _onUpdateFailed = (userId) => {
+        this.setState({ duplicateUserId: userId, hasDuplicateError: true });
+    };
+
+    _onUpdateMode = () => {
+        this.setState({ mode: MODES.default, hasDuplicateError: false });
+        this.props.onChange();
+    };
 
     _validateField (fieldName, value) {
         switch (fieldName) {
@@ -128,8 +145,7 @@ export default class User extends React.Component {
             UserAction.addNewUser(newUser, forceAdding);
             this.setState({
                 formErrors,
-                hasDuplicateError: !hasDuplicateError,
-                mode:              forceAdding ? MODES.default : MODES.new
+                hasDuplicateError: !hasDuplicateError
             });
         }
         else {
@@ -144,7 +160,8 @@ export default class User extends React.Component {
             showCompany: this._isCompanyEmpty() ? false : this.state.showCompany,
             mode:        newState.mode,
             formErrors:  newState.undo ? {} : this.state.formErrors,
-            currentUser: newState.currentUser || this.state.currentUser
+            currentUser: newState.currentUser || this.state.currentUser,
+            hasDuplicateError: newState.undo ? false : this.state.hasDuplicateError
         });
     };
 
@@ -167,6 +184,7 @@ export default class User extends React.Component {
 
     _handleDeleteAddress = e => {
         const { currentUser } = this.state;
+
         currentUser.address.street  = '';
         currentUser.address.city    = '';
         currentUser.address.suite   = '';
@@ -185,13 +203,14 @@ export default class User extends React.Component {
     };
 
     render () {
-        const { duplicateUserId, highlightedFields = {} } = this.props;
+        const {  highlightedFields = {} } = this.props;
         const {
                   showAddress,
                   showCompany,
                   currentUser,
                   formErrors,
                   hasDuplicateError,
+                  duplicateUserId,
                   mode
               }                                           = this.state;
         const isFormFieldsValid                           = this._isUserInfoValid(formErrors);
@@ -262,6 +281,9 @@ export default class User extends React.Component {
                                         onChange={this._handleEdit}
                                         currentUser={currentUser}
                                         isEditing={mode === MODES.editing}
+                                        hasDuplicateError={hasDuplicateError}
+                                        updateFailed={this._onUpdateFailed}
+                                        updateMode={this._onUpdateMode}
                         />
                     )
                 }

@@ -109,6 +109,7 @@ export default class UserList extends React.Component {
                                       address={user.address}
                                       company={user.company}
                                       highlightedFields={highlightedFields}
+                                      onChange={this._onChange}
                                 />
                                 <hr/>
                             </div>
