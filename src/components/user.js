@@ -38,27 +38,42 @@ const VIEWS              = {
         showRequiredMark: false
     }
 };
-
+const initializedUser    = {
+    id:      '',
+    name:    '',
+    email:   '',
+    phone:   '',
+    website: '',
+    address: {
+        city:    '',
+        address: '',
+        suite:   '',
+        zipcode: ''
+    },
+    company: {
+        companyName: ''
+    }
+};
 export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = {}, address = {}, company = {}, isNewUser } = this.props;
+        const { info = initializedUser, address = {}, company = {}, isNewUser } = this.props;
 
         this.state = {
-            currentUser:        {
+            currentUser: {
                 info,
                 address,
                 company
             },
-            formErrors:         {
+            formErrors:  {
                 name:  '',
                 email: '',
                 phone: ''
             },
-            showAddress:        false,
-            showCompany:        false,
-            mode:               isNewUser ? MODES.new : MODES.default
+            showAddress: false,
+            showCompany: false,
+            mode:        isNewUser ? MODES.new : MODES.default
         };
     }
 
@@ -131,7 +146,7 @@ export default class User extends React.Component {
         if (this._isUserInfoValid(resultValid)) {
             UserAction.addNewUser(newUser, !!duplicateUserId);
             this.setState({
-                formErrors,
+                formErrors
             });
         }
         else {
@@ -162,7 +177,7 @@ export default class User extends React.Component {
     _isCompanyEmpty = () => {
         const { currentUser } = this.state;
 
-        return !currentUser.company || (!currentUser.company.name &&
+        return !currentUser.company || (!currentUser.company.companyName &&
                                         !currentUser.company.catchPhrase &&
                                         !currentUser.company.bs);
     };
@@ -181,7 +196,7 @@ export default class User extends React.Component {
     _handleDeleteCompany = () => {
         const { currentUser } = this.state;
 
-        currentUser.company.name        = '';
+        currentUser.company.companyName = '';
         currentUser.company.catchPhrase = '';
         currentUser.company.bs          = '';
         this.setState(currentUser);
@@ -191,7 +206,7 @@ export default class User extends React.Component {
         const {
                   highlightedFields = {},
                   duplicateUserId
-              }                 = this.props;
+              } = this.props;
 
         const {
                   showAddress,
