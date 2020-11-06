@@ -198,14 +198,14 @@ export default class User extends React.Component {
                   showCompany,
                   currentUser,
                   formErrors,
-                  mode, showDuplicateError
+                  mode
               }                 = this.state;
         const isFormFieldsValid = this._isUserInfoValid(formErrors);
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
-                    showDuplicateError && !!duplicateUserId && mode !== MODES.default &&
+                    !!duplicateUserId && mode !== MODES.default &&
                     <DuplicateError userId={duplicateUserId}/>
                 }
                 <Info info={currentUser.info}
