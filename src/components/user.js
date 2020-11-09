@@ -38,30 +38,52 @@ const VIEWS              = {
         showRequiredMark: false
     }
 };
-
+const initializedInfo    = {
+    id:      '',
+    name:    '',
+    email:   '',
+    phone:   '',
+    website: ''
+};
+const initializedAddress = {
+    city:    '',
+    street:  '',
+    suite:   '',
+    zipcode: ''
+};
+const initializedCompany = {
+    companyName: '',
+    catchPhrase: '',
+    bs:          ''
+};
 export default class User extends React.Component {
     constructor (props) {
         super(props);
 
-        const { info = {}, address = {}, company = {}, isNewUser } = this.props;
+        const { info = initializedInfo, address = initializedAddress, company = initializedCompany, isNewUser } = this.props;
 
         this.state = {
-            currentUser:       {
+            currentUser: {
                 info,
                 address,
                 company
             },
-            formErrors:        {
+            formErrors:  {
                 name:  '',
                 email: '',
                 phone: ''
             },
-            showAddress:       false,
-            showCompany:       false,
-            hasDuplicateError: false,
-            mode:              isNewUser ? MODES.new : MODES.default
+            showAddress: false,
+            showCompany: false,
+            mode:        isNewUser ? MODES.new : MODES.default
         };
     }
+
+    _onUpdateMode = () => {
+        this.setState({ mode: MODES.default });
+        this.props.resetDuplicateUserId();
+        this.props.onChange();
+    };
 
     _validateField (fieldName, value) {
         switch (fieldName) {
@@ -101,7 +123,8 @@ export default class User extends React.Component {
     };
 
     _handleChange = (e, type) => {
-        let { currentUser, formErrors, hasDuplicateError, mode } = this.state;
+        let { currentUser, formErrors, mode }           = this.state;
+        const { duplicateUserId, resetDuplicateUserId } = this.props;
 
         if (mode !== MODES.default) {
             const name  = e.target.name;
@@ -109,27 +132,24 @@ export default class User extends React.Component {
 
             currentUser[type][name] = value;
             formErrors[name]        = this._validateField(name, value);
-            if (name === FIELD_NAMES.name) {
-                hasDuplicateError = false;
+            if (name === FIELD_NAMES.name && !!duplicateUserId) {
+                resetDuplicateUserId();
             }
-            this.setState({ currentUser, formErrors, hasDuplicateError });
+            this.setState({ currentUser, formErrors });
         }
         e.preventDefault();
     };
 
     _handleClickSubmit = e => {
-        const { currentUser, hasDuplicateError, formErrors } = this.state;
-        const newUser                                        = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
-        const resultValid                                    = this._validateFields(currentUser.info);
+        const { currentUser, formErrors } = this.state;
+        const { duplicateUserId }         = this.props;
+        const newUser                     = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const resultValid                 = this._validateFields(currentUser.info);
 
         if (this._isUserInfoValid(resultValid)) {
-            const forceAdding = !!hasDuplicateError;
-
-            UserAction.addNewUser(newUser, forceAdding);
+            UserAction.addNewUser(newUser, !!duplicateUserId);
             this.setState({
-                formErrors,
-                hasDuplicateError: !hasDuplicateError,
-                mode:              forceAdding ? MODES.default : MODES.new
+                formErrors
             });
         }
         else {
@@ -146,6 +166,47 @@ export default class User extends React.Component {
             formErrors:  newState.undo ? {} : this.state.formErrors,
             currentUser: newState.currentUser || this.state.currentUser
         });
+        if (newState.undo &&
+            newState.currentUser.info.id === this.props.userId) {
+            this.props.resetDuplicateUserId();
+        }
+    };
+
+    _isAddressEmpty = () => {
+        const { currentUser } = this.state;
+
+        return !currentUser.address || (!currentUser.address.city &&
+                                        !currentUser.address.street &&
+                                        !currentUser.address.suite &&
+                                        !currentUser.address.zipcode);
+    };
+
+    _isCompanyEmpty = () => {
+        const { currentUser } = this.state;
+
+        return !currentUser.company || (!currentUser.company.companyName &&
+                                        !currentUser.company.catchPhrase &&
+                                        !currentUser.company.bs);
+    };
+
+    _handleDeleteAddress = e => {
+        const { currentUser } = this.state;
+
+        currentUser.address.street  = '';
+        currentUser.address.city    = '';
+        currentUser.address.suite   = '';
+        currentUser.address.zipcode = '';
+        this.setState(currentUser);
+        e.preventDefault();
+    };
+
+    _handleDeleteCompany = () => {
+        const { currentUser } = this.state;
+
+        currentUser.company.companyName = '';
+        currentUser.company.catchPhrase = '';
+        currentUser.company.bs          = '';
+        this.setState(currentUser);
     };
 
     _isAddressEmpty = () => {
@@ -186,22 +247,26 @@ export default class User extends React.Component {
     };
 
     render () {
-        const { duplicateUserId, highlightedFields = {} } = this.props;
+        const {
+                  highlightedFields = {},
+                  duplicateUserId,
+                  userId
+              } = this.props;
+
         const {
                   showAddress,
                   showCompany,
                   currentUser,
                   formErrors,
-                  hasDuplicateError,
                   mode
-              }                                           = this.state;
-        const isFormFieldsValid                           = this._isUserInfoValid(formErrors);
+              }                 = this.state;
+        const isFormFieldsValid = this._isUserInfoValid(formErrors);
 
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
                 {
-                    hasDuplicateError &&
+                    !!duplicateUserId && mode !== MODES.default && currentUser.info.id === userId &&
                     <DuplicateError userId={duplicateUserId}/>
                 }
                 <Info info={currentUser.info}
@@ -242,6 +307,7 @@ export default class User extends React.Component {
                             mode === MODES.editing && !this._isCompanyEmpty() &&
                             <button className="ButtonDeleteDetails" onClick={this._handleDeleteCompany}>Delete
                                 Company</button>
+
                         }
                     </React.Fragment>
                 }
@@ -253,16 +319,19 @@ export default class User extends React.Component {
                     mode === MODES.new ?
                     <button
                         className={classNames({
-                            ButtonAddUser:  isFormFieldsValid,
-                            ButtonDisabled: !isFormFieldsValid
+                            ButtonAddUser:  isFormFieldsValid && !(!!duplicateUserId && currentUser.info.id !== userId),
+                            ButtonDisabled: !isFormFieldsValid || (!!duplicateUserId && currentUser.info.id !== userId)
                         })}
-                        disabled={!isFormFieldsValid}
+                        disabled={!isFormFieldsValid || (!!duplicateUserId && currentUser.info.id !== userId)}
                         onClick={this._handleClickSubmit}>Submit</button> :
                     (
-                        <EditingButtons disabled={!isFormFieldsValid}
-                                        onChange={this._handleEdit}
-                                        currentUser={currentUser}
-                                        isEditing={mode === MODES.editing}
+                        <EditingButtons
+                            disabled={!isFormFieldsValid || (!!duplicateUserId && currentUser.info.id !== userId)}
+                            onChange={this._handleEdit}
+                            currentUser={currentUser}
+                            isEditing={mode === MODES.editing}
+                            duplicateUserId={duplicateUserId}
+                            updateMode={this._onUpdateMode}
                         />
                     )
                 }

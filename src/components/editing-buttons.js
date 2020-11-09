@@ -1,8 +1,10 @@
 import React from 'react';
 
-import { MODES } from '../modes';
-import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
+import UserInfo from '../stores/user-info';
+import UserStore from '../stores/user-store';
+import EVENT_TYPE from '../stores/event-type';
+import { MODES } from '../modes';
 
 export default class EditingButtons extends React.Component {
     constructor (props) {
@@ -22,12 +24,15 @@ export default class EditingButtons extends React.Component {
     };
 
     _handleClickSave = e => {
-        const { currentUser, onChange } = this.props;
-        const newUser                   = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
+        const { currentUser, duplicateUserId } = this.props;
+        const newUser                          = new UserInfo(currentUser.info, currentUser.address, currentUser.company);
 
-        UserAction.updateUser(newUser);
-        onChange({ mode: MODES.default, currentUser });
+        UserAction.updateUser(newUser, !!duplicateUserId);
         e.preventDefault();
+    };
+
+    _onUpdateMode = () => {
+        this.props.updateMode();
     };
 
     _handleClickEdit = e => {
@@ -38,16 +43,23 @@ export default class EditingButtons extends React.Component {
             company: { ...currentUser.company }
         };
 
+        UserStore.on(EVENT_TYPE.userUpdated, this._onUpdateMode);
         this.setState({ unmodifiedUser });
         onChange({ mode: MODES.editing, currentUser });
         e.preventDefault();
     };
 
+    componentWillUnmount () {
+        UserStore.off(EVENT_TYPE.userUpdated, this._onUpdateMode);
+    }
+
     render () {
         const { disabled, isEditing } = this.props;
+
         return (
             <React.Fragment>
-                <button className="ButtonEdit"
+                <button type="button"
+                        className="ButtonEdit"
                         disabled={disabled}
                         onClick={isEditing ? this._handleClickSave : this._handleClickEdit}>
                     {isEditing ? 'Save' : 'Edit'}

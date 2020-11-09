@@ -5,22 +5,23 @@ class UserAction {
     addNewUser (user, force) {
         Dispatcher.dispatch({
             ACTION_TYPE: ACTION_TYPE.addNewUser,
-            user:        user,
-            force:       force
+            user,
+            force
         });
     }
 
-    updateUser (user) {
+    updateUser (user, force) {
         Dispatcher.dispatch({
             ACTION_TYPE: ACTION_TYPE.updateUser,
-            user:        user
+            user,
+            force
         });
     }
 
     findUser (userInfo) {
         Dispatcher.dispatch({
             ACTION_TYPE: ACTION_TYPE.findUser,
-            userInfo:    userInfo
+            userInfo
         });
     }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import ERRORS from '../errors';
 
 export default function DuplicateError (props) {

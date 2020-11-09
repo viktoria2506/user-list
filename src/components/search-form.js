@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { FIELD_NAMES } from './user';
-
 import UserInfo from '../stores/user-info';
 import UserAction from '../actions/user-action';
 
