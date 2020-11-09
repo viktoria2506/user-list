@@ -58,7 +58,8 @@ export default class EditingButtons extends React.Component {
 
         return (
             <React.Fragment>
-                <button className="ButtonEdit"
+                <button type="button"
+                        className="ButtonEdit"
                         disabled={disabled}
                         onClick={isEditing ? this._handleClickSave : this._handleClickEdit}>
                     {isEditing ? 'Save' : 'Edit'}
