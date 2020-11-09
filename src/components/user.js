@@ -209,6 +209,43 @@ export default class User extends React.Component {
         this.setState(currentUser);
     };
 
+    _isAddressEmpty = () => {
+        const { currentUser } = this.state;
+
+        return !currentUser.address || (!currentUser.address.city &&
+                                        !currentUser.address.street &&
+                                        !currentUser.address.suite &&
+                                        !currentUser.address.zipcode);
+    };
+
+    _isCompanyEmpty = () => {
+        const { currentUser } = this.state;
+
+        return !currentUser.company || (!currentUser.company.companyName &&
+                                        !currentUser.company.catchPhrase &&
+                                        !currentUser.company.bs);
+    };
+
+    _handleDeleteAddress = e => {
+        const { currentUser } = this.state;
+
+        currentUser.address.street  = '';
+        currentUser.address.city    = '';
+        currentUser.address.suite   = '';
+        currentUser.address.zipcode = '';
+        this.setState(currentUser);
+        e.preventDefault();
+    };
+
+    _handleDeleteCompany = () => {
+        const { currentUser } = this.state;
+
+        currentUser.company.companyName        = '';
+        currentUser.company.catchPhrase = '';
+        currentUser.company.bs          = '';
+        this.setState(currentUser);
+    };
+
     render () {
         const {
                   highlightedFields = {},
@@ -224,6 +261,7 @@ export default class User extends React.Component {
                   mode
               }                 = this.state;
         const isFormFieldsValid = this._isUserInfoValid(formErrors);
+
 
         return (
             <form className="UserInfo" id={`${currentUser.info.id}`}>
